@@ -7,10 +7,10 @@ git clone https://github.com/nhmllx/Die-to-Earn.git
 git log --oneline--
 
 git status
+git add (filename)
 
 git push origin main
 
-git push
 
 git commit
 
