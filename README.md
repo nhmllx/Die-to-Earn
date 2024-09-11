@@ -1,17 +1,9 @@
 Github Terminal guide:
 
-git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY
+git clone https://github.com/nhmllx/Die-to-Earn.git // use this to get the repository into ur terminal
 
-git clone https://github.com/nhmllx/Die-to-Earn.git
-
-git log --oneline--
-
-git status
-git add (filename)
-
+git add filename
+git commit -m"ur message here"
 git push origin main
-
-
-git commit
 
 git pull https://github.com/nhmllx/Die-to-Earn.git -b main
