@@ -81,7 +81,7 @@ public:
 		unlink(ppmname);
 	}
 };
-Image img[1] = {"images/walk.gif"};
+Image img[2] = {"images/walk.gif", "images/car.png"};
 
 
 //-----------------------------------------------------------------------------
@@ -120,8 +120,8 @@ public:
 	Vec box[20];
 	Global() {
 		done=0;
-		xres=800;
-		yres=600;
+		xres=1200;
+		yres=800;
 		walk=0;
 		walkFrame=0;
 		delay = 0.1;
