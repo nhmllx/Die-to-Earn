@@ -16,6 +16,7 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "fonts.h"
+#include "mateo.cpp"
 
 //defined types
 typedef double Flt;
@@ -232,6 +233,7 @@ void render2(void);
 
 int main(void)
 {
+<<<<<<< Updated upstream
     initOpengl();
     init();
     int done = 0;
@@ -241,6 +243,23 @@ int main(void)
 	    x11.checkResize(&e);
 	    checkMouse(&e);
 	    done = checkKeys(&e);
+=======
+	initOpengl();
+	init();
+	int done = 0;
+	while (!done) {
+		while (x11.getXPending()) {
+			XEvent e = x11.getXNextEvent();
+			x11.checkResize(&e);
+			checkMouse(&e);
+			
+			done = checkKeys(&e);
+		}
+		physics();
+		render();
+		update_particles();
+		x11.swapBuffers();
+>>>>>>> Stashed changes
 	}
 	physics();
 	if (g.flag == 1)
@@ -354,6 +373,7 @@ void init() {
 
 void checkMouse(XEvent *e)
 {
+<<<<<<< Updated upstream
     //Did the mouse move?
     //Was a mouse button clicked?
     static int savex = 0;
@@ -370,6 +390,28 @@ void checkMouse(XEvent *e)
 	    //Left button is down
 	if (e->xbutton.button==3) {
 	    //Right button is down
+=======
+	//Did the mouse move?
+	//Was a mouse button clicked?
+	static int savex = 0;
+	static int savey = 0;
+	//
+	if (e->type == ButtonRelease) {
+		return;
+	}
+	if (e->type == ButtonPress) {
+		if (e->xbutton.button==1) {
+			//Left mouse button
+		}
+		if (e->xbutton.button==3) {
+			//Right button is down
+		}
+	}
+	if (savex != e->xbutton.x || savey != e->xbutton.y) {
+		//Mouse moved
+		savex = e->xbutton.x;
+		savey = e->xbutton.y;
+>>>>>>> Stashed changes
 	}
     }
     if (savex != e->xbutton.x || savey != e->xbutton.y) {
@@ -382,9 +424,53 @@ void checkMouse(XEvent *e)
 
 int checkKeys(XEvent *e)
 {
+<<<<<<< Updated upstream
     //keyboard input?
     static int shift=0;
     if (e->type != KeyRelease && e->type != KeyPress)
+=======
+	//keyboard input?
+	static int shift=0;
+	if (e->type != KeyRelease && e->type != KeyPress)
+		return 0;
+	int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
+	if (e->type == KeyRelease) {
+		if (key == XK_Shift_L || key == XK_Shift_R)
+			shift = 0;
+		return 0;
+	}
+	if (key == XK_Shift_L || key == XK_Shift_R) {
+		shift=1;
+		return 0;
+	}
+	(void)shift;
+	switch (key) {
+		case XK_w:
+			timers.recordTime(&timers.walkTime);
+			g.walk ^= 1;
+			break;
+		case XK_Left:
+			break;
+		case XK_Right:
+			break;
+		case XK_Up:
+			check_particles(e, g.yres);
+			break;
+		case XK_Down:
+			break;
+		case XK_equal:
+			g.delay -= 0.005;
+			if (g.delay < 0.005)
+				g.delay = 0.005;
+			break;
+		case XK_minus:
+			g.delay += 0.005;
+			break;
+		case XK_Escape:
+			return 1;
+			break;
+	}
+>>>>>>> Stashed changes
 	return 0;
     int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
     if (e->type == KeyRelease) {
@@ -509,6 +595,7 @@ void render(void)
 	glVertex2i(20,  0);
 	glEnd();
 	glPopMatrix();
+<<<<<<< Updated upstream
     }
     float h = 200.0;
     float w = h * 0.5;
@@ -573,3 +660,21 @@ void render2()
     glEnd();
     //draw background
 }
+=======
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_ALPHA_TEST);
+	//
+	unsigned int c = 0x00ffff44;
+	r.bot = g.yres - 20;
+	r.left = 10;
+	r.center = 0;
+	ggprint8b(&r, 16, c, "W   Walk cycle");
+	ggprint8b(&r, 16, c, "+   faster");
+	ggprint8b(&r, 16, c, "-   slower");
+	ggprint8b(&r, 16, c, "right arrow -> walk right");
+	ggprint8b(&r, 16, c, "left arrow  <- walk left");
+	ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);
+
+	render_particles();
+}
+>>>>>>> Stashed changes
