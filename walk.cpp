@@ -86,7 +86,7 @@ class Image {
 	    unlink(ppmname);
 	}
 };
-Image img[3] = {"images/walk.gif", "images/car.png", "images/wastelands.jpg"};
+Image img[5] = {"images/walk.gif", "images/car_idle.png", "images/wastelands.jpg","images/car_move.png"};
 
 
 //-----------------------------------------------------------------------------
@@ -316,6 +316,7 @@ void initOpengl(void)
     //
     //load the images file into a ppm structure.
     //
+    //-title screen-------------------------------------------------------------
     g.tex.backImage = &img[2];
     //create opengl texture elements
     glGenTextures(1, &g.tex.backTexture);
@@ -330,6 +331,7 @@ void initOpengl(void)
     g.tex.xc[1] = 0.25;
     g.tex.yc[0] = 0.0;
     g.tex.yc[1] = 1.0;
+	//---------------------------------------------------------------------------------
     int w = img[0].width;
     int h = img[0].height;
     //
