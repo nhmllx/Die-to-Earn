@@ -581,6 +581,7 @@ void render2()
     glEnd();
 	
     //draw ba    r.bot = g.yres - 20;
+    r.bot = g.yres - 20;
     r.left = 10;
     r.center = 0;
     ggprint8b(&r, 16, c, "Test Title Screen: press up arrow to start game");
