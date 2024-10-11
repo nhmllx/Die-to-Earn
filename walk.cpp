@@ -581,6 +581,7 @@ void render2()
     glEnd();
 	
     //draw ba    r.bot = g.yres - 20;
+    unsigned int c = 0x00ffff44;
     r.bot = g.yres - 20;
     r.left = 10;
     r.center = 0;
