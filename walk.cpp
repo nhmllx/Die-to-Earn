@@ -86,7 +86,7 @@ class Image {
 	    unlink(ppmname);
 	}
 };
-Image img[5] = {"images/walk.gif", "images/car_idle.png", "images/wastelands.jpg","images/car_move.png"};
+Image img[4] = {"images/walk.gif", "images/car_idle.png", "images/wastelands.jpg","images/car_move.png"};
 
 
 //-----------------------------------------------------------------------------
