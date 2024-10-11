@@ -336,8 +336,7 @@ void initOpengl(void)
     int h = img[0].height;
     //
     //create opengl texture elements
-    glGenTextures(1, &g.walkTexture);
-    //-------------------------------------------------------------------------
+    glGenTextures(1, &g.walkTexture); 
     //silhouette
     //this is similar to a sprite graphic
     //
