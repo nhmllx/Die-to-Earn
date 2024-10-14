@@ -19,7 +19,7 @@
 
 extern void check_particles(XEvent*, int);
 extern void update_particles();
-extern void update_particles();
+extern void render_particles();
 
 
 //defined types
