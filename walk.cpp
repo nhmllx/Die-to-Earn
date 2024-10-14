@@ -416,7 +416,11 @@ int checkKeys(XEvent *e)
              g.flag = 0;
 	    break;
 	case XK_Down:
+		check_particles(e, g.yres);
 	    break;
+	case XK_e: // Calls check_particles when the 'E' key is pressed
+        check_particles(e, g.yres);
+        break;
 	case XK_equal:
 	    g.delay -= 0.005;
 	    if (g.delay < 0.005)
@@ -473,6 +477,8 @@ void physics(void)
 		g.box[i][0] += g.xres + 10.0;
 	}
     }
+
+	update_particles();
 }
 
 void render(void)
@@ -551,6 +557,8 @@ void render(void)
     ggprint8b(&r, 16, c, "right arrow -> walk right");
     ggprint8b(&r, 16, c, "left arrow  <- walk left");
     ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);
+
+	render_particles();
 }
 
 
