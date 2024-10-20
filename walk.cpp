@@ -563,36 +563,3 @@ void render(void)
 }
 
 
-void render2()
-{
-	
-   /* Rect r;
-   // glClear(GL_COLOR_BUFFER_BIT);
-    r.bot = g.yres - 20;
-    r.left = 10;
-    r.center = 0;
-    ggprint8b(&r, 16, 0x00ffff00, "vsync: %s", ((g.vsync)?"ON":"OFF"));
-    ggprint8b(&r, 16, 0x00ffff00, "fps: %i", g.fps);
-    printf("FRAMES: %i\n", g.fps );
-    printf("VSYNC: %s\n", ((g.vsync) ? "ON":"OFF") );
-*/
-    Rect r;
-    
-    glClear(GL_COLOR_BUFFER_BIT);
-    glColor3f(1.0, 1.0, 1.0);
-    //draw background
-    glBindTexture(GL_TEXTURE_2D, g.tex.backTexture);
-    glBegin(GL_QUADS);//background
-    glTexCoord2f(g.tex.xc[0], g.tex.yc[1]); glVertex2i(0, 0);
-    glTexCoord2f(g.tex.xc[0], g.tex.yc[0]); glVertex2i(0, g.yres);
-    glTexCoord2f(g.tex.xc[1], g.tex.yc[0]); glVertex2i(g.xres, g.yres);
-    glTexCoord2f(g.tex.xc[1], g.tex.yc[1]); glVertex2i(g.xres, 0);
-    glEnd();
-	
-    //draw ba    r.bot = g.yres - 20;
-    unsigned int c = 0x00ffff44;
-    r.bot = g.yres - 20;
-    r.left = 10;
-    r.center = 0;
-    ggprint8b(&r, 16, c, "Test Title Screen: press up arrow to start game");
-}
