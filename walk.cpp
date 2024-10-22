@@ -130,7 +130,7 @@ class Global {
         int flag;
         double delay;
         Texture tex;
-        GLuint walkTexture;
+        GLuint walkTexture; //holds data for car sprites
         Vec box[20];
         Global() {
             done=0;
@@ -415,7 +415,7 @@ int checkKeys(XEvent *e)
             timers.recordTime(&timers.walkTime);
             g.walk ^= 1;
             break;
-        case XK_Up:
+        case XK_Return:
             g.flag = 0;
             break;
         case XK_Down:
@@ -485,14 +485,16 @@ void physics(void)
     update_particles();
 }
 
+float cx = g.xres/3.0; //xpos of car
+float cy = g.yres/3.5; // ypos of car
 void render(void)
 {
     Rect r;
     //Clear the screen
     glClearColor(0.1, 0.1, 0.1, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
-    float cx = g.xres/3.0; //xpos of car
-    float cy = g.yres/3.5; // ypos of car
+//    float cx = g.xres/3.0; //xpos of car
+  //  float cy = g.yres/3.5; // ypos of car
     //
     //show ground
     glBegin(GL_QUADS);
