@@ -412,6 +412,8 @@ int checkKeys(XEvent *e)
         case XK_Left:
             break;
         case XK_Right:
+            timers.recordTime(&timers.walkTime);
+            g.walk ^= 1;
             break;
         case XK_Up:
             g.flag = 0;
@@ -489,8 +491,8 @@ void render(void)
     //Clear the screen
     glClearColor(0.1, 0.1, 0.1, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
-    float cx = g.xres/2.0;
-    float cy = g.yres/2.0;
+    float cx = g.xres/3.0; //xpos of car
+    float cy = g.yres/3.5; // ypos of car
     //
     //show ground
     glBegin(GL_QUADS);
@@ -512,7 +514,7 @@ void render(void)
     //glEnd();
     //
     //show boxes as background
-    for (int i=0; i<20; i++) {
+   /* for (int i=0; i<20; i++) {
         glPushMatrix();
         glTranslated(g.box[i][0],g.box[i][1],g.box[i][2]);
         glColor3f(0.2, 0.2, 0.2);
@@ -523,7 +525,7 @@ void render(void)
         glVertex2i(20,  0);
         glEnd();
         glPopMatrix();
-    }
+    }*/
     float h = 76.0f;
     float w = 101.0f;
     glPushMatrix();
