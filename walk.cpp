@@ -549,11 +549,11 @@ void render(void)
      glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
      glEnd();
      glBindTexture(GL_TEXTURE_2D, 0);
-     if (g.keys[XK_d] == 1 && g.keys[XK_g] != 1){
-     camerax += 0.00275;
-     }
-     if (g.keys[XK_a] == 1 && g.keys[XK_g] != 1){
-     camerax -= 0.00275;
+     //if (g.keys[XK_d] == 1 && g.keys[XK_g] != 1){
+     //camerax += 0.00275;
+     //}
+     if (g.keys[XK_Up] == 1){
+     camerax += 0.0150;
      }
 
     //Clear the screen
