@@ -35,7 +35,7 @@ typedef Flt	Matrix[4][4];
 #define VecCopy(a,b) (b)[0]=(a)[0];(b)[1]=(a)[1];(b)[2]=(a)[2]
 #define VecDot(a,b)	((a)[0]*(b)[0]+(a)[1]*(b)[1]+(a)[2]*(b)[2])
 #define VecSub(a,b,c) (c)[0]=(a)[0]-(b)[0]; \
-			     (c)[1]=(a)[1]-(b)[1]; \
+                             (c)[1]=(a)[1]-(b)[1]; \
 (c)[2]=(a)[2]-(b)[2]
 //constants
 const float timeslice = 1.0f;
@@ -45,47 +45,47 @@ const float gravity = -0.2f;
 
 class Image {
     public:
-	int width, height;
-	unsigned char *data;
-	~Image() { delete [] data; }
-	Image(const char *fname) {
-	    if (fname[0] == '\0')
-		return;
-	    //printf("fname **%s**\n", fname);
-	    char name[40];
-	    strcpy(name, fname);
-	    int slen = strlen(name);
-	    name[slen-4] = '\0';
-	    //printf("name **%s**\n", name);
-	    char ppmname[80];
-	    sprintf(ppmname,"%s.ppm", name);
-	    //printf("ppmname **%s**\n", ppmname);
-	    char ts[100];
-	    //system("convert eball.jpg eball.ppm");
-	    sprintf(ts, "convert %s %s", fname, ppmname);
-	    system(ts);
-	    //sprintf(ts, "%s", name);
-	    FILE *fpi = fopen(ppmname, "r");
-	    if (fpi) {
-		char line[200];
-		fgets(line, 200, fpi);
-		fgets(line, 200, fpi);
-		while (line[0] == '#')
-		    fgets(line, 200, fpi);
-		sscanf(line, "%i %i", &width, &height);
-		fgets(line, 200, fpi);
-		//get pixel data
-		int n = width * height * 3;			
-		data = new unsigned char[n];			
-		for (int i=0; i<n; i++)
-		    data[i] = fgetc(fpi);
-		fclose(fpi);
-	    } else {
-		printf("ERROR opening image: %s\n",ppmname);
-		exit(0);
-	    }
-	    unlink(ppmname);
-	}
+        int width, height;
+        unsigned char *data;
+        ~Image() { delete [] data; }
+        Image(const char *fname) {
+            if (fname[0] == '\0')
+                return;
+            //printf("fname **%s**\n", fname);
+            char name[40];
+            strcpy(name, fname);
+            int slen = strlen(name);
+            name[slen-4] = '\0';
+            //printf("name **%s**\n", name);
+            char ppmname[80];
+            sprintf(ppmname,"%s.ppm", name);
+            //printf("ppmname **%s**\n", ppmname);
+            char ts[100];
+            //system("convert eball.jpg eball.ppm");
+            sprintf(ts, "convert %s %s", fname, ppmname);
+            system(ts);
+            //sprintf(ts, "%s", name);
+            FILE *fpi = fopen(ppmname, "r");
+            if (fpi) {
+                char line[200];
+                fgets(line, 200, fpi);
+                fgets(line, 200, fpi);
+                while (line[0] == '#')
+                    fgets(line, 200, fpi);
+                sscanf(line, "%i %i", &width, &height);
+                fgets(line, 200, fpi);
+                //get pixel data
+                int n = width * height * 3;			
+                data = new unsigned char[n];			
+                for (int i=0; i<n; i++)
+                    data[i] = fgetc(fpi);
+                fclose(fpi);
+            } else {
+                printf("ERROR opening image: %s\n",ppmname);
+                exit(0);
+            }
+            unlink(ppmname);
+        }
 };
 Image img[4] = {"images/walk.gif", "images/car_idle.png", "images/wastelands.jpg","images/car_move.png"};
 
@@ -94,136 +94,136 @@ Image img[4] = {"images/walk.gif", "images/car_idle.png", "images/wastelands.jpg
 //Setup timers
 class Timers {
     public:
-	double physicsRate;
-	double oobillion;
-	struct timespec timeStart, timeEnd, timeCurrent;
-	struct timespec walkTime;
-	Timers() {
-	    physicsRate = 1.0 / 30.0;
-	    oobillion = 1.0 / 1e9;
-	}
-	double timeDiff(struct timespec *start, struct timespec *end) {
-	    return (double)(end->tv_sec - start->tv_sec ) +
-		(double)(end->tv_nsec - start->tv_nsec) * oobillion;
-	}
-	void timeCopy(struct timespec *dest, struct timespec *source) {
-	    memcpy(dest, source, sizeof(struct timespec));
-	}
-	void recordTime(struct timespec *t) {
-	    clock_gettime(CLOCK_REALTIME, t);
-	}
+        double physicsRate;
+        double oobillion;
+        struct timespec timeStart, timeEnd, timeCurrent;
+        struct timespec walkTime;
+        Timers() {
+            physicsRate = 1.0 / 30.0;
+            oobillion = 1.0 / 1e9;
+        }
+        double timeDiff(struct timespec *start, struct timespec *end) {
+            return (double)(end->tv_sec - start->tv_sec ) +
+                (double)(end->tv_nsec - start->tv_nsec) * oobillion;
+        }
+        void timeCopy(struct timespec *dest, struct timespec *source) {
+            memcpy(dest, source, sizeof(struct timespec));
+        }
+        void recordTime(struct timespec *t) {
+            clock_gettime(CLOCK_REALTIME, t);
+        }
 } timers;
 //-----------------------------------------------------------------------------
 class Texture {
     public:
-	Image *backImage;
-	GLuint backTexture;
-	float xc[2];
-	float yc[2];
+        Image *backImage;
+        GLuint backTexture;
+        float xc[2];
+        float yc[2];
 };
 class Global {
     public:
-	int done;
-	int xres, yres;
-	int walk;
-	int walkFrame;
-	int flag;
-	double delay;
-	Texture tex;
-	GLuint walkTexture;
-	Vec box[20];
-	Global() {
-	    done=0;
-	    xres=1200;
-	    yres=800;
-	    flag = 1;
-	    walk=0;
-	    walkFrame=0;
-	    delay = 0.1;
-	    for (int i=0; i<20; i++) {
-		box[i][0] = rnd() * xres;
-		box[i][1] = rnd() * (yres-220) + 220.0;
-		box[i][2] = 0.0;
-	    }
-	}
+        int done;
+        int xres, yres;
+        int walk;
+        int walkFrame;
+        int flag;
+        double delay;
+        Texture tex;
+        GLuint walkTexture;
+        Vec box[20];
+        Global() {
+            done=0;
+            xres=1200;
+            yres=800;
+            flag = 1;
+            walk=0;
+            walkFrame=0;
+            delay = 0.1;
+            for (int i=0; i<20; i++) {
+                box[i][0] = rnd() * xres;
+                box[i][1] = rnd() * (yres-220) + 220.0;
+                box[i][2] = 0.0;
+            }
+        }
 } g;
 
 class X11_wrapper {
     private:
-	Display *dpy;
-	Window win;
+        Display *dpy;
+        Window win;
     public:
-	X11_wrapper() {
-	    GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
-	    //GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, None };
-	    XSetWindowAttributes swa;
-	    setupScreenRes(g.xres, g.yres);
-	    dpy = XOpenDisplay(NULL);
-	    if (dpy == NULL) {
-		printf("\n\tcannot connect to X server\n\n");
-		exit(EXIT_FAILURE);
-	    }
-	    Window root = DefaultRootWindow(dpy);
-	    XVisualInfo *vi = glXChooseVisual(dpy, 0, att);
-	    if (vi == NULL) {
-		printf("\n\tno appropriate visual found\n\n");
-		exit(EXIT_FAILURE);
-	    } 
-	    Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
-	    swa.colormap = cmap;
-	    swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
-		StructureNotifyMask | SubstructureNotifyMask;
-	    win = XCreateWindow(dpy, root, 0, 0, g.xres, g.yres, 0,
-		    vi->depth, InputOutput, vi->visual,
-		    CWColormap | CWEventMask, &swa);
-	    GLXContext glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
-	    glXMakeCurrent(dpy, win, glc);
-	    setTitle();
-	}
-	~X11_wrapper() {
-	    XDestroyWindow(dpy, win);
-	    XCloseDisplay(dpy);
-	}
-	void setTitle() {
-	    //Set the window title bar.
-	    XMapWindow(dpy, win);
-	    XStoreName(dpy, win, "Walk Cycle");
-	}
-	void setupScreenRes(const int w, const int h) {
-	    g.xres = w;
-	    g.yres = h;
-	}
-	void reshapeWindow(int width, int height) {
-	    //window has been resized.
-	    setupScreenRes(width, height);
-	    glViewport(0, 0, (GLint)width, (GLint)height);
-	    glMatrixMode(GL_PROJECTION); glLoadIdentity();
-	    glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-	    glOrtho(0, g.xres, 0, g.yres, -1, 1);
-	    setTitle();
-	}
-	void checkResize(XEvent *e) {
-	    //The ConfigureNotify is sent by the
-	    //server if the window is resized.
-	    if (e->type != ConfigureNotify)
-		return;
-	    XConfigureEvent xce = e->xconfigure;
-	    if (xce.width != g.xres || xce.height != g.yres) {
-		//Window size did change.
-		reshapeWindow(xce.width, xce.height);
-	    }
-	}
-	bool getXPending() {
-	    return XPending(dpy);
-	}
-	XEvent getXNextEvent() {
-	    XEvent e;
-	    XNextEvent(dpy, &e);
-	    return e;
-	}
-	void swapBuffers() {
-	    glXSwapBuffers(dpy, win);
-	}
+        X11_wrapper() {
+            GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
+            //GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, None };
+            XSetWindowAttributes swa;
+            setupScreenRes(g.xres, g.yres);
+            dpy = XOpenDisplay(NULL);
+            if (dpy == NULL) {
+                printf("\n\tcannot connect to X server\n\n");
+                exit(EXIT_FAILURE);
+            }
+            Window root = DefaultRootWindow(dpy);
+            XVisualInfo *vi = glXChooseVisual(dpy, 0, att);
+            if (vi == NULL) {
+                printf("\n\tno appropriate visual found\n\n");
+                exit(EXIT_FAILURE);
+            } 
+            Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
+            swa.colormap = cmap;
+            swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
+                StructureNotifyMask | SubstructureNotifyMask;
+            win = XCreateWindow(dpy, root, 0, 0, g.xres, g.yres, 0,
+                    vi->depth, InputOutput, vi->visual,
+                    CWColormap | CWEventMask, &swa);
+            GLXContext glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
+            glXMakeCurrent(dpy, win, glc);
+            setTitle();
+        }
+        ~X11_wrapper() {
+            XDestroyWindow(dpy, win);
+            XCloseDisplay(dpy);
+        }
+        void setTitle() {
+            //Set the window title bar.
+            XMapWindow(dpy, win);
+            XStoreName(dpy, win, "Walk Cycle");
+        }
+        void setupScreenRes(const int w, const int h) {
+            g.xres = w;
+            g.yres = h;
+        }
+        void reshapeWindow(int width, int height) {
+            //window has been resized.
+            setupScreenRes(width, height);
+            glViewport(0, 0, (GLint)width, (GLint)height);
+            glMatrixMode(GL_PROJECTION); glLoadIdentity();
+            glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+            glOrtho(0, g.xres, 0, g.yres, -1, 1);
+            setTitle();
+        }
+        void checkResize(XEvent *e) {
+            //The ConfigureNotify is sent by the
+            //server if the window is resized.
+            if (e->type != ConfigureNotify)
+                return;
+            XConfigureEvent xce = e->xconfigure;
+            if (xce.width != g.xres || xce.height != g.yres) {
+                //Window size did change.
+                reshapeWindow(xce.width, xce.height);
+            }
+        }
+        bool getXPending() {
+            return XPending(dpy);
+        }
+        XEvent getXNextEvent() {
+            XEvent e;
+            XNextEvent(dpy, &e);
+            return e;
+        }
+        void swapBuffers() {
+            glXSwapBuffers(dpy, win);
+        }
 
 } x11;
 
@@ -242,22 +242,22 @@ int main(void)
     init();
     int done = 0;
     while (!done) {
-	while (x11.getXPending()) {
-	    XEvent e = x11.getXNextEvent();
-	    x11.checkResize(&e);
-	    checkMouse(&e);
-	    done = checkKeys(&e);
-	}
-	physics();
-	if (g.flag == 1)
-	{
-	    render2(g.tex.xc, g.tex.yc, g.tex.backTexture, g.xres, g.yres);
-	}
-	if (g.flag == 0)
-	{
-	    render();
-	}
-	x11.swapBuffers();
+        while (x11.getXPending()) {
+            XEvent e = x11.getXNextEvent();
+            x11.checkResize(&e);
+            checkMouse(&e);
+            done = checkKeys(&e);
+        }
+        physics();
+        if (g.flag == 1)
+        {
+            render2(g.tex.xc, g.tex.yc, g.tex.backTexture, g.xres, g.yres);
+        }
+        if (g.flag == 0)
+        {
+            render();
+        }
+        x11.swapBuffers();
     }
     cleanup_fonts();
     return 0;
@@ -277,18 +277,18 @@ unsigned char *buildAlphaData(Image *img)
     unsigned char t1 = *(data+1);
     unsigned char t2 = *(data+2);
     for (i=0; i<img->width * img->height * 3; i+=3) {
-	a = *(data+0);
-	b = *(data+1);
-	c = *(data+2);
-	*(ptr+0) = a;
-	*(ptr+1) = b;
-	*(ptr+2) = c;
-	*(ptr+3) = 1;
-	if (a==t0 && b==t1 && c==t2)
-	    *(ptr+3) = 0;
-	//-----------------------------------------------
-	ptr += 4;
-	data += 3;
+        a = *(data+0);
+        b = *(data+1);
+        c = *(data+2);
+        *(ptr+0) = a;
+        *(ptr+1) = b;
+        *(ptr+2) = c;
+        *(ptr+3) = 1;
+        if (a==t0 && b==t1 && c==t2)
+            *(ptr+3) = 0;
+        //-----------------------------------------------
+        ptr += 4;
+        data += 3;
     }
     return newdata;
 }
@@ -332,9 +332,9 @@ void initOpengl(void)
     g.tex.xc[1] = 0.25;
     g.tex.yc[0] = 0.0;
     g.tex.yc[1] = 1.0;
-	//---------------------------------------------------------------------------------
-    int w = img[0].width;
-    int h = img[0].height;
+    //---------------------------------------------------------------------------------
+    int w = img[3].width;
+    int h = img[3].height;
     //
     //create opengl texture elements
     glGenTextures(1, &g.walkTexture); 
@@ -347,9 +347,9 @@ void initOpengl(void)
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     //
     //must build a new set of data...
-    unsigned char *walkData = buildAlphaData(&img[0]);	
+    unsigned char *walkData = buildAlphaData(&img[3]);//car moving	
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-	    GL_RGBA, GL_UNSIGNED_BYTE, walkData);
+            GL_RGBA, GL_UNSIGNED_BYTE, walkData);
     //free(walkData);
     //unlink("./images/walk.ppm");
     //-------------------------------------------------------------------------
@@ -367,24 +367,24 @@ void checkMouse(XEvent *e)
     static int savey = 0;
     //
     if (e->type == ButtonRelease) {
-	return;
+        return;
     }
     if (e->type == ButtonPress) {
-	if (e->xbutton.button==1) {
-	      //printf("look: %i\n", savex);
-               // render();
-                g.flag = 0;
-	    //Left button is down
-	if (e->xbutton.button==3) {
-	    //Right button is down
-	}
+        if (e->xbutton.button==1) {
+            //printf("look: %i\n", savex);
+            // render();
+            g.flag = 0;
+            //Left button is down
+            if (e->xbutton.button==3) {
+                //Right button is down
+            }
+        }
+        if (savex != e->xbutton.x || savey != e->xbutton.y) {
+            //Mouse moved
+            savex = e->xbutton.x;
+            savey = e->xbutton.y;
+        }
     }
-    if (savex != e->xbutton.x || savey != e->xbutton.y) {
-	//Mouse moved
-	savex = e->xbutton.x;
-	savey = e->xbutton.y;
-    }
-}
 }
 
 int checkKeys(XEvent *e)
@@ -392,47 +392,47 @@ int checkKeys(XEvent *e)
     //keyboard input?
     static int shift=0;
     if (e->type != KeyRelease && e->type != KeyPress)
-	return 0;
+        return 0;
     int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
     if (e->type == KeyRelease) {
-	if (key == XK_Shift_L || key == XK_Shift_R)
-	    shift = 0;
-	return 0;
+        if (key == XK_Shift_L || key == XK_Shift_R)
+            shift = 0;
+        return 0;
     }
     if (key == XK_Shift_L || key == XK_Shift_R) {
-	shift=1;
-	return 0;
+        shift=1;
+        return 0;
     }
     (void)shift;
     switch (key) {
-	case XK_w:
-	    timers.recordTime(&timers.walkTime);
-	    g.walk ^= 1;
-	    break;
-	case XK_Left:
-	    break;
-	case XK_Right:
-	    break;
-	case XK_Up:
-             g.flag = 0;
-	    break;
-	case XK_Down:
-		check_particles(e, g.yres);
-	    break;
-	case XK_e: // Calls check_particles when the 'E' key is pressed
-        check_particles(e, g.yres);
-        break;
-	case XK_equal:
-	    g.delay -= 0.005;
-	    if (g.delay < 0.005)
-		g.delay = 0.005;
-	    break;
-	case XK_minus:
-	    g.delay += 0.005;
-	    break;
-	case XK_Escape:
-	    return 1;
-	    break;
+        case XK_w:
+            timers.recordTime(&timers.walkTime);
+            g.walk ^= 1;
+            break;
+        case XK_Left:
+            break;
+        case XK_Right:
+            break;
+        case XK_Up:
+            g.flag = 0;
+            break;
+        case XK_Down:
+            check_particles(e, g.yres);
+            break;
+        case XK_e: // Calls check_particles when the 'E' key is pressed
+            check_particles(e, g.yres);
+            break;
+        case XK_equal:
+            g.delay -= 0.005;
+            if (g.delay < 0.005)
+                g.delay = 0.005;
+            break;
+        case XK_minus:
+            g.delay += 0.005;
+            break;
+        case XK_Escape:
+            return 1;
+            break;
     }
     return 0;
 }
@@ -445,8 +445,8 @@ Flt VecNormalize(Vec vec)
     Flt zlen = vec[2];
     len = xlen*xlen + ylen*ylen + zlen*zlen;
     if (len == 0.0) {
-	MakeVector(0.0,0.0,1.0,vec);
-	return 1.0;
+        MakeVector(0.0,0.0,1.0,vec);
+        return 1.0;
     }
     len = sqrt(len);
     tlen = 1.0 / len;
@@ -460,27 +460,27 @@ void physics(void)
 {
     g.tex.xc[0] += 0.001;
     g.tex.xc[1] += 0.001;
-     //scroll(g.tex.xc[]);
+    //scroll(g.tex.xc[]);
     if (g.walk) {
-	//man is walking...
-	//when time is up, advance the frame.
-	timers.recordTime(&timers.timeCurrent);
-	double timeSpan = timers.timeDiff(&timers.walkTime, &timers.timeCurrent);
-	if (timeSpan > g.delay) {
-	    //advance
-	    ++g.walkFrame;
-	    if (g.walkFrame >= 16)
-		g.walkFrame -= 16;
-	    timers.recordTime(&timers.walkTime);
-	}
-	for (int i=0; i<20; i++) {
-	    g.box[i][0] -= 2.0 * (0.05 / g.delay);
-	    if (g.box[i][0] < -10.0)
-		g.box[i][0] += g.xres + 10.0;
-	}
+        //man is walking...
+        //when time is up, advance the frame.
+        timers.recordTime(&timers.timeCurrent);
+        double timeSpan = timers.timeDiff(&timers.walkTime, &timers.timeCurrent);
+        if (timeSpan > g.delay) {
+            //advance
+            ++g.walkFrame;
+            if (g.walkFrame >= 16)
+                g.walkFrame -= 16;
+            timers.recordTime(&timers.walkTime);
+        }
+        for (int i=0; i<20; i++) {
+            g.box[i][0] -= 2.0 * (0.05 / g.delay);
+            if (g.box[i][0] < -10.0)
+                g.box[i][0] += g.xres + 10.0;
+        }
     }
 
-	update_particles();
+    update_particles();
 }
 
 void render(void)
@@ -513,19 +513,19 @@ void render(void)
     //
     //show boxes as background
     for (int i=0; i<20; i++) {
-	glPushMatrix();
-	glTranslated(g.box[i][0],g.box[i][1],g.box[i][2]);
-	glColor3f(0.2, 0.2, 0.2);
-	glBegin(GL_QUADS);
-	glVertex2i( 0,  0);
-	glVertex2i( 0, 30);
-	glVertex2i(20, 30);
-	glVertex2i(20,  0);
-	glEnd();
-	glPopMatrix();
+        glPushMatrix();
+        glTranslated(g.box[i][0],g.box[i][1],g.box[i][2]);
+        glColor3f(0.2, 0.2, 0.2);
+        glBegin(GL_QUADS);
+        glVertex2i( 0,  0);
+        glVertex2i( 0, 30);
+        glVertex2i(20, 30);
+        glVertex2i(20,  0);
+        glEnd();
+        glPopMatrix();
     }
-    float h = 200.0;
-    float w = h * 0.5;
+    float h = 76.0f;
+    float w = 101.0f;
     glPushMatrix();
     glColor3f(1.0, 1.0, 1.0);
     glBindTexture(GL_TEXTURE_2D, g.walkTexture);
@@ -533,17 +533,36 @@ void render(void)
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.0f);
     glColor4ub(255,255,255,255);
-    int ix = g.walkFrame % 8;
-    int iy = 0;
-    if (g.walkFrame >= 8)
-	iy = 1;
-    float tx = (float)ix / 8.0;
-    float ty = (float)iy / 2.0;
+
+    // int iy = 0;
+    // if (g.walkFrame >= 3)
+    //   iy = 1;
+    /*
+       float tx = (float)ix / 8.0;
+       float ty = (float)iy / 2.0;
+       glBegin(GL_QUADS);
+       glTexCoord2f(tx,      ty+.5); glVertex2i(cx-w, cy-h);
+       glTexCoord2f(tx,      ty);    glVertex2i(cx-w, cy+h);
+       glTexCoord2f(tx+.125, ty);    glVertex2i(cx+w, cy+h);
+       glTexCoord2f(tx+.125, ty+.5); glVertex2i(cx+w, cy-h);
+       glEnd();
+       */
+    int ix = g.walkFrame % 3; // Get the current sprite frame (0, 1, or 2)
+
+    // Calculate texture coordinates based on the current frame
+    float tx = (float)(ix * w) / 303.0f; // Adjust tx based on the frame
+    float ty = 0.0f; // Only one row, so ty is always 0
+
     glBegin(GL_QUADS);
-    glTexCoord2f(tx,      ty+.5); glVertex2i(cx-w, cy-h);
-    glTexCoord2f(tx,      ty);    glVertex2i(cx-w, cy+h);
-    glTexCoord2f(tx+.125, ty);    glVertex2i(cx+w, cy+h);
-    glTexCoord2f(tx+.125, ty+.5); glVertex2i(cx+w, cy-h);
+  /*  glTexCoord2f(tx, ty +0.5f); glVertex2i(cx - w, cy - h); // Top-left
+    glTexCoord2f(tx, ty);        glVertex2i(cx - w, cy + h); // Bottom-left
+    glTexCoord2f(tx + 1.0f / 3.0f, ty); glVertex2i(cx + w, cy + h); 
+    glTexCoord2f(tx + 1.0f / 3.0f, ty + 0.5f); glVertex2i(cx + w, cy - h); // Top-right*/
+                                                                           //
+    glTexCoord2f(tx, ty+1.0f); glVertex2i(cx - w, cy - h); // Top-left
+    glTexCoord2f(tx, ty);        glVertex2i(cx - w, cy + h); // Bottom-left
+    glTexCoord2f(tx + 1.0f / 3.0f, ty); glVertex2i(cx + w, cy + h); 
+    glTexCoord2f(tx + 1.0f / 3.0f, ty + 1.0f); glVertex2i(cx + w, cy - h); // Top-right
     glEnd();
     glPopMatrix();
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -561,7 +580,7 @@ void render(void)
     ggprint8b(&r, 16, c, "left arrow  <- walk left");
     ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);
 
-	render_particles();
+    render_particles();
 }
 
 
