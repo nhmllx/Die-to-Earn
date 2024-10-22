@@ -13,28 +13,38 @@
 
 * History: Written by Isaiah Malleaux, 9/24.
 */
+
 //added wastelands.jpg
-Image img[3] = {"images/walk.gif", "images/car.png", "images/wastelands.jpg"};
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <time.h>
+#include <math.h>
+#include <X11/Xlib.h>
+#include <X11/keysym.h>
+#include <GL/glx.h>
+#include "fonts.h"
+//Image img[3] = {"images/walk.gif", "images/car.png", "images/wastelands.jpg"};
 //new class for main code
-class Texture {
+/*class Texture {
     public:
         Image *backImage;
         GLuint backTexture;
         float xc[2];
         float yc[2];
-};
+}; 
 // In class Global
 int flag
 Texture tex;
 // In Globals constructor
 flag = 1;
 // new render
-void render2(void);
-
+*/
 // I added something in main, but cannot show :(
 
 //in void initOpengl(void)
-    g.tex.backImage = &img[2];
+/*    g.tex.backImage = &img[2];
     //create opengl texture elements
     glGenTextures(1, &g.tex.backTexture);
     int ww = g.tex.backImage->width;
@@ -48,36 +58,28 @@ void render2(void);
     g.tex.xc[1] = 0.25;
     g.tex.yc[0] = 0.0;
     g.tex.yc[1] = 1.0;
-
-//in int checkKeys(XEvent *e)
-case XK_Up:
-    g.flag = 0;
-//in void physics(void)
-    g.tex.xc[0] += 0.001;
-    g.tex.xc[1] += 0.001;
-// new render
-void render2()
-{
-   /* Rect r;
-   // glClear(GL_COLOR_BUFFER_BIT);
-    r.bot = g.yres - 20;
-    r.left = 10;
-    r.center = 0;
-    ggprint8b(&r, 16, 0x00ffff00, "vsync: %s", ((g.vsync)?"ON":"OFF"));
-    ggprint8b(&r, 16, 0x00ffff00, "fps: %i", g.fps);
-    printf("FRAMES: %i\n", g.fps );
-    printf("VSYNC: %s\n", ((g.vsync) ? "ON":"OFF") );
 */
+//in int checkKeys(XEvent *e)
+//case XK_Up:
+//    g.flag = 0;
+void scroll(float val[])
+{
+    val[0] += 0.001;
+    val[1] += 0.001;
+}
+// new render
+void render2(float x[], float y[], GLuint bt, int xres,int yres)
+{
 
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(1.0, 1.0, 1.0);
     //draw background
-    glBindTexture(GL_TEXTURE_2D, g.tex.backTexture);
+    glBindTexture(GL_TEXTURE_2D, bt);
     glBegin(GL_QUADS);//background
-    glTexCoord2f(g.tex.xc[0], g.tex.yc[1]); glVertex2i(0, 0);
-    glTexCoord2f(g.tex.xc[0], g.tex.yc[0]); glVertex2i(0, g.yres);
-    glTexCoord2f(g.tex.xc[1], g.tex.yc[0]); glVertex2i(g.xres, g.yres);
-    glTexCoord2f(g.tex.xc[1], g.tex.yc[1]); glVertex2i(g.xres, 0);
+    glTexCoord2f(x[0], y[1]); glVertex2i(0, 0);
+    glTexCoord2f(x[0], y[0]); glVertex2i(0, yres);
+    glTexCoord2f(x[1], y[0]); glVertex2i(xres, yres);
+    glTexCoord2f(x[1], y[1]); glVertex2i(xres, 0);
     glEnd();
     //draw background
 }

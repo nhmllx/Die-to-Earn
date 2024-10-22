@@ -20,7 +20,8 @@
 extern void check_particles(XEvent*, int);
 extern void update_particles();
 extern void render_particles();
-
+extern void scroll(float val[]);
+extern void render2(float x[], float y[], GLuint bt, int xres,int yres);
 
 //defined types
 typedef double Flt;
@@ -250,7 +251,7 @@ int main(void)
 	physics();
 	if (g.flag == 1)
 	{
-	    render2();
+	    render2(g.tex.xc, g.tex.yc, g.tex.backTexture, g.xres, g.yres);
 	}
 	if (g.flag == 0)
 	{
@@ -459,6 +460,7 @@ void physics(void)
 {
     g.tex.xc[0] += 0.001;
     g.tex.xc[1] += 0.001;
+     //scroll(g.tex.xc[]);
     if (g.walk) {
 	//man is walking...
 	//when time is up, advance the frame.
