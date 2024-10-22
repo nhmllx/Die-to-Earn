@@ -87,7 +87,7 @@ class Image {
             unlink(ppmname);
         }
 };
-Image img[4] = {"images/walk.gif", "images/car_idle.png", "images/wastelands.png","images/car_move.png"};
+Image img[4] = {"images/walk.gif", "images/bg.png", "images/wastelands.png","images/car_move.png"};
 
 
 //-----------------------------------------------------------------------------
@@ -116,6 +116,10 @@ class Timers {
 //-----------------------------------------------------------------------------
 class Texture {
     public:
+        Image *bgImage;
+        GLuint bgTexture;
+        float xb[2];
+        float yb[2];
         Image *backImage;
         GLuint backTexture;
         float xc[2];
@@ -336,6 +340,21 @@ void initOpengl(void)
     g.tex.xc[1] = 1.0;
     g.tex.yc[0] = 0.0;
     g.tex.yc[1] = 1.0;
+    //-title screen-------------------------------------------------------------
+    g.tex.bgImage = &img[1];
+    //create opengl texture elements
+    glGenTextures(1, &g.tex.bgTexture);
+    int bw = g.tex.bgImage->width;
+    int bh = g.tex.bgImage->height;
+    glBindTexture(GL_TEXTURE_2D, g.tex.bgTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, bw, bh, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, g.tex.bgImage->data);
+    g.tex.xb[0] = 0.0;
+    g.tex.xb[1] = 1.0;
+    g.tex.yb[0] = 0.0;
+    g.tex.yb[1] = 1.0;
     //---------------------------------------------------------------------------------
     int w = img[3].width;
     int h = img[3].height;
@@ -518,8 +537,27 @@ float cy = g.yres/3.5; // ypos of car
 void render(void)
 {
     Rect r;
+
+    glClear(GL_COLOR_BUFFER_BIT);
+     glColor3ub(255, 255, 255);
+     glBindTexture(GL_TEXTURE_2D, g.tex.bgTexture);
+    static float camerax = 0.0f;
+     glBegin(GL_QUADS);
+     glTexCoord2f(camerax+0, 1); glVertex2i(0,      0);
+     glTexCoord2f(camerax+0, 0); glVertex2i(0,      g.yres);
+     glTexCoord2f(camerax+1, 0); glVertex2i(g.xres, g.yres);
+     glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
+     glEnd();
+     glBindTexture(GL_TEXTURE_2D, 0);
+     if (g.keys[XK_d] == 1 && g.keys[XK_g] != 1){
+     camerax += 0.00275;
+     }
+     if (g.keys[XK_a] == 1 && g.keys[XK_g] != 1){
+     camerax -= 0.00275;
+     }
+
     //Clear the screen
-    glClearColor(0.1, 0.1, 0.1, 1.0);
+  /*  glClearColor(0.1, 0.1, 0.1, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     //    float cx = g.xres/3.0; //xpos of car
     //  float cy = g.yres/3.5; // ypos of car
@@ -533,6 +571,7 @@ void render(void)
     glVertex2i(g.xres,   0);
     glVertex2i(0,         0);
     glEnd();
+*/
     //
     //fake shadow
     //glColor3f(0.25, 0.25, 0.25);
