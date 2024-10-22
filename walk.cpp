@@ -87,7 +87,7 @@ class Image {
             unlink(ppmname);
         }
 };
-Image img[4] = {"images/walk.gif", "images/car_idle.png", "images/wastelands.jpg","images/car_move.png"};
+Image img[4] = {"images/walk.gif", "images/car_idle.png", "images/wastelands.png","images/car_move.png"};
 
 
 //-----------------------------------------------------------------------------
@@ -329,7 +329,7 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3, ww, hh, 0,
             GL_RGB, GL_UNSIGNED_BYTE, g.tex.backImage->data);
     g.tex.xc[0] = 0.0;
-    g.tex.xc[1] = 0.25;
+    g.tex.xc[1] = 1.0;
     g.tex.yc[0] = 0.0;
     g.tex.yc[1] = 1.0;
     //---------------------------------------------------------------------------------
