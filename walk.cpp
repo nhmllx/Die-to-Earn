@@ -458,8 +458,8 @@ Flt VecNormalize(Vec vec)
 
 void physics(void)
 {
-    g.tex.xc[0] += 0.001;
-    g.tex.xc[1] += 0.001;
+    //g.tex.xc[0] += 0.001;
+    //g.tex.xc[1] += 0.001;
     //scroll(g.tex.xc[]);
     if (g.walk) {
         //man is walking...
