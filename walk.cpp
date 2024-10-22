@@ -128,17 +128,21 @@ class Global {
         int walk;
         int walkFrame;
         int flag;
+        char keys[ 0xffff ];
         double delay;
         Texture tex;
         GLuint walkTexture; //holds data for car sprites
         Vec box[20];
         Global() {
+            memset(keys, 0, 0xffff);
             done=0;
             xres=1200;
             yres=800;
+
             flag = 1;
             walk=0;
             walkFrame=0;
+
             delay = 0.1;
             for (int i=0; i<20; i++) {
                 box[i][0] = rnd() * xres;
@@ -386,7 +390,7 @@ void checkMouse(XEvent *e)
         }
     }
 }
-
+int keyf = 0;
 int checkKeys(XEvent *e)
 {
     //keyboard input?
@@ -399,42 +403,54 @@ int checkKeys(XEvent *e)
             shift = 0;
         return 0;
     }
+
     if (key == XK_Shift_L || key == XK_Shift_R) {
         shift=1;
         return 0;
     }
     (void)shift;
-    switch (key) {
-        case XK_w:
-            timers.recordTime(&timers.walkTime);
-            g.walk ^= 1;
-            break;
-        case XK_Left:
-            break;
-        case XK_Right:
-            timers.recordTime(&timers.walkTime);
-            g.walk ^= 1;
-            break;
-        case XK_Return:
-            g.flag = 0;
-            break;
-        case XK_Down:
-            check_particles(e, g.yres);
-            break;
-        case XK_e: // Calls check_particles when the 'E' key is pressed
-            check_particles(e, g.yres);
-            break;
-        case XK_equal:
-            g.delay -= 0.005;
-            if (g.delay < 0.005)
-                g.delay = 0.005;
-            break;
-        case XK_minus:
-            g.delay += 0.005;
-            break;
-        case XK_Escape:
-            return 1;
-            break;
+    if (e->type == KeyPress)   g.keys[key] = 1;
+    if (e->type == KeyRelease) g.keys[key] = 0;
+    if (e->type == KeyPress) {
+        switch (key) {
+            case XK_w:
+                timers.recordTime(&timers.walkTime);
+                g.walk ^= 1;
+                break;
+            case XK_Left:
+                break;
+            case XK_Up:
+                //         timers.recordTime(&timers.walkTime);
+                //     g.walk = 1;
+                //           g.walk ^= 1;
+                keyf = 1;
+
+                g.delay -= 0.005;
+                if (g.delay < 0.005)
+                    g.delay = 0.005;
+                break;
+            case XK_Return:
+                g.flag = 0;
+                break;
+            case XK_Down:
+                //            check_particles(e, g.yres);
+                keyf = 0;
+                break;
+            case XK_e: // Calls check_particles when the 'E' key is pressed
+                check_particles(e, g.yres);
+                break;
+            case XK_equal:
+                g.delay -= 0.005;
+                if (g.delay < 0.005)
+                    g.delay = 0.005;
+                break;
+            case XK_minus:
+                g.delay += 0.005;
+                break;
+            case XK_Escape:
+                return 1;
+                break;
+        }
     }
     return 0;
 }
@@ -463,7 +479,10 @@ void physics(void)
     //g.tex.xc[0] += 0.001;
     //g.tex.xc[1] += 0.001;
     //scroll(g.tex.xc[]);
-    if (g.walk) {
+    // if (g.walk) {
+    if (keyf == 1) {
+        //   printf("Up");
+        //         timers.recordTime(&timers.walkTime);
         //man is walking...
         //when time is up, advance the frame.
         timers.recordTime(&timers.timeCurrent);
@@ -482,10 +501,19 @@ void physics(void)
         }
     }
 
+    if (keyf == 0) {
+        g.delay += 0.005;
+        //   if (g.delay >= 0.1){
+        // g.walkFrame = 0;
+        //  g.delay = 0.1;
+        // }
+    }
+
     update_particles();
 }
 
-float cx = g.xres/3.0; //xpos of car
+float cx = g.xres/4; //xpos of car
+                     //float cx = g.yres/verticalChange; to change vertical pos
 float cy = g.yres/3.5; // ypos of car
 void render(void)
 {
@@ -493,8 +521,8 @@ void render(void)
     //Clear the screen
     glClearColor(0.1, 0.1, 0.1, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
-//    float cx = g.xres/3.0; //xpos of car
-  //  float cy = g.yres/3.5; // ypos of car
+    //    float cx = g.xres/3.0; //xpos of car
+    //  float cy = g.yres/3.5; // ypos of car
     //
     //show ground
     glBegin(GL_QUADS);
@@ -516,18 +544,18 @@ void render(void)
     //glEnd();
     //
     //show boxes as background
-   /* for (int i=0; i<20; i++) {
-        glPushMatrix();
-        glTranslated(g.box[i][0],g.box[i][1],g.box[i][2]);
-        glColor3f(0.2, 0.2, 0.2);
-        glBegin(GL_QUADS);
-        glVertex2i( 0,  0);
-        glVertex2i( 0, 30);
-        glVertex2i(20, 30);
-        glVertex2i(20,  0);
-        glEnd();
-        glPopMatrix();
-    }*/
+    /* for (int i=0; i<20; i++) {
+       glPushMatrix();
+       glTranslated(g.box[i][0],g.box[i][1],g.box[i][2]);
+       glColor3f(0.2, 0.2, 0.2);
+       glBegin(GL_QUADS);
+       glVertex2i( 0,  0);
+       glVertex2i( 0, 30);
+       glVertex2i(20, 30);
+       glVertex2i(20,  0);
+       glEnd();
+       glPopMatrix();
+       }*/
     float h = 76.0f;
     float w = 101.0f;
     glPushMatrix();
@@ -558,11 +586,11 @@ void render(void)
     float ty = 0.0f; // Only one row, so ty is always 0
 
     glBegin(GL_QUADS);
-  /*  glTexCoord2f(tx, ty +0.5f); glVertex2i(cx - w, cy - h); // Top-left
-    glTexCoord2f(tx, ty);        glVertex2i(cx - w, cy + h); // Bottom-left
-    glTexCoord2f(tx + 1.0f / 3.0f, ty); glVertex2i(cx + w, cy + h); 
-    glTexCoord2f(tx + 1.0f / 3.0f, ty + 0.5f); glVertex2i(cx + w, cy - h); // Top-right*/
-                                                                           //
+    /*  glTexCoord2f(tx, ty +0.5f); glVertex2i(cx - w, cy - h); // Top-left
+        glTexCoord2f(tx, ty);        glVertex2i(cx - w, cy + h); // Bottom-left
+        glTexCoord2f(tx + 1.0f / 3.0f, ty); glVertex2i(cx + w, cy + h); 
+        glTexCoord2f(tx + 1.0f / 3.0f, ty + 0.5f); glVertex2i(cx + w, cy - h); // Top-right*/
+                                                                               //
     glTexCoord2f(tx, ty+1.0f); glVertex2i(cx - w, cy - h); // Top-left
     glTexCoord2f(tx, ty);        glVertex2i(cx - w, cy + h); // Bottom-left
     glTexCoord2f(tx + 1.0f / 3.0f, ty); glVertex2i(cx + w, cy + h); 
@@ -576,12 +604,12 @@ void render(void)
     r.bot = g.yres - 20;
     r.left = 10;
     r.center = 0;
-    ggprint8b(&r, 16, c, "W   Walk cycle");
     ggprint8b(&r, 16, c, "E   particles");
     ggprint8b(&r, 16, c, "+   faster");
     ggprint8b(&r, 16, c, "-   slower");
-    ggprint8b(&r, 16, c, "right arrow -> walk right");
-    ggprint8b(&r, 16, c, "left arrow  <- walk left");
+    ggprint8b(&r, 16, c, "up arrow: accelerate");
+    ggprint8b(&r, 16, c, "right arrow -> tilt right");
+    ggprint8b(&r, 16, c, "left arrow  <- tilt left");
     ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);
 
     render_particles();
