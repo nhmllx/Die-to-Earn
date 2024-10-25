@@ -555,7 +555,7 @@ void render(void)
      if (g.keys[XK_Up] == 1){
      camerax += 0.0150;
      }
-     if else (g.keys[XK_Down] == 1){
+     if (g.keys[XK_Down] == 1){
      camerax = camerax;
      }
 
