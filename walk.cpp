@@ -555,6 +555,9 @@ void render(void)
      if (g.keys[XK_Up] == 1){
      camerax += 0.0150;
      }
+     if (g.keys[XK_Down] == 1){
+     camerax = 0.0f;
+     }
 
     //Clear the screen
   /*  glClearColor(0.1, 0.1, 0.1, 1.0);
