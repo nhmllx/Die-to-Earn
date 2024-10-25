@@ -13,7 +13,12 @@
 #include <GL/glx.h>
 #include "fonts.h"
 
-
+void booster(float v[], float[p], int boostlength)
+{
+  for (int i = 0; i < boostlenght; i++) {
+        v[i] *= p; 
+    }
+}
                        
 #endif
 
