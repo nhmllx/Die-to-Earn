@@ -8,6 +8,7 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
@@ -17,11 +18,14 @@
 #include <GL/glx.h>
 #include "fonts.h"
 
-extern void check_particles(XEvent*, int);
+extern void make_particles(XEvent*, int);
 extern void update_particles();
 extern void render_particles();
 extern void scroll(float val[]);
 extern void render2(float x[], float y[], GLuint bt, int xres,int yres);
+extern void make_ammo(float, float);
+extern void ammo_pos();
+extern void f_render(GLuint);
 
 //defined types
 typedef double Flt;
@@ -41,6 +45,7 @@ typedef Flt	Matrix[4][4];
 const float timeslice = 1.0f;
 const float gravity = -0.2f;
 #define ALPHA 1
+
 
 
 class Image {
@@ -87,7 +92,7 @@ class Image {
             unlink(ppmname);
         }
 };
-Image img[4] = {"images/walk.gif", "images/bg.png", "images/wastelands.png","images/car_move.png"};
+Image img[5] = {"images/walk.gif", "images/bg.png", "images/wastelands.png","images/car_move.png", "images/bomber.png"};
 
 
 //-----------------------------------------------------------------------------
@@ -136,6 +141,7 @@ class Global {
         double delay;
         Texture tex;
         GLuint walkTexture; //holds data for car sprites
+        GLuint bulletTex;
         Vec box[20];
         Global() {
             memset(keys, 0, 0xffff);
@@ -147,7 +153,7 @@ class Global {
             walk=0;
             walkFrame=0;
 
-            delay = 0.1;
+            delay = 0.01;
             for (int i=0; i<20; i++) {
                 box[i][0] = rnd() * xres;
                 box[i][1] = rnd() * (yres-220) + 220.0;
@@ -373,6 +379,25 @@ void initOpengl(void)
     unsigned char *walkData = buildAlphaData(&img[3]);//car moving	
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, walkData);
+
+    
+    w = img[4].width;
+    h = img[4].height;
+    //
+    //create opengl texture elements
+    glGenTextures(1, &g.bulletTex); 
+    //silhouette
+    //this is similar to a sprite graphic
+    //
+    glBindTexture(GL_TEXTURE_2D, g.bulletTex);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    //
+    //must build a new set of data...
+    unsigned char *Tex = buildAlphaData(&img[4]);//car moving	
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, Tex);
     //free(walkData);
     //unlink("./images/walk.ppm");
     //-------------------------------------------------------------------------
@@ -410,6 +435,10 @@ void checkMouse(XEvent *e)
     }
 }
 int keyf = 0;
+float cx = g.xres/4; //xpos of car
+                     //float cx = g.yres/verticalChange; to change vertical pos
+float cy = g.yres/3.5; // ypos of car
+
 int checkKeys(XEvent *e)
 {
     //keyboard input?
@@ -428,7 +457,7 @@ int checkKeys(XEvent *e)
         return 0;
     }
     (void)shift;
-    if (e->type == KeyPress)   g.keys[key] = 1;
+    if (e->type == KeyPress)   g.keys[key] = 1; 
     if (e->type == KeyRelease) g.keys[key] = 0;
     if (e->type == KeyPress) {
         switch (key) {
@@ -438,12 +467,12 @@ int checkKeys(XEvent *e)
                 break;
             case XK_Left:
                 break;
-            case XK_Up:
+           case XK_Up:
                 //         timers.recordTime(&timers.walkTime);
                 //     g.walk = 1;
                 //           g.walk ^= 1;
                 keyf = 1;
-
+                cy = 228;
                 g.delay -= 0.005;
                 if (g.delay < 0.005)
                     g.delay = 0.005;
@@ -452,12 +481,19 @@ int checkKeys(XEvent *e)
                 g.flag = 0;
                 break;
             case XK_Down:
-                //            check_particles(e, g.yres);
+                //            make_particles(e, g.yres);
+               // std::cout << "cy: " << cy << std::endl;
+                
+                cy = 105;
+        
                 keyf = 0;
                 break;
-            case XK_e: // Calls check_particles when the 'E' key is pressed
-                check_particles(e, g.yres);
+            case XK_e: // Calls make_particles when the 'E' key is pressed
+                make_particles(e, g.yres);
                 break;
+            case XK_s: 
+                 make_ammo(cx + 20, cy);
+                 break;
             case XK_equal:
                 g.delay -= 0.005;
                 if (g.delay < 0.005)
@@ -466,8 +502,8 @@ int checkKeys(XEvent *e)
             case XK_minus:
                 g.delay += 0.005;
                 break;
-            case XK_Escape:
-                return 1;
+          //  case XK_Escape:
+            //    return 1;
                 break;
         }
     }
@@ -514,27 +550,29 @@ void physics(void)
             timers.recordTime(&timers.walkTime);
         }
         for (int i=0; i<20; i++) {
-            g.box[i][0] -= 2.0 * (0.05 / g.delay);
+            g.box[i][0] -= 2.0 * (0.5 / g.delay);
             if (g.box[i][0] < -10.0)
                 g.box[i][0] += g.xres + 10.0;
         }
     }
 
     if (keyf == 0) {
-        g.delay += 0.005;
+        g.delay += 0.0005;
         //   if (g.delay >= 0.1){
         // g.walkFrame = 0;
         //  g.delay = 0.1;
         // }
     }
 
-    update_particles();
+   update_particles();
+   ammo_pos();
 }
 
-float cx = g.xres/4; //xpos of car
+//above check_keys()
+//float cx = g.xres/4; //xpos of car
                      //float cx = g.yres/verticalChange; to change vertical pos
-float cy = g.yres/3.5; // ypos of car
-void render(void)
+//float cy = g.yres/3.5; // ypos of car
+void render()
 {
     Rect r;
 
@@ -647,6 +685,7 @@ void render(void)
     r.left = 10;
     r.center = 0;
     ggprint8b(&r, 16, c, "E   particles");
+    ggprint8b(&r, 16, c, "S   shoot");
     ggprint8b(&r, 16, c, "+   faster");
     ggprint8b(&r, 16, c, "-   slower");
     ggprint8b(&r, 16, c, "up arrow: accelerate");
@@ -654,7 +693,9 @@ void render(void)
     ggprint8b(&r, 16, c, "left arrow  <- tilt left");
     ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);
 
-    render_particles();
+    //render_particles();
+
+    f_render(g.bulletTex);
 }
 
 
