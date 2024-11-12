@@ -26,7 +26,8 @@ extern void render2(float x[], float y[], GLuint bt, int xres,int yres);
 extern void make_ammo(float, float);
 extern void ammo_pos();
 extern void f_render(GLuint);
-
+extern void enemyAnimate(void);
+extern void enemyRender(GLuint);
 //defined types
 typedef double Flt;
 typedef double Vec[3];
@@ -92,7 +93,7 @@ class Image {
             unlink(ppmname);
         }
 };
-Image img[5] = {"images/walk.gif", "images/bg.png", "images/wastelands.png","images/car_move.png", "images/bomber.png"};
+Image img[6] = {"images/walk.gif", "images/bg.png", "images/wastelands.png","images/car_move.png", "images/bomber.png", "images/enemy.png"};
 
 
 //-----------------------------------------------------------------------------
@@ -142,6 +143,7 @@ class Global {
         Texture tex;
         GLuint walkTexture; //holds data for car sprites
         GLuint bulletTex;
+        GLuint enemyTex;
         Vec box[20];
         Global() {
             memset(keys, 0, 0xffff);
@@ -263,6 +265,7 @@ int main(void)
             done = checkKeys(&e);
         }
         physics();
+        enemyAnimate();//nmalleaux.cpp
         if (g.flag == 1)
         {
             render2(g.tex.xc, g.tex.yc, g.tex.backTexture, g.xres, g.yres);
@@ -380,6 +383,7 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, walkData);
 
+    //---------------------------------------------------------------------------------
     
     w = img[4].width;
     h = img[4].height;
@@ -395,12 +399,27 @@ void initOpengl(void)
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     //
     //must build a new set of data...
-    unsigned char *Tex = buildAlphaData(&img[4]);//car moving	
+    unsigned char *Tex = buildAlphaData(&img[4]);//The Bullets	
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, Tex);
-    //free(walkData);
-    //unlink("./images/walk.ppm");
     //-------------------------------------------------------------------------
+    w = img[5].width;
+    h = img[5].height;
+    //
+    //create opengl texture elements
+    glGenTextures(1, &g.enemyTex); 
+    //silhouette
+    //this is similar to a sprite graphic
+    //
+    glBindTexture(GL_TEXTURE_2D, g.enemyTex);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    //
+    //must build a new set of data...
+    unsigned char *enemydata = buildAlphaData(&img[5]);//The Enemy	
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, enemydata);
 }
 
 void init() {
@@ -597,45 +616,6 @@ void render()
      //camerax = cameraxi;
      //}
 
-    //Clear the screen
-  /*  glClearColor(0.1, 0.1, 0.1, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    //    float cx = g.xres/3.0; //xpos of car
-    //  float cy = g.yres/3.5; // ypos of car
-    //
-    //show ground
-    glBegin(GL_QUADS);
-    glColor3f(0.2, 0.2, 0.2);
-    glVertex2i(0,       220);
-    glVertex2i(g.xres, 220);
-    glColor3f(0.4, 0.4, 0.4);
-    glVertex2i(g.xres,   0);
-    glVertex2i(0,         0);
-    glEnd();
-*/
-    //
-    //fake shadow
-    //glColor3f(0.25, 0.25, 0.25);
-    //glBegin(GL_QUADS);
-    //	glVertex2i(cx-60, 150);
-    //	glVertex2i(cx+50, 150);
-    //	glVertex2i(cx+50, 130);
-    //	glVertex2i(cx-60, 130);
-    //glEnd();
-    //
-    //show boxes as background
-    /* for (int i=0; i<20; i++) {
-       glPushMatrix();
-       glTranslated(g.box[i][0],g.box[i][1],g.box[i][2]);
-       glColor3f(0.2, 0.2, 0.2);
-       glBegin(GL_QUADS);
-       glVertex2i( 0,  0);
-       glVertex2i( 0, 30);
-       glVertex2i(20, 30);
-       glVertex2i(20,  0);
-       glEnd();
-       glPopMatrix();
-       }*/
     float h = 76.0f;
     float w = 101.0f;
     glPushMatrix();
@@ -646,19 +626,6 @@ void render()
     glAlphaFunc(GL_GREATER, 0.0f);
     glColor4ub(255,255,255,255);
 
-    // int iy = 0;
-    // if (g.walkFrame >= 3)
-    //   iy = 1;
-    /*
-       float tx = (float)ix / 8.0;
-       float ty = (float)iy / 2.0;
-       glBegin(GL_QUADS);
-       glTexCoord2f(tx,      ty+.5); glVertex2i(cx-w, cy-h);
-       glTexCoord2f(tx,      ty);    glVertex2i(cx-w, cy+h);
-       glTexCoord2f(tx+.125, ty);    glVertex2i(cx+w, cy+h);
-       glTexCoord2f(tx+.125, ty+.5); glVertex2i(cx+w, cy-h);
-       glEnd();
-       */
     int ix = g.walkFrame % 3; // Get the current sprite frame (0, 1, or 2)
 
     // Calculate texture coordinates based on the current frame
@@ -666,11 +633,6 @@ void render()
     float ty = 0.0f; // Only one row, so ty is always 0
 
     glBegin(GL_QUADS);
-    /*  glTexCoord2f(tx, ty +0.5f); glVertex2i(cx - w, cy - h); // Top-left
-        glTexCoord2f(tx, ty);        glVertex2i(cx - w, cy + h); // Bottom-left
-        glTexCoord2f(tx + 1.0f / 3.0f, ty); glVertex2i(cx + w, cy + h); 
-        glTexCoord2f(tx + 1.0f / 3.0f, ty + 0.5f); glVertex2i(cx + w, cy - h); // Top-right*/
-                                                                               //
     glTexCoord2f(tx, ty+1.0f); glVertex2i(cx - w, cy - h); // Top-left
     glTexCoord2f(tx, ty);        glVertex2i(cx - w, cy + h); // Bottom-left
     glTexCoord2f(tx + 1.0f / 3.0f, ty); glVertex2i(cx + w, cy + h); 
@@ -696,6 +658,7 @@ void render()
     //render_particles();
 
     f_render(g.bulletTex);
+    enemyRender(g.enemyTex);
 }
 
 

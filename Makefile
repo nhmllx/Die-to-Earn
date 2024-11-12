@@ -4,7 +4,7 @@ LFLAGS = -lrt -lX11 -lGLU -lGL -pthread -lm #-lXrandr
 all: walk
 
 walk: walk.cpp fmateolazo.cpp imalleaux.cpp
-	g++ $(CFLAGS) walk.cpp libggfonts.a fmateolazo.cpp imalleaux.cpp -Wall -Wextra $(LFLAGS) -owalk
+	g++ $(CFLAGS) walk.cpp libggfonts.a fmateolazo.cpp imalleaux.cpp nmalleaux.cpp -Wall -Wextra $(LFLAGS) -owalk
 
 clean:
 	rm -f walk
