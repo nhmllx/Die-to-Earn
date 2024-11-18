@@ -36,8 +36,8 @@ public:
 		//xres=1200;
 	    //yres=800;
 
-		pos[0] = 1200 / 2; // position of the center
-		pos[1] = 800 / 2; // position of the center
+		pos[0] = 1000; // position of the center
+		pos[1] = 800 / 3.5; // position of the center
 		vel[0] = vel[1] = 0.0f;
 		w = 100;
 		h = 100;

@@ -97,7 +97,7 @@ class Image {
 };
 Image img[8] = {"images/walk.gif", "images/bg.png", "images/wastelands.png",
                 "images/car_move.png", "images/bomber.png", "images/enemy.png", 
-                "images/speedometer.png", "images/beam.png"};
+                "images/speedometer.png", "images/beam2.png"};
 
 
 //-----------------------------------------------------------------------------
