@@ -44,7 +44,7 @@ public:
 
 	}
 
-} particle[MAX_PARTICLES], bullets[MAX_BULLETS];
+} particle[MAX_PARTICLES], bullets[MAX_BULLETS], beam;
 
 class Bullets {
 
@@ -147,10 +147,15 @@ void update_particles() {
     }
 }
 
-void f_render(GLuint tex) {
+
+
+void f_render(GLuint atex, GLuint btex) {
+
+    beam.h = 145;
+    beam.w = 318;
 
 	glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, tex);
+    glBindTexture(GL_TEXTURE_2D, atex);
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.0f);
     
@@ -160,24 +165,47 @@ void f_render(GLuint tex) {
         glPushMatrix();
         glTranslatef(bullets[i].pos[0], bullets[i].pos[1], 0.0f);
         glBegin(GL_QUADS);
-            glTexCoord2f(0, 1); glVertex2f(-bullets[i].w, -bullets[i].h);
+            glTexCoord2f(0, 1/12); glVertex2f(-bullets[i].w, -bullets[i].h);
             glTexCoord2f(0, 0); glVertex2f(-bullets[i].w,  bullets[i].h);
-            glTexCoord2f(1, 0); glVertex2f( bullets[i].w,  bullets[i].h);
-            glTexCoord2f(1, 1); glVertex2f( bullets[i].w, -bullets[i].h);
+            glTexCoord2f(1/12, 0); glVertex2f( bullets[i].w,  bullets[i].h);
+            glTexCoord2f(1/12, 1/12); glVertex2f( bullets[i].w, -bullets[i].h);
         glEnd();
         glPopMatrix();
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
+ //////////////////////////////////////////
+
+  glBindTexture(GL_TEXTURE_2D, btex);
+   // glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0.0f);
+    
+    glColor3f(1.0, 1.0, 1.0); // Set color to white to avoid interference
+
+   // for (int i = 0; i < nn; i++) {
+        glPushMatrix();
+        glTranslatef(beam.pos[0], beam.pos[1], 0.0f);
+        glBegin(GL_QUADS);
+            glTexCoord2f(0, 1); glVertex2f(-beam.w, -beam.h);
+            glTexCoord2f(0, 0); glVertex2f(-beam.w,  beam.h);
+            glTexCoord2f(1, 0); glVertex2f( beam.w,  beam.h);
+            glTexCoord2f(1, 1); glVertex2f( beam.w, -beam.h);
+        glEnd();
+        glPopMatrix();
+    //}
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+
     glDisable(GL_ALPHA_TEST);
 
-	  int g_color = 80 + (rand() % 130);
-  int r_color = 200 + (rand() % 50);
+    int g_color = 80 + (rand() % 130);
+    int r_color = 200 + (rand() % 50);
 
-  glEnable(GL_TEXTURE_2D);
+  //glEnable(GL_TEXTURE_2D);
 
     //glColor3f(1.0, 1.0, 1.0);
-   // glBindTexture(GL_TEXTURE_2D, tex);
+   // glBindTexture(GL_TEXTURE_2D, atex);
     //
     //glEnable(GL_ALPHA_TEST);
     //glAlphaFunc(GL_GREATER, 0.0f);
