@@ -109,6 +109,9 @@ void enemyRender(GLuint etex) {
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);
 }
+void bossRender(GLuint btex)
+{
+}
 #endif
 
 
