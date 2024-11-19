@@ -28,7 +28,7 @@ extern void ammo_pos();
 extern void f_render(GLuint);
 extern void enemyAnimate(void);
 extern void enemyRender(GLuint);
-extern void speedometerRender(GLuint);
+extern void speedometerRender(GLuint, float);
 //defined types
 typedef double Flt;
 typedef double Vec[3];
@@ -679,7 +679,8 @@ void render()
 
     f_render(g.bulletTex);
     enemyRender(g.enemyTex);
-    speedometerRender(g.speedoTex);
+    float currentSpeedAngle = 45.0f;
+    speedometerRender(g.speedoTex, currentSpeedAngle);
 }
 
 

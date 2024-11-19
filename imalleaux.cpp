@@ -74,7 +74,8 @@ void render3(float x[], float y[], GLuint bt, int xres,int yres)
 
 }
 
-void speedometerRender(GLuint stex) {
+
+void speedometerRender(GLuint stex, float speedAngle) {
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, stex);  // Bind the speedometer texture
 
@@ -89,12 +90,8 @@ void speedometerRender(GLuint stex) {
     glPushMatrix();
 
     // Position the speedometer in the center of the screen
-    // Adjust these values based on your window size or desired position
     float posX = 1080.0f;  // Left side of the screen
-    float posY = 680.0f;  // Top side of the screen
-
-    // Optionally, you can apply a rotation to the speedometer (e.g., based on the speed)
-    // glRotatef(speedAngle, 0.0f, 0.0f, 1.0f);  // Example rotation (if needed)
+    float posY = 680.0f;   // Top side of the screen
 
     glTranslatef(posX, posY, 0.0f);  // Translate to desired position
 
@@ -113,13 +110,29 @@ void speedometerRender(GLuint stex) {
     glVertex2f(-spriteWidth / 2, spriteHeight / 2);
     glEnd();
 
+    // Now, let's draw the speed line
+    // The angle should be adjusted based on the speed (for example, 0.0f -> 0 degrees, max speed -> max angle)
+
+    glPushMatrix();
+    glRotatef(speedAngle, 0.0f, 0.0f, 1.0f);  // Rotate by the speed angle
+
+    glLineWidth(3.0f);  // Line width for better visibility
+    glColor3f(1.0f, 0.0f, 0.0f);  // Red line for the speed indicator
+
+    glBegin(GL_LINES);
+    // Draw the line from the center to the edge of the speedometer (radius = spriteWidth / 2)
+    glVertex2f(0.0f, 0.0f);  // Starting point (center)
+    glVertex2f(0.0f, spriteHeight / 2);  // End point (on the perimeter)
+    glEnd();
+
+    glPopMatrix();  // Pop the rotation matrix for the speed line
+
     glPopMatrix();
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);
 }
-
-                       
+                     
 #endif
 
 
