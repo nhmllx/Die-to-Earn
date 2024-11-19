@@ -28,6 +28,7 @@ extern void ammo_pos();
 extern void f_render(GLuint);
 extern void enemyAnimate(void);
 extern void enemyRender(GLuint);
+extern void speedometerRender(GLuint);
 //defined types
 typedef double Flt;
 typedef double Vec[3];
@@ -93,7 +94,7 @@ class Image {
             unlink(ppmname);
         }
 };
-Image img[6] = {"images/walk.gif", "images/bg.png", "images/wastelands.png","images/car_move.png", "images/bomber.png", "images/enemy.png"};
+Image img[7] = {"images/walk.gif", "images/bg.png", "images/wastelands.png","images/car_move.png", "images/bomber.png", "images/enemy.png", "images/speedometer.png"};
 
 
 //-----------------------------------------------------------------------------
@@ -144,6 +145,7 @@ class Global {
         GLuint walkTexture; //holds data for car sprites
         GLuint bulletTex;
         GLuint enemyTex;
+        GLuint speedoTex;
         Vec box[20];
         Global() {
             memset(keys, 0, 0xffff);
@@ -420,6 +422,24 @@ void initOpengl(void)
     unsigned char *enemydata = buildAlphaData(&img[5]);//The Enemy	
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, enemydata);
+    //-----------------------------------------------------------------
+    w = img[6].width;
+    h = img[6].height;
+    //
+    //create opengl texture elements
+    glGenTextures(1, &g.speedoTex); 
+    //silhouette
+    //this is similar to a sprite graphic
+    //
+    glBindTexture(GL_TEXTURE_2D, g.speedoTex);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    //
+    //must build a new set of data...
+    unsigned char *speedodata = buildAlphaData(&img[6]);//The speedometer	
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, speedodata);
 }
 
 void init() {
@@ -659,6 +679,7 @@ void render()
 
     f_render(g.bulletTex);
     enemyRender(g.enemyTex);
+    speedometerRender(g.speedoTex);
 }
 
 

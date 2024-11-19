@@ -72,20 +72,52 @@ void render3(float x[], float y[], GLuint bt, int xres,int yres)
     glTexCoord2f(x[1], y[1]); glVertex2i(xres, 0);
     glEnd();
 
-    /*r.bot = g.yres - 20;
-    r.left = 10;
-    r.center = 0;
-    ggprint8b(&r, 16, c, "E   particles");
-    ggprint8b(&r, 16, c, "S   shoot");
-    ggprint8b(&r, 16, c, "+   faster");
-    ggprint8b(&r, 16, c, "-   slower");
-    ggprint8b(&r, 16, c, "up arrow: accelerate");
-    ggprint8b(&r, 16, c, "right arrow -> tilt right");
-    ggprint8b(&r, 16, c, "left arrow  <- tilt left");
-    ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);*/
-
 }
 
+void speedometerRender(GLuint stex) {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, stex);  // Bind the speedometer texture
+
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0.0f);
+
+    float spriteWidth = 260.0f;   // Width of the speedometer (260)
+    float spriteHeight = 260.0f;  // Height of the speedometer (260)
+
+    glColor3f(1.0, 1.0, 1.0);  
+
+    glPushMatrix();
+
+    // Position the speedometer in the center of the screen
+    // Adjust these values based on your window size or desired position
+    float posX = 1080.0f;  // Left side of the screen
+    float posY = 680.0f;  // Top side of the screen
+
+    // Optionally, you can apply a rotation to the speedometer (e.g., based on the speed)
+    // glRotatef(speedAngle, 0.0f, 0.0f, 1.0f);  // Example rotation (if needed)
+
+    glTranslatef(posX, posY, 0.0f);  // Translate to desired position
+
+    // Draw the speedometer texture
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f);  // Top left
+    glVertex2f(-spriteWidth / 2, -spriteHeight / 2);
+
+    glTexCoord2f(1.0f, 1.0f);  // Top right
+    glVertex2f(spriteWidth / 2, -spriteHeight / 2);
+
+    glTexCoord2f(1.0f, 0.0f);  // Bottom right
+    glVertex2f(spriteWidth / 2, spriteHeight / 2);
+
+    glTexCoord2f(0.0f, 0.0f);  // Bottom left
+    glVertex2f(-spriteWidth / 2, spriteHeight / 2);
+    glEnd();
+
+    glPopMatrix();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_ALPHA_TEST);
+}
 
                        
 #endif
