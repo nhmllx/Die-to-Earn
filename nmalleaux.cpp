@@ -51,8 +51,8 @@ class Enemy {
         int h;
 
         Enemy() {
-            pos[0] = 1200 / 2; // enemy x position
-            pos[1] = 800 / 2; // enemy y position
+            pos[0] = 1200 / 1.3; // enemy x position
+            pos[1] = 220; // enemy y position
             vel[0] = 0.0f;
             vel[1] = 0.0f;
             w = 20;
@@ -106,6 +106,7 @@ void enemyRender(GLuint etex)
 
         glEnd();
         glPopMatrix();
+        enemies[i].pos[0] = enemies[i].pos[0] - 2; //move blob
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
