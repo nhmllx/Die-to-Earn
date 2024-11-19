@@ -48,7 +48,45 @@ void render2(float x[], float y[], GLuint bt, int xres,int yres)
     glTexCoord2f(x[1], y[1]); glVertex2i(xres, 0);
     glEnd();
     //draw background
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(1.0, 1.0, 1.0);
+    glBindTexture(GL_TEXTURE_2D, bt);
+    glBegin(GL_QUADS);
+    glTexCoord2f(x[0], y[1]); glVertex2i(0, 0);
+    glTexCoord2f(x[0], y[0]); glVertex2i(0, yres);
+    glTexCoord2f(x[1], y[0]); glVertex2i(xres, yres);
+    glTexCoord2f(x[1], y[1]); glVertex2i(xres, 0);
+    glEnd();
 }
+//UI elements
+void render3(float x[], float y[], GLuint bt, int xres,int yres)
+{
+    //Rect r;
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(1.0, 1.0, 1.0);
+    glBindTexture(GL_TEXTURE_2D, bt);
+    glBegin(GL_QUADS);
+    glTexCoord2f(x[0], y[1]); glVertex2i(0, 0);
+    glTexCoord2f(x[0], y[0]); glVertex2i(0, yres);
+    glTexCoord2f(x[1], y[0]); glVertex2i(xres, yres);
+    glTexCoord2f(x[1], y[1]); glVertex2i(xres, 0);
+    glEnd();
+
+    /*r.bot = g.yres - 20;
+    r.left = 10;
+    r.center = 0;
+    ggprint8b(&r, 16, c, "E   particles");
+    ggprint8b(&r, 16, c, "S   shoot");
+    ggprint8b(&r, 16, c, "+   faster");
+    ggprint8b(&r, 16, c, "-   slower");
+    ggprint8b(&r, 16, c, "up arrow: accelerate");
+    ggprint8b(&r, 16, c, "right arrow -> tilt right");
+    ggprint8b(&r, 16, c, "left arrow  <- tilt left");
+    ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);*/
+
+}
+
+
                        
 #endif
 
