@@ -74,6 +74,42 @@ void render3(float x[], float y[], GLuint bt, int xres,int yres)
 
 }
 
+void fuelRender(GLuint ftex) {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, ftex);  // Bind the speedometer texture
+
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0.0f);
+
+    float sspriteWidth = 260.0f;   // Width of the speedometer (260)
+    float sspriteHeight = 260.0f;  // Height of the speedometer (260)
+
+    glColor3f(1.0, 1.0, 1.0);  
+
+    glPushMatrix();
+
+    // Position the speedometer in the center of the screen
+    float posX = 1080.0f;  // Left side of the screen
+    float posY = 180.0f;   // Top side of the screen
+
+    glTranslatef(posX, posY, 0.0f);  // Translate to desired position
+
+    // Draw the speedometer texture
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f);  // Top left
+    glVertex2f(-sspriteWidth / 2, -sspriteHeight / 2);
+
+    glTexCoord2f(1.0f, 1.0f);  // Top right
+    glVertex2f(sspriteWidth / 2, -sspriteHeight / 2);
+
+    glTexCoord2f(1.0f, 0.0f);  // Bottom right
+    glVertex2f(sspriteWidth / 2, sspriteHeight / 2);
+
+    glTexCoord2f(0.0f, 0.0f);  // Bottom left
+    glVertex2f(-sspriteWidth / 2, sspriteHeight / 2);
+    glEnd();
+}
+
 
 void speedometerRender(GLuint stex, float speedAngle) {
     glEnable(GL_TEXTURE_2D);

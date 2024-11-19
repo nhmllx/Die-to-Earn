@@ -30,6 +30,7 @@ extern void enemyAnimate(void);
 extern void enemyRender(GLuint);
 extern void bossRender(GLuint);
 extern void speedometerRender(GLuint, float);
+extern void fuelRender(GLuint);
 //defined types
 typedef double Flt;
 typedef double Vec[3];
@@ -95,9 +96,9 @@ class Image {
             unlink(ppmname);
         }
 };
-Image img[8] = {"images/walk.gif", "images/bg.png", "images/wastelands.png",
+Image img[9] = {"images/walk.gif", "images/bg.png", "images/wastelands.png",
                 "images/car_move.png", "images/bomber.png", "images/enemy.png", 
-                "images/speedometer.png", "images/beam2.png"};
+                "images/speedometer.png", "images/beam2.png", "images/fuel.png"};
 
 
 //-----------------------------------------------------------------------------
@@ -150,6 +151,7 @@ class Global {
         GLuint enemyTex;
         GLuint speedoTex;
         GLuint beamTex;
+        GLuint fuelTex;
         Vec box[20];
         Global() {
             memset(keys, 0, 0xffff);
@@ -445,7 +447,7 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, speedodata);
 
-    \
+    //--------------------------------------------------------------
     w = img[7].width;
     h = img[7].height;
 
@@ -462,6 +464,24 @@ void initOpengl(void)
     unsigned char *bTex = buildAlphaData(&img[7]);//The Bullets	
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, bTex);
+    //-------------------------------------------------------------
+    w = img[8].width;
+    h = img[8].height;
+    //
+    //create opengl texture elements
+    glGenTextures(1, &g.fuelTex); 
+    //silhouette
+    //this is similar to a sprite graphic
+    //
+    glBindTexture(GL_TEXTURE_2D, g.fuelTex);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    //
+    //must build a new set of data...
+    unsigned char *fueldata = buildAlphaData(&img[8]);//The speedometer	
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, fueldata);
 }
 
 void init() {
@@ -704,6 +724,7 @@ void render()
     //bossRender(g.enemyTex);
     float currentSpeedAngle = 45.0f;
     speedometerRender(g.speedoTex, currentSpeedAngle);
+    //fuelRender(g.fuelTex);
 }
 
 
