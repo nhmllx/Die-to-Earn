@@ -46,7 +46,7 @@ class Enemy {
     public:
         float pos[2];    
         float vel[2];    
-        int w, h;        t
+        int w, h;        
 
         Enemy() {
             pos[0] = rand() % 1200; 
