@@ -44,24 +44,21 @@ int frameno = 0;
 float delayer = 0.01f;
 class Enemy {
     public:
-        float pos[2];	//position
-        float last_pos[2];	//last position
-        float vel[2];	//velocity
-        int w;
-        int h;
+        float pos[2];    
+        float vel[2];    
+        int w, h;        t
 
         Enemy() {
-            pos[0] = 1200 / 1.3; // enemy x position
-            pos[1] = 220; // enemy y position
-            vel[0] = 0.0f;
-            vel[1] = 0.0f;
-            w = 20;
-            h = 20;
+            pos[0] = rand() % 1200; 
+            pos[1] = rand() % 600;  
+            vel[0] = rand() % 5 + 1; 
+            vel[1] = 0.0f;           
+            w = 20;                  
+            h = 20;                  
         }
 } enemies[MAX_ENEMIES];
 
-void enemyAnimate(void) //call in walk.cpp main
-{
+void enemyAnimate(void) {
     anim.recordTime(&anim.timeCurrent);
     double timeSpan = anim.timeDiff(&anim.spriteTime, &anim.timeCurrent);
     if (timeSpan > delayer) {
@@ -70,43 +67,43 @@ void enemyAnimate(void) //call in walk.cpp main
             frameno -= 18;
         anim.recordTime(&anim.spriteTime);
     }
+
+    for (int i = 0; i < MAX_ENEMIES; i++) {
+        enemies[i].pos[0] -= enemies[i].vel[0]; 
+    }
 }
-void enemyRender(GLuint etex)
-{
+
+void enemyRender(GLuint etex) {
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, etex);
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.0f);
 
     float spriteWidth = 900.0f / 9.0f;  
-    float spriteHeight = 100.0f;      
+    float spriteHeight = 100.0f;        
 
     glColor3f(1.0, 1.0, 1.0);
 
     for (int i = 0; i < MAX_ENEMIES; i++) {
         glPushMatrix();
-        glAlphaFunc(GL_GREATER, 0.0f);
-        glColor4ub(255, 255, 255, 255);
 
-        int ix = frameno % 9;  // Get the current sprite frame (0 to 8)
-
-        float tx = (float)(ix * spriteWidth) / 900.0f;  // x offset for current sprite frame
-        float ty = 0.0f;  // y offset (since all frames are in a single row)
-        float flipped = tx + spriteWidth / 900.0f;  // Right boundary for the current sprite
+        int ix = frameno % 9;  
+        float tx = (float)(ix * spriteWidth) / 900.0f;  
+        float ty = 0.0f;  
+        float flipped = tx + spriteWidth / 900.0f;  
 
         glBegin(GL_QUADS);
-        glTexCoord2f(flipped, ty + 1.0f); // top left
+        glTexCoord2f(flipped, ty + 1.0f);  // top left
         glVertex2f(enemies[i].pos[0] - spriteWidth / 2, enemies[i].pos[1] - spriteHeight / 2);
-        glTexCoord2f(flipped, ty); // bottom left
+        glTexCoord2f(flipped, ty);  // bottom left
         glVertex2f(enemies[i].pos[0] - spriteWidth / 2, enemies[i].pos[1] + spriteHeight / 2);
-        glTexCoord2f(tx, ty); // bottom right
+        glTexCoord2f(tx, ty);  // bottom right
         glVertex2f(enemies[i].pos[0] + spriteWidth / 2, enemies[i].pos[1] + spriteHeight / 2);
-        glTexCoord2f(tx, ty + 1.0f); // top right
+        glTexCoord2f(tx, ty + 1.0f);  // top right
         glVertex2f(enemies[i].pos[0] + spriteWidth / 2, enemies[i].pos[1] - spriteHeight / 2);
-
         glEnd();
+
         glPopMatrix();
-        enemies[i].pos[0] = enemies[i].pos[0] - 2; //move blob
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
