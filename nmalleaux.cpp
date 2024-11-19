@@ -78,8 +78,8 @@ void enemyRender(GLuint etex)
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.0f);
 
-    float spriteWidth = 900.0f / 9.0f;  // Width of each sprite in the sprite sheet
-    float spriteHeight = 100.0f;        // Height of each sprite (constant)
+    float spriteWidth = 900.0f / 9.0f;  
+    float spriteHeight = 100.0f;      
 
     glColor3f(1.0, 1.0, 1.0);
 
@@ -92,22 +92,18 @@ void enemyRender(GLuint etex)
 
         float tx = (float)(ix * spriteWidth) / 900.0f;  // x offset for current sprite frame
         float ty = 0.0f;  // y offset (since all frames are in a single row)
-
-        float txEnd = tx + spriteWidth / 900.0f;  // Right boundary for the current sprite
+        float flipped = tx + spriteWidth / 900.0f;  // Right boundary for the current sprite
 
         glBegin(GL_QUADS);
-        // Top-left corner
-        glTexCoord2f(tx, ty + 1.0f);
+        glTexCoord2f(flipped, ty + 1.0f); // top left
         glVertex2f(enemies[i].pos[0] - spriteWidth / 2, enemies[i].pos[1] - spriteHeight / 2);
-        // Bottom-left corner
-        glTexCoord2f(tx, ty);
+        glTexCoord2f(flipped, ty); // bottom left
         glVertex2f(enemies[i].pos[0] - spriteWidth / 2, enemies[i].pos[1] + spriteHeight / 2);
-        // Bottom-right corner
-        glTexCoord2f(txEnd, ty);
+        glTexCoord2f(tx, ty); // bottom right
         glVertex2f(enemies[i].pos[0] + spriteWidth / 2, enemies[i].pos[1] + spriteHeight / 2);
-        // Top-right corner
-        glTexCoord2f(txEnd, ty + 1.0f);
+        glTexCoord2f(tx, ty + 1.0f); // top right
         glVertex2f(enemies[i].pos[0] + spriteWidth / 2, enemies[i].pos[1] - spriteHeight / 2);
+
         glEnd();
         glPopMatrix();
     }
