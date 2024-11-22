@@ -30,6 +30,7 @@ extern void enemyAnimate(void);
 extern void enemyRender(GLuint);
 extern void bossRender(GLuint);
 extern void speedometerRender(GLuint, float);
+extern int beam_flag;
 //defined types
 typedef double Flt;
 typedef double Vec[3];
@@ -97,7 +98,7 @@ class Image {
 };
 Image img[8] = {"images/walk.gif", "images/bg.png", "images/wastelands.png",
                 "images/car_move.png", "images/bomber.png", "images/enemy.png", 
-                "images/speedometer.png", "images/beam2.png"};
+                "images/speedometer.png", "images/beam.png"};
 
 
 //-----------------------------------------------------------------------------
@@ -499,6 +500,7 @@ int keyf = 0;
 float cx = g.xres/4; //xpos of car
                      //float cx = g.yres/verticalChange; to change vertical pos
 float cy = g.yres/3.5; // ypos of car
+//int beam_on = 0;
 
 int checkKeys(XEvent *e)
 {
@@ -554,6 +556,17 @@ int checkKeys(XEvent *e)
                 break;
             case XK_s: 
                  make_ammo(cx + 20, cy);
+                 break;
+            case XK_d:
+                
+                if (beam_flag == 0) {
+
+                    beam_flag = 1;
+                }
+                else {
+                    beam_flag = 0;
+                }
+    
                  break;
             case XK_equal:
                 g.delay -= 0.005;
@@ -689,7 +702,8 @@ void render()
     r.left = 10;
     r.center = 0;
     ggprint8b(&r, 16, c, "E   particles");
-    ggprint8b(&r, 16, c, "S   shoot");
+    ggprint8b(&r, 16, c, "S   bullets");
+    ggprint8b(&r, 16, c, "D   beam");
     ggprint8b(&r, 16, c, "+   faster");
     ggprint8b(&r, 16, c, "-   slower");
     ggprint8b(&r, 16, c, "up arrow: accelerate");

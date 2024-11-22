@@ -14,6 +14,7 @@
 #include <stdlib.h>
 
 extern GLuint bulletTex;
+extern float cy;
 
 int mateo_show = 0;
 const int MAX_PARTICLES = 800;
@@ -21,8 +22,10 @@ const int MAX_BULLETS = 50;
 
 int n = 0;
 int nn = 0;
+int coord[2] = {105, 228};
 float bulletDelay = 0.05f; // delay between bullets in seconds
 clock_t lastBulletTime = clock();
+int beam_flag = 0;
 
 class Projectile {
 public:
@@ -36,7 +39,7 @@ public:
 		//xres=1200;
 	    //yres=800;
 
-		pos[0] = 1000; // position of the center
+		pos[0] = 1000;// / 1.4; // position of the center
 		pos[1] = 800 / 3.5; // position of the center
 		vel[0] = vel[1] = 0.0f;
 		w = 100;
@@ -147,12 +150,19 @@ void update_particles() {
     }
 }
 
-
+int currentFrame = 0;         // Current column/frame
+const int totalFrames = 12; 
+int car_pos;
 
 void f_render(GLuint atex, GLuint btex) {
 
+
     beam.h = 145;
-    beam.w = 318;
+    beam.w = 800;
+    beam.pos[1] = cy;
+
+    float u_start = currentFrame / static_cast<float>(totalFrames);
+    float u_end = (currentFrame + 1) / static_cast<float>(totalFrames);
 
 	glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, atex);
@@ -165,10 +175,10 @@ void f_render(GLuint atex, GLuint btex) {
         glPushMatrix();
         glTranslatef(bullets[i].pos[0], bullets[i].pos[1], 0.0f);
         glBegin(GL_QUADS);
-            glTexCoord2f(0, 1/12); glVertex2f(-bullets[i].w, -bullets[i].h);
+            glTexCoord2f(0, 1); glVertex2f(-bullets[i].w, -bullets[i].h);
             glTexCoord2f(0, 0); glVertex2f(-bullets[i].w,  bullets[i].h);
-            glTexCoord2f(1/12, 0); glVertex2f( bullets[i].w,  bullets[i].h);
-            glTexCoord2f(1/12, 1/12); glVertex2f( bullets[i].w, -bullets[i].h);
+            glTexCoord2f(1, 0); glVertex2f( bullets[i].w,  bullets[i].h);
+            glTexCoord2f(1, 1); glVertex2f( bullets[i].w, -bullets[i].h);
         glEnd();
         glPopMatrix();
     }
@@ -176,6 +186,7 @@ void f_render(GLuint atex, GLuint btex) {
     glBindTexture(GL_TEXTURE_2D, 0);
  //////////////////////////////////////////
 
+if (beam_flag) {
   glBindTexture(GL_TEXTURE_2D, btex);
    // glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.0f);
@@ -184,15 +195,19 @@ void f_render(GLuint atex, GLuint btex) {
 
    // for (int i = 0; i < nn; i++) {
         glPushMatrix();
-        glTranslatef(beam.pos[0], beam.pos[1], 0.0f);
-        glBegin(GL_QUADS);
-            glTexCoord2f(0, 1); glVertex2f(-beam.w, -beam.h);
-            glTexCoord2f(0, 0); glVertex2f(-beam.w,  beam.h);
-            glTexCoord2f(1, 0); glVertex2f( beam.w,  beam.h);
-            glTexCoord2f(1, 1); glVertex2f( beam.w, -beam.h);
-        glEnd();
-        glPopMatrix();
+    glTranslatef(beam.pos[0], beam.pos[1], 0.0f);
+    glBegin(GL_QUADS);
+        glTexCoord2f(u_start, 1); glVertex2f(-beam.w, -beam.h); // Top-left
+        glTexCoord2f(u_start, 0); glVertex2f(-beam.w,  beam.h); // Bottom-left
+        glTexCoord2f(u_end, 0);   glVertex2f( beam.w,  beam.h); // Bottom-right
+        glTexCoord2f(u_end, 1);   glVertex2f( beam.w, -beam.h); // Top-right
+    glEnd();
+    glPopMatrix();
+
+    // Update frame for the next render call
+    currentFrame = (currentFrame + 1) % totalFrames;
     //}
+}
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
