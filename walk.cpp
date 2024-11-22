@@ -703,7 +703,7 @@ void render()
     r.center = 0;
     ggprint8b(&r, 16, c, "E   particles");
     ggprint8b(&r, 16, c, "S   bullets");
-    ggprint8b(&r, 16, c, "D   beam");
+    ggprint8b(&r, 16, c, "D   beam shot");
     ggprint8b(&r, 16, c, "+   faster");
     ggprint8b(&r, 16, c, "-   slower");
     ggprint8b(&r, 16, c, "up arrow: accelerate");
