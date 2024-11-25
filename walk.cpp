@@ -29,6 +29,7 @@ extern void f_render(GLuint, GLuint);
 extern void enemyAnimate(void);
 extern void enemyRender(GLuint);
 extern void bossRender(GLuint);
+extern void HealthRender(GLuint);
 extern void speedometerRender(GLuint, float);
 extern int beam_flag;
 //defined types
@@ -96,9 +97,9 @@ class Image {
             unlink(ppmname);
         }
 };
-Image img[8] = {"images/walk.gif", "images/bg.png", "images/wastelands.png",
+Image img[9] = {"images/walk.gif", "images/bg.png", "images/wastelands.png",
                 "images/car_move.png", "images/bomber.png", "images/enemy.png", 
-                "images/speedometer.png", "images/beam.png"};
+                "images/speedometer.png", "images/beam.png", "images/health.png"};
 
 
 //-----------------------------------------------------------------------------
@@ -151,6 +152,7 @@ class Global {
         GLuint enemyTex;
         GLuint speedoTex;
         GLuint beamTex;
+        GLuint healthTex;
         Vec box[20];
         Global() {
             memset(keys, 0, 0xffff);
@@ -463,6 +465,23 @@ void initOpengl(void)
     unsigned char *bTex = buildAlphaData(&img[7]);//The Bullets	
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, bTex);
+    //health---------------------------------
+    w = img[8].width;
+    h = img[8].height;
+
+    glGenTextures(1, &g.healthTex); 
+    //silhouette
+    //this is similar to a sprite graphic
+    //
+    glBindTexture(GL_TEXTURE_2D, g.healthTex);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    //
+    //must build a new set of data...
+    unsigned char *hedata = buildAlphaData(&img[8]);//The heart
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, hedata);
 }
 
 void init() {
@@ -715,6 +734,7 @@ void render()
 
     f_render(g.bulletTex, g.beamTex);
     enemyRender(g.enemyTex);
+    //HealthRender(g.healthTex);
     //bossRender(g.enemyTex);
     float currentSpeedAngle = 45.0f;
     speedometerRender(g.speedoTex, currentSpeedAngle);

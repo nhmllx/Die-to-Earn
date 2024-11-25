@@ -146,8 +146,8 @@ void speedometerRender(GLuint stex, float speedAngle) {
     glVertex2f(-spriteWidth / 2, spriteHeight / 2);
     glEnd();
 
-    // Now, let's draw the speed line
-    // The angle should be adjusted based on the speed (for example, 0.0f -> 0 degrees, max speed -> max angle)
+    // draw the speed line
+    // The angle should be adjusted 
 
     glPushMatrix();
     glRotatef(speedAngle, 0.0f, 0.0f, 1.0f);  // Rotate by the speed angle
@@ -169,6 +169,42 @@ void speedometerRender(GLuint stex, float speedAngle) {
     glDisable(GL_ALPHA_TEST);
 }
                      
+void HealthRender(GLuint htex) {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, htex);  // Bind the speedometer texture
+
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0.0f);
+
+    float spriteWidth = 260.0f;   // Width of the speedometer (260)
+    float spriteHeight = 260.0f;  // Height of the speedometer (260)
+
+    glColor3f(1.0, 1.0, 1.0);  
+
+    glPushMatrix();
+
+    // Position the speedometer in the center of the screen
+    float posX = 1080.0f;  // Left side of the screen
+    float posY = 680.0f;   // Top side of the screen
+
+    glTranslatef(posX, posY, 0.0f);  // Translate to desired position
+
+    // Draw the speedometer texture
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f);  // Top left
+    glVertex2f(-spriteWidth / 2, -spriteHeight / 2);
+
+    glTexCoord2f(1.0f, 1.0f);  // Top right
+    glVertex2f(spriteWidth / 2, -spriteHeight / 2);
+
+    glTexCoord2f(1.0f, 0.0f);  // Bottom right
+    glVertex2f(spriteWidth / 2, spriteHeight / 2);
+
+    glTexCoord2f(0.0f, 0.0f);  // Bottom left
+    glVertex2f(-spriteWidth / 2, spriteHeight / 2);
+    glEnd();
+}
+
 #endif
 
 
