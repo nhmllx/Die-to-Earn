@@ -107,7 +107,11 @@ void fuelRender(GLuint ftex) {
 
     glTexCoord2f(0.0f, 0.0f);  // Bottom left
     glVertex2f(-sspriteWidth / 2, sspriteHeight / 2);
-    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, 0);   // Unbind texture
+    glDisable(GL_ALPHA_TEST);          // Disable alpha test
+
+    //glEnd();
 }
 
 
@@ -144,6 +148,9 @@ void speedometerRender(GLuint stex, float speedAngle) {
 
     glTexCoord2f(0.0f, 0.0f);  // Bottom left
     glVertex2f(-spriteWidth / 2, spriteHeight / 2);
+
+    glBindTexture(GL_TEXTURE_2D, 0);   // Unbind texture
+    glDisable(GL_ALPHA_TEST);          // Disable alpha test
     glEnd();
 
     // draw the speed line
@@ -165,8 +172,8 @@ void speedometerRender(GLuint stex, float speedAngle) {
 
     glPopMatrix();
 
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_ALPHA_TEST);
+    //glBindTexture(GL_TEXTURE_2D, 0);
+    //glDisable(GL_ALPHA_TEST);
 }
                      
 void HealthRender(GLuint htex) {
@@ -202,6 +209,8 @@ void HealthRender(GLuint htex) {
 
     glTexCoord2f(0.0f, 0.0f);  // Bottom left
     glVertex2f(-spriteWidth / 2, spriteHeight / 2);
+    glBindTexture(GL_TEXTURE_2D, 0);   // Unbind texture
+    glDisable(GL_ALPHA_TEST);          // Disable alpha test
     glEnd();
 }
 
