@@ -28,6 +28,7 @@ extern void ammo_pos();
 extern void f_render(GLuint, GLuint);
 extern void enemyAnimate(void);
 extern void enemyRender(GLuint);
+extern void enemyKiller();
 extern void bossRender(GLuint);
 extern void HealthRender(GLuint);
 extern void speedometerRender(GLuint, float);
@@ -575,6 +576,9 @@ int checkKeys(XEvent *e)
                 break;
             case XK_s: 
                  make_ammo(cx + 20, cy);
+                 break;
+          case XK_p: 
+                 enemyKiller();
                  break;
             case XK_d:
                 
