@@ -15,7 +15,7 @@
 
 //extern class timers;
 extern GLuint enemyTex;
-const int MAX_ENEMIES = 30;
+int count = 30;
 
 
 class Animate {
@@ -56,7 +56,7 @@ class Enemy {
             w = 20;                  
             h = 20;                  
         }
-} enemies[MAX_ENEMIES];
+} enemies[30];
 
 void enemyAnimate(void) {
     anim.recordTime(&anim.timeCurrent);
@@ -68,10 +68,11 @@ void enemyAnimate(void) {
         anim.recordTime(&anim.spriteTime);
     }
 
-    for (int i = 0; i < MAX_ENEMIES; i++) {
+    for (int i = 0; i < count; i++) {
         enemies[i].pos[0] -= enemies[i].vel[0]; 
     }
 }
+
 
 void enemyRender(GLuint etex) {
     glEnable(GL_TEXTURE_2D);
@@ -84,7 +85,7 @@ void enemyRender(GLuint etex) {
 
     glColor3f(1.0, 1.0, 1.0);
 
-    for (int i = 0; i < MAX_ENEMIES; i++) {
+    for (int i = 0; i < count; i++) {
         glPushMatrix();
 
         int ix = frameno % 9;  
@@ -108,6 +109,13 @@ void enemyRender(GLuint etex) {
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);
+}
+void enemyKiller()
+{
+    if (count > 0) {
+
+    count--;
+    }
 }
 void bossRender(GLuint btex)
 {
