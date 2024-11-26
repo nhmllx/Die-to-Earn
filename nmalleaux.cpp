@@ -49,7 +49,7 @@ class Enemy {
 
         Enemy() {
             pos[0] = rand() % 1200; 
-            pos[1] = rand() % 600;  
+            pos[1] = rand() % 280;  
             vel[0] = rand() % 5 + 1; 
             vel[1] = 0.0f;           
             w = 20;                  
