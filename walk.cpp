@@ -99,9 +99,10 @@ class Image {
             unlink(ppmname);
         }
 };
-Image img[10] = {"images/walk.gif", "images/bg.png", "images/wastelands.png",
+Image img[11] = {"images/walk.gif", "images/bg.png", "images/wastelands.png",
                 "images/car_move.png", "images/bomber.png", "images/enemy.png", 
-                "images/speedometer.png", "images/beam.png", "images/health.png", "images/fuel.png"};
+                "images/speedometer.png", "images/beam.png", "images/health.png", 
+                "images/fuel.png", "images/tank.png"};
 
 
 //-----------------------------------------------------------------------------
@@ -156,6 +157,7 @@ class Global {
         GLuint beamTex;
         GLuint healthTex;
         GLuint fuelTex;
+        GLuint bossTex;
         Vec box[20];
         Global() {
             memset(keys, 0, 0xffff);
@@ -501,6 +503,24 @@ void initOpengl(void)
     unsigned char *fdata = buildAlphaData(&img[9]);//The heart
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, fdata);
+    //-------------------------------------------------------------------------
+    w = img[10].width;
+    h = img[10].height;
+    //
+    //create opengl texture elements
+    glGenTextures(1, &g.bossTex); 
+    //silhouette
+    //this is similar to a sprite graphic
+    //
+    glBindTexture(GL_TEXTURE_2D, g.bossTex);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    //
+    //must build a new set of data...
+    unsigned char *bossdata = buildAlphaData(&img[10]);//The Boss	
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, bossdata);
 }
 
 void init() {
@@ -758,7 +778,7 @@ void render()
     enemyRender(g.enemyTex);
     HealthRender(g.healthTex);
     fuelRender(g.fuelTex);
-    //bossRender(g.enemyTex);
+    bossRender(g.bossTex);
     float currentSpeedAngle = 45.0f;
     speedometerRender(g.speedoTex, currentSpeedAngle);
 }
