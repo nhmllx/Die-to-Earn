@@ -707,6 +707,7 @@ void physics(void)
 //float cx = g.xres/4; //xpos of car
                      //float cx = g.yres/verticalChange; to change vertical pos
 //float cy = g.yres/3.5; // ypos of car
+float currentSpeedAngle = 140.0f;
 void render()
 {
     Rect r;
@@ -779,7 +780,9 @@ void render()
     HealthRender(g.healthTex);
     fuelRender(g.fuelTex);
     bossRender(g.bossTex);
-    float currentSpeedAngle = 45.0f;
+    if (currentSpeedAngle > -140.0f) {
+    currentSpeedAngle--; 
+}
     speedometerRender(g.speedoTex, currentSpeedAngle);
 }
 
