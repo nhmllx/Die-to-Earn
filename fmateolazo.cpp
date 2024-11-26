@@ -87,6 +87,32 @@ void make_particles(XEvent *e, int yres) {
 	return;
 }
 
+void make_particles2(float x, float yres) {
+    float y = yres;  
+
+    std::vector<std::pair<float, float>> velocities = {
+        {0, 6}, {2, 5}, {4, 4},         
+        {5, 2}, {6, 0}, {5, -2}, {4, -4},   
+        {2, -5}, {0, -6}, {-2, -5}, {-4, -4},  
+        {-5, -2}, {-6, 0}, {-5, 2}, {-4, 4},   
+        {-2, 5}   
+    };
+    
+    for (int xIndex = 0; xIndex < (int)velocities.size(); xIndex++) {
+        if (n < MAX_PARTICLES) {
+            particle[n].pos[0] = x;  // x is now passed directly
+            particle[n].pos[1] = y;  // y is set to yres or some chosen value
+            particle[n].w = 4;
+            particle[n].h = 4;
+            particle[n].vel[0] = velocities[xIndex].first;
+            particle[n].vel[1] = velocities[xIndex].second;
+
+            n++;
+        }
+    }
+
+    return;
+}
 void make_ammo(float x, float y) {
 
    clock_t currentTime = clock();
