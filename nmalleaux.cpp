@@ -11,7 +11,7 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "fonts.h"
-extern void make_particles2(float, float);
+extern void make_particles(float, float);
 extern GLuint enemyTex;
 int count = 30;
 
@@ -125,7 +125,7 @@ void enemyAnimate(void) {
         // Check if the enemy reached the target box
         if (checkIfEnemyReachedTarget(i)) {
             printf("Enemy %d has reached the target box!\n", i);  // Print message if enemy reached target
-            make_particles2(enemies[i].pos[0],enemies[i].pos[1]);
+            make_particles(enemies[i].pos[0],enemies[i].pos[1]);
             enemies[i].pos[0] = 1250;// kill off enemy by moving it off screen
            // make_particles2(enemies[i].pos[0],enemies[i].pos[1]);
         }

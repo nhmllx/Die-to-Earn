@@ -12,6 +12,7 @@
 #include <vector>
 #include <ctime>
 #include <stdlib.h>
+#include <cstdlib>
 
 extern GLuint bulletTex;
 extern float cy;
@@ -26,6 +27,7 @@ int coord[2] = {105, 228};
 float bulletDelay = 0.05f; // delay between bullets in seconds
 clock_t lastBulletTime = clock();
 int beam_flag = 0;
+
 
 class Projectile {
 public:
@@ -57,6 +59,7 @@ class Bullets {
 //#define rnd() (float)rand() / (float)RAND_MAX
 //static float initVel = rand(); 
 
+/*
 void make_particles(XEvent *e, int yres) {
 
 	int y = yres - e->xbutton.y;
@@ -86,9 +89,16 @@ void make_particles(XEvent *e, int yres) {
 
 	return;
 }
+*/
 
-void make_particles2(float x, float yres) {
+float randomInRange(float min, float max) {
+    return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / (max - min));
+}
+
+void make_particles(float x, float yres) {
     float y = yres;  
+
+  srand(static_cast<unsigned>(time(0)));
 
     std::vector<std::pair<float, float>> velocities = {
         {0, 6}, {2, 5}, {4, 4},         
@@ -97,6 +107,14 @@ void make_particles2(float x, float yres) {
         {-5, -2}, {-6, 0}, {-5, 2}, {-4, 4},   
         {-2, 5}   
     };
+
+    //Randomize velocities
+      for (auto& velocity : velocities) {
+
+        // add a random velocity within a [-1.5, 1.5] range of original values
+        velocity.first += (rand() % 300 - 150) / 100.0f;  
+        velocity.second += (rand() % 300 - 150) / 100.0f;
+    }
     
     for (int xIndex = 0; xIndex < (int)velocities.size(); xIndex++) {
         if (n < MAX_PARTICLES) {
@@ -113,6 +131,7 @@ void make_particles2(float x, float yres) {
 
     return;
 }
+
 void make_ammo(float x, float y) {
 
    clock_t currentTime = clock();

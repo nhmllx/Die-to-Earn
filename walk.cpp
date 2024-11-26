@@ -18,7 +18,7 @@
 #include <GL/glx.h>
 #include "fonts.h"
 
-extern void make_particles(XEvent*, int);
+extern void make_particles(float, float);
 extern void update_particles();
 extern void render_particles();
 extern void scroll(float val[]);
@@ -586,9 +586,21 @@ int checkKeys(XEvent *e)
                 timers.recordTime(&timers.walkTime);
                 g.walk ^= 1;
                 break;
-            case XK_Left:
+            case XK_Left: 
+
+                if (!(cx <= 125)) {
+
+                    cx -= 35;
+                }
                 break;
-           case XK_Up:
+            case XK_Right:
+
+                  if (!(cx >= (g.xres - 125))) {
+
+                  cx += 35;
+                 }
+                 break;
+            case XK_Up:
                 //         timers.recordTime(&timers.walkTime);
                 //     g.walk = 1;
                 //           g.walk ^= 1;
@@ -610,7 +622,7 @@ int checkKeys(XEvent *e)
                 keyf = 0;
                 break;
             case XK_e: // Calls make_particles when the 'E' key is pressed
-                make_particles(e, g.yres);
+              //  make_particles(e, g.yres);
                 break;
             case XK_s: 
                  make_ammo(cx + 20, cy);
