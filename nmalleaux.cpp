@@ -94,7 +94,7 @@ class Boss {
 } b;
 
 // Define a target bounding box region (left, bottom, right, top) centered on the screen
-float targetBox[4] = {500.0f, 300.0f, 700.0f, 500.0f};  // Example target box centered on (600, 400)
+float targetBox[4] = {250.0f, 000.0f, 450.0f, 300.0f};  // Example target box centered on (600, 400)
 
 // Function to check if an enemy has crossed into the target area
 bool checkIfEnemyReachedTarget(int i) {
@@ -125,8 +125,9 @@ void enemyAnimate(void) {
         // Check if the enemy reached the target box
         if (checkIfEnemyReachedTarget(i)) {
             printf("Enemy %d has reached the target box!\n", i);  // Print message if enemy reached target
-            enemies[i].pos[0] = -1000;// kill off enemy by moving it off screen
             make_particles2(enemies[i].pos[0],enemies[i].pos[1]);
+            enemies[i].pos[0] = 1250;// kill off enemy by moving it off screen
+           // make_particles2(enemies[i].pos[0],enemies[i].pos[1]);
         }
     }
 }
