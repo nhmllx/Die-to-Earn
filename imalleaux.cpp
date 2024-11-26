@@ -76,25 +76,25 @@ void render3(float x[], float y[], GLuint bt, int xres,int yres)
 
 void fuelRender(GLuint ftex) {
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, ftex);  // Bind the speedometer texture
+    glBindTexture(GL_TEXTURE_2D, ftex);  // Bind the fuel texture
 
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.0f);
 
-    float sspriteWidth = 260.0f;   // Width of the speedometer (260)
-    float sspriteHeight = 260.0f;  // Height of the speedometer (260)
+    float sspriteWidth = 160.0f;
+    float sspriteHeight = 160.0f;
 
-    glColor3f(1.0, 1.0, 1.0);  
+    glColor3f(1.0, 1.0, 1.0);
 
-    glPushMatrix();
+    glPushMatrix();  // Start a new transformation block
 
-    // Position the speedometer in the center of the screen
-    float posX = 1080.0f;  // Left side of the screen
-    float posY = 180.0f;   // Top side of the screen
+    // Position the fuel texture
+    float posX = 280.0f;  // Left side of the screen
+    float posY = 60.0f;   // Top side of the screen
 
     glTranslatef(posX, posY, 0.0f);  // Translate to desired position
 
-    // Draw the speedometer texture
+    // Draw the fuel texture
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 1.0f);  // Top left
     glVertex2f(-sspriteWidth / 2, -sspriteHeight / 2);
@@ -108,12 +108,13 @@ void fuelRender(GLuint ftex) {
     glTexCoord2f(0.0f, 0.0f);  // Bottom left
     glVertex2f(-sspriteWidth / 2, sspriteHeight / 2);
 
+    glEnd();  // End of the quad
+
     glBindTexture(GL_TEXTURE_2D, 0);   // Unbind texture
     glDisable(GL_ALPHA_TEST);          // Disable alpha test
 
-    //glEnd();
+    glPopMatrix();  // Restore the matrix
 }
-
 
 void speedometerRender(GLuint stex, float speedAngle) {
     glEnable(GL_TEXTURE_2D);
@@ -122,16 +123,16 @@ void speedometerRender(GLuint stex, float speedAngle) {
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.0f);
 
-    float spriteWidth = 260.0f;   // Width of the speedometer (260)
-    float spriteHeight = 260.0f;  // Height of the speedometer (260)
+    float spriteWidth = 260.0f;
+    float spriteHeight = 260.0f;
 
-    glColor3f(1.0, 1.0, 1.0);  
+    glColor3f(1.0, 1.0, 1.0);
 
-    glPushMatrix();
+    glPushMatrix();  // Start a new transformation block
 
-    // Position the speedometer in the center of the screen
-    float posX = 1080.0f;  // Left side of the screen
-    float posY = 680.0f;   // Top side of the screen
+    // Position the speedometer
+    float posX = 1110.0f;  // Left side of the screen
+    float posY = 690.0f;   // Top side of the screen
 
     glTranslatef(posX, posY, 0.0f);  // Translate to desired position
 
@@ -149,54 +150,49 @@ void speedometerRender(GLuint stex, float speedAngle) {
     glTexCoord2f(0.0f, 0.0f);  // Bottom left
     glVertex2f(-spriteWidth / 2, spriteHeight / 2);
 
+    glEnd();  // End of the quad
+
     glBindTexture(GL_TEXTURE_2D, 0);   // Unbind texture
     glDisable(GL_ALPHA_TEST);          // Disable alpha test
-    glEnd();
 
-    // draw the speed line
-    // The angle should be adjusted 
-
-    glPushMatrix();
+    // Draw the speed line (red line)
+    glPushMatrix();  // Start a new block for line drawing
     glRotatef(speedAngle, 0.0f, 0.0f, 1.0f);  // Rotate by the speed angle
 
     glLineWidth(3.0f);  // Line width for better visibility
-    glColor3f(1.0f, 0.0f, 0.0f);  // Red line for the speed indicator
+    glColor3f(1.0f, 0.0f, 0.0f);  // Red line for speed indicator
 
     glBegin(GL_LINES);
-    // Draw the line from the center to the edge of the speedometer (radius = spriteWidth / 2)
     glVertex2f(0.0f, 0.0f);  // Starting point (center)
-    glVertex2f(0.0f, spriteHeight / 2);  // End point (on the perimeter)
+    glVertex2f(0.0f, spriteHeight/4);  // End point (on the perimeter)
     glEnd();
 
-    glPopMatrix();  // Pop the rotation matrix for the speed line
+    glPopMatrix();  // End of line rotation
 
-    glPopMatrix();
-
-    //glBindTexture(GL_TEXTURE_2D, 0);
-    //glDisable(GL_ALPHA_TEST);
+    glPopMatrix();  // Restore the matrix
 }
-                     
+
 void HealthRender(GLuint htex) {
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, htex);  // Bind the speedometer texture
+    glBindTexture(GL_TEXTURE_2D, htex);  // Bind the health texture
 
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.0f);
 
-    float spriteWidth = 260.0f;   // Width of the speedometer (260)
-    float spriteHeight = 260.0f;  // Height of the speedometer (260)
+    float spriteWidth = 260.0f;
+    float spriteHeight = 260.0f;
 
-    glColor3f(1.0, 1.0, 1.0);  
+    glColor3f(1.0, 1.0, 1.0);
 
-    glPushMatrix();
+    glPushMatrix();  // Start a new transformation block
 
-    // Position the speedometer in the center of the screen
-    float posX = 1080.0f;  // Left side of the screen
-    float posY = 680.0f;   // Top side of the screen
+    // Position the health texture
+    float posX = 100.0f;  // Left side of the screen
+    float posY = 80.0f;   // Top side of the screen
 
     glTranslatef(posX, posY, 0.0f);  // Translate to desired position
 
-    // Draw the speedometer texture
+    // Draw the health texture
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 1.0f);  // Top left
     glVertex2f(-spriteWidth / 2, -spriteHeight / 2);
@@ -209,9 +205,12 @@ void HealthRender(GLuint htex) {
 
     glTexCoord2f(0.0f, 0.0f);  // Bottom left
     glVertex2f(-spriteWidth / 2, spriteHeight / 2);
+    glEnd();  // End of the quad
+
     glBindTexture(GL_TEXTURE_2D, 0);   // Unbind texture
     glDisable(GL_ALPHA_TEST);          // Disable alpha test
-    glEnd();
+
+    glPopMatrix();  // Restore the matrix
 }
 
 #endif

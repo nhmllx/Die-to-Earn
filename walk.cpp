@@ -756,8 +756,8 @@ void render()
 
     f_render(g.bulletTex, g.beamTex);
     enemyRender(g.enemyTex);
-    //HealthRender(g.healthTex);
-    //fuelRender(g.fuelTex);
+    HealthRender(g.healthTex);
+    fuelRender(g.fuelTex);
     //bossRender(g.enemyTex);
     float currentSpeedAngle = 45.0f;
     speedometerRender(g.speedoTex, currentSpeedAngle);
