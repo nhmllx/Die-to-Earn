@@ -76,7 +76,7 @@ class Boss {
         Boss() {
             health = 1000;
             pos[0] =  1800; 
-            pos[1] =  100;  
+            pos[1] =  75;  
             vel[0] = rand() % 5 + 1; 
             vel[1] = 0.0f;           
             w = 20;                  
@@ -187,7 +187,7 @@ void bossRender(GLuint btex)
     glColor3f(1.0, 1.0, 1.0);
 
         glPushMatrix();
-        glScalef(2.0f, 2.0f, 1.0f);  // Scale by 2x in both x and y directions
+        glScalef(1.75f, 1.75f, 1.0f);  // Scale by 2x in both x and y directions
 
         int ix = frameno % 13;
         float tx = (float)(ix * spriteWidth) / 1950.0f;  // left part of the sprite
@@ -214,7 +214,7 @@ void bossRender(GLuint btex)
         glEnd();
 
         glPopMatrix();
-        if (b.pos[0] > 460) {
+        if (b.pos[0] > 560) {
             printf("boss pos: %f\n", b.pos[0]);
     b.pos[0] = b.pos[0] - 10;
         }
