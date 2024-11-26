@@ -11,7 +11,7 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "fonts.h"
-
+extern void make_particles2(float, float);
 extern GLuint enemyTex;
 int count = 30;
 
@@ -67,14 +67,16 @@ class Enemy {
 } enemies[30];
 class Boss {
     public:
+        int health;
         float pos[2];    
         float vel[2];    
         int w, h;        
         float collisionBox[4]; // left, bottom, right, top
 
         Boss() {
-            pos[0] = rand() % 1200; 
-            pos[1] = rand() % 600;  
+            health = 1000;
+            pos[0] =  1800; 
+            pos[1] =  100;  
             vel[0] = rand() % 5 + 1; 
             vel[1] = 0.0f;           
             w = 20;                  
@@ -124,6 +126,7 @@ void enemyAnimate(void) {
         if (checkIfEnemyReachedTarget(i)) {
             printf("Enemy %d has reached the target box!\n", i);  // Print message if enemy reached target
             enemies[i].pos[0] = -1000;// kill off enemy by moving it off screen
+            make_particles2(enemies[i].pos[0],enemies[i].pos[1]);
         }
     }
 }
@@ -170,7 +173,6 @@ void enemyKiller() {
         count--;
     }
 }
-
 void bossRender(GLuint btex)
 {
     glEnable(GL_TEXTURE_2D);
@@ -178,41 +180,52 @@ void bossRender(GLuint btex)
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.0f);
 
-    
     float spriteWidth = 1950.0f / 13.0f; 
-    float spriteHeight = 150.0f;          
+    float spriteHeight = 150.0f;
 
     glColor3f(1.0, 1.0, 1.0);
 
-    for (int i = 0; i < count; i++) {
         glPushMatrix();
+        glScalef(2.0f, 2.0f, 1.0f);  // Scale by 2x in both x and y directions
 
-        
-        int ix = frameno % 13;  
-        float tx = (float)(ix * spriteWidth) / 1950.0f;  
-        float ty = 0.0f;  
-        float flipped = tx + spriteWidth / 1950.0f; 
+        int ix = frameno % 13;
+        float tx = (float)(ix * spriteWidth) / 1950.0f;  // left part of the sprite
+        float ty = 0.0f;
+        float flipped = tx + spriteWidth / 1950.0f;  // right part of the sprite
+
+        // face sprite toward player 
+        float temp = tx;
+        tx = flipped;
+        flipped = temp;
 
         glBegin(GL_QUADS);
         glTexCoord2f(flipped, ty + 1.0f);  // top left
         glVertex2f(b.pos[0] - spriteWidth / 2, b.pos[1] - spriteHeight / 2);
-        
+
         glTexCoord2f(flipped, ty);  // bottom left
         glVertex2f(b.pos[0] - spriteWidth / 2, b.pos[1] + spriteHeight / 2);
-        
+
         glTexCoord2f(tx, ty);  // bottom right
         glVertex2f(b.pos[0] + spriteWidth / 2, b.pos[1] + spriteHeight / 2);
-        
+
         glTexCoord2f(tx, ty + 1.0f);  // top right
         glVertex2f(b.pos[0] + spriteWidth / 2, b.pos[1] - spriteHeight / 2);
         glEnd();
 
         glPopMatrix();
-    }
+        if (b.pos[0] > 460) {
+            printf("boss pos: %f\n", b.pos[0]);
+    b.pos[0] = b.pos[0] - 10;
+        }
+  //     if (b.pos[0] < 920) {
+    //       b.pos[0] = 920;
+      // }    
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);
 }
+
+
 #endif
 
 
