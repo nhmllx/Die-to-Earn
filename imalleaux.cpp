@@ -89,8 +89,8 @@ void fuelRender(GLuint ftex) {
     glPushMatrix();  // Start a new transformation block
 
     // Position the fuel texture
-    float posX = 280.0f;  // Left side of the screen
-    float posY = 60.0f;   // Top side of the screen
+    float posX = 990.0f;  // Left side of the screen
+    float posY = 600.0f;   // Top side of the screen
 
     glTranslatef(posX, posY, 0.0f);  // Translate to desired position
 
