@@ -91,10 +91,6 @@ void make_particles(XEvent *e, int yres) {
 }
 */
 
-float randomInRange(float min, float max) {
-    return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / (max - min));
-}
-
 void make_particles(float x, float yres) {
     float y = yres;  
 
@@ -289,3 +285,7 @@ if (beam_flag) {
     glBindTexture(GL_TEXTURE_2D, 0);
 
 }
+
+
+
+

@@ -99,10 +99,10 @@ class Image {
             unlink(ppmname);
         }
 };
-Image img[11] = {"images/walk.gif", "images/bg.png", "images/wastelands.png",
+Image img[12] = {"images/walk.gif", "images/bg.png", "images/wastelands.png",
                 "images/car_move.png", "images/bomber.png", "images/enemy.png", 
                 "images/speedometer.png", "images/beam.png", "images/health.png", 
-                "images/fuel.png", "images/tank.png"};
+                "images/fuel.png", "images/tank.png", "images/hearts.png"};
 
 
 //-----------------------------------------------------------------------------
@@ -158,6 +158,7 @@ class Global {
         GLuint healthTex;
         GLuint fuelTex;
         GLuint bossTex;
+        GLuint heartsTex;
         Vec box[20];
         Global() {
             memset(keys, 0, 0xffff);
@@ -521,6 +522,23 @@ void initOpengl(void)
     unsigned char *bossdata = buildAlphaData(&img[10]);//The Boss	
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, bossdata);
+
+    w = img[11].width;
+    h = img[11].height;
+
+    glGenTextures(1, &g.heartsTex); 
+    //silhouette
+    //this is similar to a sprite graphic
+    //
+    glBindTexture(GL_TEXTURE_2D, g.heartsTex);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    //
+    //must build a new set of data...
+    unsigned char *hTex = buildAlphaData(&img[11]);//The Bullets	
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, hTex);
 }
 
 void init() {
