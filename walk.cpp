@@ -102,7 +102,7 @@ class Image {
 Image img[12] = {"images/walk.gif", "images/bg.png", "images/wastelands.png",
                 "images/car_move.png", "images/bomber.png", "images/enemy.png", 
                 "images/speedometer.png", "images/beam.png", "images/health.png", 
-                "images/fuel.png", "images/tank.png", "images/hearts.png"};
+                "images/fuel.png", "images/tank.png", "images/hearts1.png"};
 
 
 //-----------------------------------------------------------------------------
@@ -788,6 +788,48 @@ void render()
     glPopMatrix();
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);
+
+
+
+    //hearts 
+
+   // glEnable(GL_TEXTURE_2D);
+
+    float posOffset = cy + 30.0;
+    //float posOffset2 = cx;
+    float current_frame = 0.0f;
+    float frame_w = 1.0f/15.0f;
+
+    float tw = 150.0f;
+    float th = 160.0f;
+
+    glBindTexture(GL_TEXTURE_2D, g.heartsTex);
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0.0f);
+    
+    glColor3f(1.0, 1.0, 1.0); // Set color to white to avoid interference
+
+    for (int i = 0; i < 1; i++) {
+
+        float t1 = current_frame;
+        float t2 = current_frame + frame_w;
+
+        glPushMatrix();
+        glTranslatef(cx - 75, posOffset , 0.0f);
+        glBegin(GL_QUADS);
+            glTexCoord2f(t1, 1.0f); glVertex2f(0.0f, 0.0f);
+            glTexCoord2f(t2, 1.0f); glVertex2f(tw, 0.0f);
+            glTexCoord2f(t2, 0.0f); glVertex2f(tw, th);
+            glTexCoord2f(t1, 0.0f); glVertex2f(0.0f, th);
+        glEnd();
+        glPopMatrix();
+        current_frame += frame_w;
+    }
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_ALPHA_TEST);
+
+
     //
     unsigned int c = 0x00ffff44;
     r.bot = g.yres - 20;
