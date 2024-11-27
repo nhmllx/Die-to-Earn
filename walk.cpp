@@ -690,52 +690,6 @@ int checkKeys(XEvent *e)
     return 0;
 }
 
-void update_hearts(int frame) {
-    static float animation_timer = 0.0f;  // Timer to control animation speed
-    const float animation_speed = 0.1f;  // Adjust to control how fast frames transition
-
-    // Increment the animation timer
-    animation_timer += frame_w;
-
-    // Determine the target frame range based on the number of hearts
-    switch (frame) {
-        case 3: // 4 hearts to 3 hearts
-            if (current_frame < frames[1]) { // Continue animating until reaching frame 4
-                if (animation_timer >= animation_speed) {
-                    current_frame += frame_w;
-                    animation_timer = 0.0f; // Reset timer
-                }
-            }
-            break;
-        case 2: // 3 hearts to 2 hearts
-            if (current_frame < frames[2]) { // Continue animating until reaching frame 8
-                if (animation_timer >= animation_speed) {
-                    current_frame += frame_w;
-                    animation_timer = 0.0f; // Reset timer
-                }
-            }
-            break;
-        case 1: // 2 hearts to 1 heart
-            if (current_frame < frames[3]) { // Continue animating until reaching frame 11
-                if (animation_timer >= animation_speed) {
-                    current_frame += frame_w;
-                    animation_timer = 0.0f; // Reset timer
-                }
-            }
-            break;
-        case 0: // 1 heart to 0 hearts
-            if (current_frame < frames[4]) { // Continue animating until reaching frame 14
-                if (animation_timer >= animation_speed) {
-                    current_frame += frame_w;
-                    animation_timer = 0.0f; // Reset timer
-                }
-            }
-            break;
-        default:
-            break;
-    }
-}
-
 Flt VecNormalize(Vec vec)
 {
     Flt len, tlen;
