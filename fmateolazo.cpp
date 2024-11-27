@@ -16,6 +16,7 @@
 
 extern GLuint bulletTex;
 extern float cy;
+extern float cx;
 
 int mateo_show = 0;
 const int MAX_PARTICLES = 800;
@@ -41,7 +42,7 @@ public:
 		//xres=1200;
 	    //yres=800;
 
-		pos[0] = 1000;// / 1.4; // position of the center
+		pos[0] = 700;// / 1.4; // position of the center
 		pos[1] = 800 / 3.5; // position of the center
 		vel[0] = vel[1] = 0.0f;
 		w = 100;
@@ -198,9 +199,11 @@ int car_pos;
 void f_render(GLuint atex, GLuint btex) {
 
 
-    beam.h = 145;
+    beam.h = 120;
     beam.w = 800;
-    beam.pos[1] = cy;
+    beam.pos[1] = cy - 15;
+    //beam.pos[0] = 700;
+    beam.pos[0] = cx + 700;
 
     float u_start = currentFrame / static_cast<float>(totalFrames);
     float u_end = (currentFrame + 1) / static_cast<float>(totalFrames);
