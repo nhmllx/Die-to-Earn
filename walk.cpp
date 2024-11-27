@@ -266,6 +266,7 @@ void init();
 void physics(void);
 void render(void);
 void render2(void);
+void update_hearts(int);
 
 int main(void)
 {
@@ -578,6 +579,12 @@ float cx = g.xres/4; //xpos of car
 float cy = g.yres/3.5; // ypos of car
 //int beam_on = 0;
 
+float current_frame = 0.0f;
+float frame_w = 1.0f/15.0f;
+float frames[5] = {current_frame, frame_w * 4, frame_w * 8, frame_w * 11, frame_w * 14};
+float tem_frames[3];
+int f = 0;
+
 int checkKeys(XEvent *e)
 {
     //keyboard input?
@@ -659,6 +666,14 @@ int checkKeys(XEvent *e)
                 }
     
                  break;
+            case XK_g: 
+
+                f++;  
+                if (f == 5)
+                    f = 0; 
+                current_frame = frames[f];     
+            
+                 break;
             case XK_equal:
                 g.delay -= 0.005;
                 if (g.delay < 0.005)
@@ -673,6 +688,52 @@ int checkKeys(XEvent *e)
         }
     }
     return 0;
+}
+
+void update_hearts(int frame) {
+    static float animation_timer = 0.0f;  // Timer to control animation speed
+    const float animation_speed = 0.1f;  // Adjust to control how fast frames transition
+
+    // Increment the animation timer
+    animation_timer += frame_w;
+
+    // Determine the target frame range based on the number of hearts
+    switch (frame) {
+        case 3: // 4 hearts to 3 hearts
+            if (current_frame < frames[1]) { // Continue animating until reaching frame 4
+                if (animation_timer >= animation_speed) {
+                    current_frame += frame_w;
+                    animation_timer = 0.0f; // Reset timer
+                }
+            }
+            break;
+        case 2: // 3 hearts to 2 hearts
+            if (current_frame < frames[2]) { // Continue animating until reaching frame 8
+                if (animation_timer >= animation_speed) {
+                    current_frame += frame_w;
+                    animation_timer = 0.0f; // Reset timer
+                }
+            }
+            break;
+        case 1: // 2 hearts to 1 heart
+            if (current_frame < frames[3]) { // Continue animating until reaching frame 11
+                if (animation_timer >= animation_speed) {
+                    current_frame += frame_w;
+                    animation_timer = 0.0f; // Reset timer
+                }
+            }
+            break;
+        case 0: // 1 heart to 0 hearts
+            if (current_frame < frames[4]) { // Continue animating until reaching frame 14
+                if (animation_timer >= animation_speed) {
+                    current_frame += frame_w;
+                    animation_timer = 0.0f; // Reset timer
+                }
+            }
+            break;
+        default:
+            break;
+    }
 }
 
 Flt VecNormalize(Vec vec)
@@ -797,8 +858,8 @@ void render()
 
     float posOffset = cy + 30.0;
     //float posOffset2 = cx;
-    float current_frame = 0.0f;
-    float frame_w = 1.0f/15.0f;
+    //float current_frame = 0.0f;
+    //float frame_w = 1.0f/15.0f;
 
     float tw = 150.0f;
     float th = 160.0f;
@@ -809,7 +870,7 @@ void render()
     
     glColor3f(1.0, 1.0, 1.0); // Set color to white to avoid interference
 
-    for (int i = 0; i < 1; i++) {
+   // for (int i = 0; i < 1; i++) {
 
         float t1 = current_frame;
         float t2 = current_frame + frame_w;
@@ -823,8 +884,8 @@ void render()
             glTexCoord2f(t1, 0.0f); glVertex2f(0.0f, th);
         glEnd();
         glPopMatrix();
-        current_frame += frame_w;
-    }
+       // current_frame += frame_w;
+   // }
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);
@@ -844,6 +905,7 @@ void render()
     ggprint8b(&r, 16, c, "right arrow -> tilt right");
     ggprint8b(&r, 16, c, "left arrow  <- tilt left");
     ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);
+    ggprint8b(&r, 16, c, "G   lose a heart");
 
     //render_particles();
 
