@@ -1,6 +1,5 @@
 //Francis Mateo
 //File descriptor
-//#include <asteroids.cpp>
 
 #include <iostream>
 #include "fonts.h"
@@ -36,6 +35,7 @@ public:
 	float last_pos[2];	//last position
 	float vel[2];	//velocity
 	int w, h;	//size
+     unsigned int color;
 	
 	Projectile() {
 
@@ -60,8 +60,8 @@ class Bullets {
 //#define rnd() (float)rand() / (float)RAND_MAX
 //static float initVel = rand(); 
 
-/*
-void make_particles(XEvent *e, int yres) {
+
+void make_fireworks(XEvent *e, float yres) {
 
 	int y = yres - e->xbutton.y;
 
@@ -90,7 +90,7 @@ void make_particles(XEvent *e, int yres) {
 
 	return;
 }
-*/
+
 
 void make_particles(float x, float yres) {
     float y = yres;  
@@ -121,6 +121,8 @@ void make_particles(float x, float yres) {
             particle[n].h = 4;
             particle[n].vel[0] = velocities[xIndex].first;
             particle[n].vel[1] = velocities[xIndex].second;
+
+            particle[n].color = rand();
 
             n++;
         }
@@ -258,22 +260,18 @@ if (beam_flag) {
 
     glDisable(GL_ALPHA_TEST);
 
-    int g_color = 80 + (rand() % 130);
-    int r_color = 200 + (rand() % 50);
-
-  //glEnable(GL_TEXTURE_2D);
-
-    //glColor3f(1.0, 1.0, 1.0);
-   // glBindTexture(GL_TEXTURE_2D, atex);
-    //
-    //glEnable(GL_ALPHA_TEST);
-    //glAlphaFunc(GL_GREATER, 0.0f);
-   // glColor4ub(255,255,255,255);
+    //int g_color = 80 + (rand() % 130);
+    //int r_color = 200 + (rand() % 50);
 
   for(int x = 0; x < n; x++) {
 
 		glPushMatrix();
-		 glColor3ub(r_color, g_color, 0);
+		//glColor3ub(particle[x].color);
+
+        glColor3ub((particle[x].color >> 16) & 0xFF, 
+                   (particle[x].color >> 8) & 0xFF, 
+                    particle[x].color & 0xFF);
+        
 		
 		glTranslatef(particle[x].pos[0], particle[x].pos[1], 0.0f);
     	glBegin(GL_QUADS);
@@ -288,7 +286,3 @@ if (beam_flag) {
     glBindTexture(GL_TEXTURE_2D, 0);
 
 }
-
-
-
-

@@ -32,6 +32,7 @@ extern void enemyKiller();
 extern void bossRender(GLuint);
 extern void HealthRender(GLuint);
 extern void fuelRender(GLuint);
+extern void make_fireworks(XEvent, float);
 extern void speedometerRender(GLuint, float);
 extern int beam_flag;
 //defined types
@@ -647,7 +648,7 @@ int checkKeys(XEvent *e)
                 keyf = 0;
                 break;
             case XK_e: // Calls make_particles when the 'E' key is pressed
-              //  make_particles(e, g.yres);
+               // make_fireworks(e, g.yres);
                 break;
             case XK_s: 
                  make_ammo(cx + 20, cy);
