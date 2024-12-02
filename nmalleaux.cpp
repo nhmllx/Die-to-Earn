@@ -46,8 +46,10 @@ class Enemy {
         float vel[2];    
         int w, h;        
         float collisionBox[4]; // left, bottom, right, top
+        int health;
 
         Enemy() {
+            health = 2;
             pos[0] = rand() % 1200; 
             pos[1] = rand() % 280;  
             vel[0] = rand() % 5 + 1; 
@@ -74,7 +76,7 @@ class Boss {
         float collisionBox[4]; // left, bottom, right, top
 
         Boss() {
-            health = 1000;
+            health = 10;
             pos[0] =  1800; 
             pos[1] =  75;  
             vel[0] = rand() % 5 + 1; 
