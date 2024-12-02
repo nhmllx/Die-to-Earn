@@ -23,6 +23,7 @@ extern void update_particles();
 extern void render_particles();
 extern void scroll(float val[]);
 extern void render2(float x[], float y[], GLuint bt, int xres,int yres);
+extern void render3(float x[], float y[], GLuint bt, int xres,int yres);
 extern void make_ammo(float, float);
 extern void ammo_pos();
 extern void f_render(GLuint, GLuint);
@@ -100,10 +101,10 @@ class Image {
             unlink(ppmname);
         }
 };
-Image img[12] = {"images/walk.gif", "images/bg.png", "images/wastelands.png",
-                "images/car_move.png", "images/bomber.png", "images/enemy.png", 
-                "images/speedometer.png", "images/beam.png", "images/health.png", 
-                "images/fuel.png", "images/tank.png", "images/hearts1.png"};
+Image img[13] = {"images/walk.gif", "images/bg.png", "images/wastelands.png",
+    "images/car_move.png", "images/bomber.png", "images/enemy.png", 
+    "images/speedometer.png", "images/beam.png", "images/health.png", 
+    "images/fuel.png", "images/tank.png", "images/hearts1.png", "images/ded.png"};
 
 
 //-----------------------------------------------------------------------------
@@ -132,6 +133,10 @@ class Timers {
 //-----------------------------------------------------------------------------
 class Texture {
     public:
+        Image *deadImage;
+        GLuint deadTexture;
+        float xa[2];
+        float ya[2];
         Image *bgImage;
         GLuint bgTexture;
         float xb[2];
@@ -150,7 +155,8 @@ class Global {
         int flag;
         char keys[ 0xffff ];
         double delay;
-        Texture tex;
+        Texture tex; //title
+        Texture dead;
         GLuint walkTexture; //holds data for car sprites
         GLuint bulletTex;
         GLuint enemyTex;
@@ -267,8 +273,13 @@ void init();
 void physics(void);
 void render(void);
 void render2(void);
+void render3(void);
 void update_hearts(int);
 
+//int x= 1; 
+float current_frame = 0.0f;
+float frame_w = 1.0f/15.0f;
+float frames[5] = {current_frame, frame_w * 4, frame_w * 8, frame_w * 11, frame_w * 14};
 int main(void)
 {
     initOpengl();
@@ -283,13 +294,16 @@ int main(void)
         }
         physics();
         enemyAnimate();//nmalleaux.cpp
-        if (g.flag == 1)
+        if (g.flag == 1 && frames[4] !=0)
         {
             render2(g.tex.xc, g.tex.yc, g.tex.backTexture, g.xres, g.yres);
         }
-        if (g.flag == 0)
+        if (g.flag == 0 && frames[4] !=0)
         {
             render();
+        }
+        if(current_frame == frames[4]) {
+            render3(g.tex.xa, g.tex.ya, g.tex.deadTexture, g.xres, g.yres);
         }
         x11.swapBuffers();
     }
@@ -324,6 +338,7 @@ unsigned char *buildAlphaData(Image *img)
         ptr += 4;
         data += 3;
     }
+    //render3(g.dead.xc, g.dead.yc, g.dead.backTexture, g.xres, g.yres);
     return newdata;
 }
 
@@ -366,7 +381,22 @@ void initOpengl(void)
     g.tex.xc[1] = 1.0;
     g.tex.yc[0] = 0.0;
     g.tex.yc[1] = 1.0;
-    //-title screen-------------------------------------------------------------
+    // death screen-------------------------------------------------------------
+    g.tex.deadImage = &img[12];
+    //create opengl texture elements
+    glGenTextures(1, &g.tex.deadTexture);
+    int www = g.tex.deadImage->width;
+    int hhh = g.tex.deadImage->height;
+    glBindTexture(GL_TEXTURE_2D, g.tex.deadTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, www, hhh, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, g.tex.deadImage->data);
+    g.dead.xa[0] = 0.0;
+    g.dead.xa[1] = 1.0;
+    g.dead.ya[0] = 0.0;
+    g.dead.ya[1] = 1.0;
+    //background-------------------------------------------------------------
     g.tex.bgImage = &img[1];
     //create opengl texture elements
     glGenTextures(1, &g.tex.bgTexture);
@@ -401,7 +431,7 @@ void initOpengl(void)
             GL_RGBA, GL_UNSIGNED_BYTE, walkData);
 
     //---------------------------------------------------------------------------------
-    
+
     w = img[4].width;
     h = img[4].height;
     //
@@ -457,7 +487,7 @@ void initOpengl(void)
             GL_RGBA, GL_UNSIGNED_BYTE, speedodata);
 
     \
-    w = img[7].width;
+        w = img[7].width;
     h = img[7].height;
 
     glGenTextures(1, &g.beamTex); 
@@ -578,11 +608,11 @@ int keyf = 0;
 float cx = g.xres/4; //xpos of car
                      //float cx = g.yres/verticalChange; to change vertical pos
 float cy = g.yres/3.5; // ypos of car
-//int beam_on = 0;
+                       //int beam_on = 0;
 
-float current_frame = 0.0f;
-float frame_w = 1.0f/15.0f;
-float frames[5] = {current_frame, frame_w * 4, frame_w * 8, frame_w * 11, frame_w * 14};
+                       //float current_frame = 0.0f;
+                       //float frame_w = 1.0f/15.0f;
+                       //frames[5] = {current_frame, frame_w * 4, frame_w * 8, frame_w * 11, frame_w * 14};
 float tem_frames[3];
 int f = 0;
 
@@ -621,11 +651,11 @@ int checkKeys(XEvent *e)
                 break;
             case XK_Right:
 
-                  if (!(cx >= (g.xres - 125))) {
+                if (!(cx >= (g.xres - 125))) {
 
-                  cx += 35;
-                 }
-                 break;
+                    cx += 35;
+                }
+                break;
             case XK_Up:
                 //         timers.recordTime(&timers.walkTime);
                 //     g.walk = 1;
@@ -641,23 +671,23 @@ int checkKeys(XEvent *e)
                 break;
             case XK_Down:
                 //            make_particles(e, g.yres);
-               // std::cout << "cy: " << cy << std::endl;
-                
+                // std::cout << "cy: " << cy << std::endl;
+
                 cy = 105;
-        
+
                 keyf = 0;
                 break;
             case XK_e: // Calls make_particles when the 'E' key is pressed
-               // make_fireworks(e, g.yres);
+                       // make_fireworks(e, g.yres);
                 break;
             case XK_s: 
-                 make_ammo(cx + 20, cy);
-                 break;
-          case XK_p: 
-                 enemyKiller();
-                 break;
+                make_ammo(cx + 20, cy);
+                break;
+            case XK_p: 
+                enemyKiller();
+                break;
             case XK_d:
-                
+
                 if (beam_flag == 0) {
 
                     beam_flag = 1;
@@ -665,16 +695,18 @@ int checkKeys(XEvent *e)
                 else {
                     beam_flag = 0;
                 }
-    
-                 break;
+
+                break;
             case XK_g: 
 
                 f++;  
-                if (f == 5)
-                    f = 0; 
-                current_frame = frames[f];     
-            
-                 break;
+                if (f == 5) 
+                    f = 0;
+                current_frame = frames[f];  
+
+                //  x++;  
+
+                break;
             case XK_equal:
                 g.delay -= 0.005;
                 if (g.delay < 0.005)
@@ -683,8 +715,8 @@ int checkKeys(XEvent *e)
             case XK_minus:
                 g.delay += 0.005;
                 break;
-          //  case XK_Escape:
-            //    return 1;
+                //  case XK_Escape:
+                //    return 1;
                 break;
         }
     }
@@ -745,13 +777,13 @@ void physics(void)
         // }
     }
 
-   update_particles();
-   ammo_pos();
+    update_particles();
+    ammo_pos();
 }
 
 //above check_keys()
 //float cx = g.xres/4; //xpos of car
-                     //float cx = g.yres/verticalChange; to change vertical pos
+//float cx = g.yres/verticalChange; to change vertical pos
 //float cy = g.yres/3.5; // ypos of car
 float currentSpeedAngle = 140.0f;
 void render()
@@ -759,25 +791,25 @@ void render()
     Rect r;
 
     glClear(GL_COLOR_BUFFER_BIT);
-     glColor3ub(255, 255, 255);
-     glBindTexture(GL_TEXTURE_2D, g.tex.bgTexture);
+    glColor3ub(255, 255, 255);
+    glBindTexture(GL_TEXTURE_2D, g.tex.bgTexture);
     static float camerax = 0.0f;
-     glBegin(GL_QUADS);
-     glTexCoord2f(camerax+0, 1); glVertex2i(0,      0);
-     glTexCoord2f(camerax+0, 0); glVertex2i(0,      g.yres);
-     glTexCoord2f(camerax+1, 0); glVertex2i(g.xres, g.yres);
-     glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
-     glEnd();
-     glBindTexture(GL_TEXTURE_2D, 0);
-     //if (g.keys[XK_d] == 1 && g.keys[XK_g] != 1){
-     //camerax += 0.00275;
-     //}
-     if (g.keys[XK_Up] == 1){
-     camerax += 0.0150;
-     }
-     //if (g.keys[XK_Down] == 1){
-     //camerax = cameraxi;
-     //}
+    glBegin(GL_QUADS);
+    glTexCoord2f(camerax+0, 1); glVertex2i(0,      0);
+    glTexCoord2f(camerax+0, 0); glVertex2i(0,      g.yres);
+    glTexCoord2f(camerax+1, 0); glVertex2i(g.xres, g.yres);
+    glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
+    glEnd();
+    glBindTexture(GL_TEXTURE_2D, 0);
+    //if (g.keys[XK_d] == 1 && g.keys[XK_g] != 1){
+    //camerax += 0.00275;
+    //}
+    if (g.keys[XK_Up] == 1){
+        camerax += 0.0150;
+    }
+    //if (g.keys[XK_Down] == 1){
+    //camerax = cameraxi;
+    //}
 
     float h = 76.0f;
     float w = 101.0f;
@@ -809,7 +841,7 @@ void render()
 
     //hearts 
 
-   // glEnable(GL_TEXTURE_2D);
+    // glEnable(GL_TEXTURE_2D);
 
     float posOffset = cy + 30.0;
     //float posOffset2 = cx;
@@ -822,25 +854,25 @@ void render()
     glBindTexture(GL_TEXTURE_2D, g.heartsTex);
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.0f);
-    
+
     glColor3f(1.0, 1.0, 1.0); // Set color to white to avoid interference
 
-   // for (int i = 0; i < 1; i++) {
+    // for (int i = 0; i < 1; i++) {
 
-        float t1 = current_frame;
-        float t2 = current_frame + frame_w;
+    float t1 = current_frame;
+    float t2 = current_frame + frame_w;
 
-        glPushMatrix();
-        glTranslatef(cx - 75, posOffset , 0.0f);
-        glBegin(GL_QUADS);
-            glTexCoord2f(t1, 1.0f); glVertex2f(0.0f, 0.0f);
-            glTexCoord2f(t2, 1.0f); glVertex2f(tw, 0.0f);
-            glTexCoord2f(t2, 0.0f); glVertex2f(tw, th);
-            glTexCoord2f(t1, 0.0f); glVertex2f(0.0f, th);
-        glEnd();
-        glPopMatrix();
-       // current_frame += frame_w;
-   // }
+    glPushMatrix();
+    glTranslatef(cx - 75, posOffset , 0.0f);
+    glBegin(GL_QUADS);
+    glTexCoord2f(t1, 1.0f); glVertex2f(0.0f, 0.0f);
+    glTexCoord2f(t2, 1.0f); glVertex2f(tw, 0.0f);
+    glTexCoord2f(t2, 0.0f); glVertex2f(tw, th);
+    glTexCoord2f(t1, 0.0f); glVertex2f(0.0f, th);
+    glEnd();
+    glPopMatrix();
+    // current_frame += frame_w;
+    // }
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);
@@ -870,8 +902,8 @@ void render()
     fuelRender(g.fuelTex);
     bossRender(g.bossTex);
     if (currentSpeedAngle > -140.0f) {
-    currentSpeedAngle--; 
-}
+        currentSpeedAngle--; 
+    }
     speedometerRender(g.speedoTex, currentSpeedAngle);
 }
 
