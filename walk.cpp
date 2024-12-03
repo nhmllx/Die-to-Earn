@@ -280,11 +280,11 @@ void render2(void);
 void render3(void);
 void update_hearts(int);
 
-//int x= 1; 
 float hearts_frame = 0.0f;
 float frame_w = 1.0f/15.0f;
 float frames[5] = {hearts_frame, frame_w * 4, frame_w * 8, frame_w * 11, frame_w * 14};
 int hearts = 0;
+int lane = 0;
 int main(void)
 {
     initOpengl();
@@ -671,6 +671,7 @@ int checkKeys(XEvent *e)
                 //           g.walk ^= 1;
                 keyf = 1;
                 cy = 228;
+                lane = 0;
                 g.delay -= 0.005;
                 if (g.delay < 0.005)
                     g.delay = 0.005;
@@ -683,6 +684,7 @@ int checkKeys(XEvent *e)
                 // std::cout << "cy: " << cy << std::endl;
 
                 cy = 105;
+                lane = 1;
 
                 keyf = 0;
                 break;
