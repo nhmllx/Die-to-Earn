@@ -152,13 +152,13 @@ void make_ammo(float x, float y) {
    clock_t currentTime = clock();
    float elapsedTime = float(currentTime - last_bullet_time) / CLOCKS_PER_SEC;
 
-   y -= 12;
+  // y -= 12;
    //x -=12
     
     // create a new bullet only if the delay has passed
     if (elapsedTime > bullet_delay && nn < MAX_BULLETS) {
         bullets[nn].pos[0] = x;    
-        bullets[nn].pos[1] = y;    
+        bullets[nn].pos[1] = y - 12;    
         bullets[nn].last_pos[0] = x; 
         bullets[nn].last_pos[1] = y;
         bullets[nn].vel[0] = 5.0f;    
@@ -168,12 +168,12 @@ void make_ammo(float x, float y) {
         bullets[nn].active = 1;    // set active flag to 1 to indicate that it's active        
         nn++;  
 
-        y -= 37;   
+       // y -= 37;   
 
         bullets[nn].pos[0] = x;
-        bullets[nn].pos[1] = y ;  // Offset to make it a few pixels below
+        bullets[nn].pos[1] = y - 37;  // Offset to make it a few pixels below
         bullets[nn].last_pos[0] = x;
-        bullets[nn].last_pos[1] = y;
+        bullets[nn].last_pos[1] = y - 37;
         bullets[nn].vel[0] = 5.0f;
         bullets[nn].vel[1] = 0.0f;
         bullets[nn].w = 25;
