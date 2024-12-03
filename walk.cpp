@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <math.h>
+#include <ctime>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
@@ -36,6 +37,9 @@ extern void fuelRender(GLuint);
 extern void make_fireworks(XEvent, float);
 extern void speedometerRender(GLuint, float);
 extern int beam_flag;
+extern clock_t beam_start_time; 
+extern int beam_cooldown; 
+extern void f_collisions();
 //defined types
 typedef double Flt;
 typedef double Vec[3];
@@ -277,21 +281,25 @@ void render3(void);
 void update_hearts(int);
 
 //int x= 1; 
-float current_frame = 0.0f;
+float hearts_frame = 0.0f;
 float frame_w = 1.0f/15.0f;
-float frames[5] = {current_frame, frame_w * 4, frame_w * 8, frame_w * 11, frame_w * 14};
+float frames[5] = {hearts_frame, frame_w * 4, frame_w * 8, frame_w * 11, frame_w * 14};
+int hearts = 0;
 int main(void)
 {
     initOpengl();
     init();
     int done = 0;
     while (!done) {
+
+        usleep(4000);
         while (x11.getXPending()) {
             XEvent e = x11.getXNextEvent();
             x11.checkResize(&e);
             checkMouse(&e);
             done = checkKeys(&e);
         }
+        f_collisions();
         physics();
         enemyAnimate();//nmalleaux.cpp
         if (g.flag == 1 && frames[4] !=0)
@@ -302,7 +310,8 @@ int main(void)
         {
             render();
         }
-        if(current_frame == frames[4]) {
+        if(hearts_frame == frames[4]) {
+           
             render3(g.tex.xa, g.tex.ya, g.tex.deadTexture, g.xres, g.yres);
         }
         x11.swapBuffers();
@@ -610,9 +619,9 @@ float cx = g.xres/4; //xpos of car
 float cy = g.yres/3.5; // ypos of car
                        //int beam_on = 0;
 
-                       //float current_frame = 0.0f;
+                       //float hearts_frame = 0.0f;
                        //float frame_w = 1.0f/15.0f;
-                       //frames[5] = {current_frame, frame_w * 4, frame_w * 8, frame_w * 11, frame_w * 14};
+                       //frames[5] = {hearts_frame, frame_w * 4, frame_w * 8, frame_w * 11, frame_w * 14};
 float tem_frames[3];
 int f = 0;
 
@@ -681,19 +690,18 @@ int checkKeys(XEvent *e)
                        // make_fireworks(e, g.yres);
                 break;
             case XK_s: 
-                make_ammo(cx + 20, cy);
+                if (!beam_flag)
+                    make_ammo(cx + 20, cy);
                 break;
             case XK_p: 
                 enemyKiller();
                 break;
             case XK_d:
 
-                if (beam_flag == 0) {
+               if (beam_cooldown == 0 && beam_flag == 0) {
 
                     beam_flag = 1;
-                }
-                else {
-                    beam_flag = 0;
+                    beam_start_time = clock();
                 }
 
                 break;
@@ -702,7 +710,7 @@ int checkKeys(XEvent *e)
                 f++;  
                 if (f == 5) 
                     f = 0;
-                current_frame = frames[f];  
+                hearts_frame = frames[f];  
 
                 //  x++;  
 
@@ -845,7 +853,7 @@ void render()
 
     float posOffset = cy + 30.0;
     //float posOffset2 = cx;
-    //float current_frame = 0.0f;
+    //float hearts_frame = 0.0f;
     //float frame_w = 1.0f/15.0f;
 
     float tw = 150.0f;
@@ -859,8 +867,8 @@ void render()
 
     // for (int i = 0; i < 1; i++) {
 
-    float t1 = current_frame;
-    float t2 = current_frame + frame_w;
+    float t1 = hearts_frame;
+    float t2 = hearts_frame + frame_w;
 
     glPushMatrix();
     glTranslatef(cx - 75, posOffset , 0.0f);
@@ -871,7 +879,8 @@ void render()
     glTexCoord2f(t1, 0.0f); glVertex2f(0.0f, th);
     glEnd();
     glPopMatrix();
-    // current_frame += frame_w;
+
+    // hearts_frame += frame_w;
     // }
 
     glBindTexture(GL_TEXTURE_2D, 0);

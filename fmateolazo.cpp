@@ -12,10 +12,12 @@
 #include <ctime>
 #include <stdlib.h>
 #include <cstdlib>
+#include <chrono>
 
 extern GLuint bulletTex;
 extern float cy;
 extern float cx;
+extern void get_data(float en[][4], int* en_health[]);
 
 int mateo_show = 0;
 const int MAX_PARTICLES = 800;
@@ -24,9 +26,20 @@ const int MAX_BULLETS = 50;
 int n = 0;
 int nn = 0;
 int coord[2] = {105, 228};
-float bulletDelay = 0.05f; // delay between bullets in seconds
-clock_t lastBulletTime = clock();
+float bullet_delay = 0.05f; // delay between bullets in seconds
+clock_t last_bullet_time = clock();
+
+float beam_render_duration = 1.0f; 
+float beam_cooldown_duration = 1.0f; 
+clock_t beam_start_time = 0; 
+clock_t beam_cooldown_start = 0; 
+int beam_cooldown = 0; 
 int beam_flag = 0;
+
+//float enemy_data[30][4];
+//int * en_health[30];
+extern int count;
+//int enemy_hw[30][2];
 
 
 class Projectile {
@@ -35,7 +48,8 @@ public:
 	float last_pos[2];	//last position
 	float vel[2];	//velocity
 	int w, h;	//size
-     unsigned int color;
+    unsigned int color;
+    int active;
 	
 	Projectile() {
 
@@ -47,6 +61,7 @@ public:
 		vel[0] = vel[1] = 0.0f;
 		w = 100;
 		h = 100;
+        active = 0;
 
 	}
 
@@ -105,7 +120,7 @@ void make_particles(float x, float yres) {
         {-2, 5}   
     };
 
-    //Randomize velocities
+    // randomize velocities
       for (auto& velocity : velocities) {
 
         // add a random velocity within a [-1.5, 1.5] range of original values
@@ -113,14 +128,15 @@ void make_particles(float x, float yres) {
         velocity.second += (rand() % 300 - 150) / 100.0f;
     }
     
-    for (int xIndex = 0; xIndex < (int)velocities.size(); xIndex++) {
+    for (int xx = 0; xx < (int)velocities.size(); xx++) {
+
         if (n < MAX_PARTICLES) {
             particle[n].pos[0] = x;  // x is now passed directly
-            particle[n].pos[1] = y;  // y is set to yres or some chosen value
+            particle[n].pos[1] = y;  // y is set to yres 
             particle[n].w = 4;
             particle[n].h = 4;
-            particle[n].vel[0] = velocities[xIndex].first;
-            particle[n].vel[1] = velocities[xIndex].second;
+            particle[n].vel[0] = velocities[xx].first;
+            particle[n].vel[1] = velocities[xx].second;
 
             particle[n].color = rand();
 
@@ -134,10 +150,10 @@ void make_particles(float x, float yres) {
 void make_ammo(float x, float y) {
 
    clock_t currentTime = clock();
-   float elapsedTime = float(currentTime - lastBulletTime) / CLOCKS_PER_SEC;
+   float elapsedTime = float(currentTime - last_bullet_time) / CLOCKS_PER_SEC;
     
     // create a new bullet only if the delay has passed
-    if (elapsedTime > bulletDelay && nn < MAX_BULLETS) {
+    if (elapsedTime > bullet_delay && nn < MAX_BULLETS) {
         bullets[nn].pos[0] = x;    
         bullets[nn].pos[1] = y;    
         bullets[nn].last_pos[0] = x; 
@@ -145,9 +161,10 @@ void make_ammo(float x, float y) {
         bullets[nn].vel[0] = 5.0f;    
         bullets[nn].vel[1] = 0.0f;    
         bullets[nn].w = 25;           
-        bullets[nn].h = 20;           
+        bullets[nn].h = 20;   
+        bullets[nn].active = 1;    // set active flag to 1 to indicate that it's active        
         nn++;                         
-        lastBulletTime = currentTime; 
+        last_bullet_time = currentTime; 
     }
 }
 
@@ -194,6 +211,47 @@ void update_particles() {
     }
 }
 
+
+void f_collisions() {
+
+    float enemy_data[30][4];
+    int* en_health[30];
+   
+    get_data(enemy_data, en_health); // get enemy data
+
+    for (int i = 0; i < nn; i++) { 
+
+        for (int j = 0; j < count; j++) { 
+
+            if (bullets[i].active) {
+
+              if (en_health[j] != NULL) {// && *en_health[j] > 0) {
+
+                if (bullets[i].pos[1] < enemy_data[j][1] + enemy_data[j][3] &&
+                    bullets[i].pos[1] > enemy_data[j][1] - enemy_data[j][3] &&
+                    bullets[i].pos[0] > enemy_data[j][0] - enemy_data[j][2] &&
+                    bullets[i].pos[0] < enemy_data[j][0] + enemy_data[j][2]) {
+                
+
+                    std::cout << "Collision: Bullet " << i << " with Enemy " << j << std::endl;
+                    (*en_health[j])--;
+
+
+                    for (int k = i; k < nn - 1; k++) {
+                        bullets[k] = bullets[k + 1];
+                    }
+                    nn--; 
+                    i--;  
+                    break;
+                }
+              }
+            }
+        }
+    }
+}
+
+
+
 int currentFrame = 0;         // Current column/frame
 const int totalFrames = 12; 
 int car_pos;
@@ -233,32 +291,51 @@ void f_render(GLuint atex, GLuint btex) {
  //////////////////////////////////////////
 
 if (beam_flag) {
-  glBindTexture(GL_TEXTURE_2D, btex);
-   // glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER, 0.0f);
-    
-    glColor3f(1.0, 1.0, 1.0); // Set color to white to avoid interference
 
-   // for (int i = 0; i < nn; i++) {
+  clock_t currentTime = clock();
+  float elapsedTime = float(currentTime - beam_start_time) / CLOCKS_PER_SEC;
+
+  if (elapsedTime < beam_render_duration) {
+       
+        // render the beam
+        glBindTexture(GL_TEXTURE_2D, btex);
+        glAlphaFunc(GL_GREATER, 0.0f);
+
+        glColor3f(1.0, 1.0, 1.0); // Set color to white to avoid interference
+
         glPushMatrix();
-    glTranslatef(beam.pos[0], beam.pos[1], 0.0f);
-    glBegin(GL_QUADS);
-        glTexCoord2f(u_start, 1); glVertex2f(-beam.w, -beam.h); // Top-left
-        glTexCoord2f(u_start, 0); glVertex2f(-beam.w,  beam.h); // Bottom-left
-        glTexCoord2f(u_end, 0);   glVertex2f( beam.w,  beam.h); // Bottom-right
-        glTexCoord2f(u_end, 1);   glVertex2f( beam.w, -beam.h); // Top-right
-    glEnd();
-    glPopMatrix();
+        glTranslatef(beam.pos[0], beam.pos[1], 0.0f);
+        glBegin(GL_QUADS);
+            glTexCoord2f(u_start, 1); glVertex2f(-beam.w, -beam.h); // Top-left
+            glTexCoord2f(u_start, 0); glVertex2f(-beam.w,  beam.h); // Bottom-left
+            glTexCoord2f(u_end, 0);   glVertex2f( beam.w,  beam.h); // Bottom-right
+            glTexCoord2f(u_end, 1);   glVertex2f( beam.w, -beam.h); // Top-right
+        glEnd();
+        glPopMatrix();
 
-    // Update frame for the next render call
-    currentFrame = (currentFrame + 1) % totalFrames;
-    //}
+        currentFrame = (currentFrame + 1) % totalFrames; // update frame
+    } else {
+        // stop rendering and start cooldown
+        beam_flag = 0;
+        beam_cooldown = 1;
+        beam_cooldown_start = currentTime;
+    }
 }
-
     glBindTexture(GL_TEXTURE_2D, 0);
 
-
     glDisable(GL_ALPHA_TEST);
+
+if (beam_cooldown) {
+    // Calculate elapsed time since cooldown started
+    clock_t currentTime = clock();
+    float cooldownElapsed = float(currentTime - beam_cooldown_start) / CLOCKS_PER_SEC;
+
+    if (cooldownElapsed >= beam_cooldown_duration) {
+        // End cooldown
+        beam_cooldown = 0;
+    }
+}
+
 
     //int g_color = 80 + (rand() % 130);
     //int r_color = 200 + (rand() % 50);
@@ -268,6 +345,8 @@ if (beam_flag) {
 		glPushMatrix();
 		//glColor3ub(particle[x].color);
 
+        // ex: particle[x].color = 0x349823
+        // red: 0x34, green: 0x98, blue: 0x23
         glColor3ub((particle[x].color >> 16) & 0xFF, 
                    (particle[x].color >> 8) & 0xFF, 
                     particle[x].color & 0xFF);

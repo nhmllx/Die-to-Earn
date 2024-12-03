@@ -101,13 +101,23 @@ float targetBox[4] = {250.0f, 000.0f, 450.0f, 300.0f};  // Example target box ce
 // Function to check if an enemy has crossed into the target area
 bool checkIfEnemyReachedTarget(int i) {
     // Check if enemy's bounding box intersects the target box
+    
     if (enemies[i].collisionBox[2] >= targetBox[0] &&  // Enemy's right is past target's left
         enemies[i].collisionBox[0] <= targetBox[2] &&  // Enemy's left is before target's right
         enemies[i].collisionBox[3] >= targetBox[1] &&  // Enemy's top is past target's bottom
         enemies[i].collisionBox[1] <= targetBox[3]) {  // Enemy's bottom is before target's top
         return true;  // Collision detected (enemy reached the target box)
     }
+    
+   // if(enemies[i].health <= 0) {
+     //   return true;
+    //}
     return false;  // No collision (enemy hasn't reached the target box)
+}
+
+bool isEnemyDead(int i) {
+
+    return enemies[i].health <= 0;
 }
 
 void enemyAnimate(void) {
@@ -120,18 +130,40 @@ void enemyAnimate(void) {
         anim.recordTime(&anim.spriteTime);
     }
 
+    
     for (int i = 0; i < count; i++) {
         enemies[i].pos[0] -= enemies[i].vel[0]; 
         enemies[i].updateCollisionBox();  // Update collision box based on position
 
         // Check if the enemy reached the target box
         if (checkIfEnemyReachedTarget(i)) {
-            printf("Enemy %d has reached the target box!\n", i);  // Print message if enemy reached target
+
+         // if (isEnemyDead(i)) {
+           // printf("Enemy %d has reached the target box!\n", i);  // Print message if enemy reached target
             make_particles(enemies[i].pos[0],enemies[i].pos[1]);
             enemies[i].pos[0] = 1250;// kill off enemy by moving it off screen
-           // make_particles2(enemies[i].pos[0],enemies[i].pos[1]);
+            //make_particles2(enemies[i].pos[0],enemies[i].pos[1]);
         }
+     
     }
+    
+   
+}
+
+void get_data(float en[][4], int* health[]) {
+
+    for (int x = 0; x < count; x++) {
+
+        en[x][0] = enemies[x].pos[0];
+        en[x][1] = enemies[x].pos[1];
+
+        en[x][2] = enemies[x].w;
+        en[x][3] = enemies[x].h;
+
+        health[x] = &enemies[x].health;
+
+    }
+
 }
 
 void enemyRender(GLuint etex) {
@@ -217,7 +249,7 @@ void bossRender(GLuint btex)
 
         glPopMatrix();
         if (b.pos[0] > 560) {
-            printf("boss pos: %f\n", b.pos[0]);
+           // printf("boss pos: %f\n", b.pos[0]);
     b.pos[0] = b.pos[0] - 10;
         }
   //     if (b.pos[0] < 920) {
