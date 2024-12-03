@@ -318,7 +318,7 @@ int main(void)
         }
         if(hearts_frame == frames[4]) {
 
-            render3(g.tex.xa, g.tex.ya, g.tex.deadTexture, g.xres, g.yres);
+            render3(g.tex.xc, g.tex.yc, g.tex.deadTexture, g.xres, g.yres);
         }
         x11.swapBuffers();
     }
