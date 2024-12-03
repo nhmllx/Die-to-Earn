@@ -11,6 +11,7 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "fonts.h"
+#include <iostream>
 extern void make_particles(float, float);
 extern GLuint enemyTex;
 extern float cy;
@@ -19,7 +20,7 @@ extern int lane;
 extern int f;
 extern float frames[];
 extern float hearts_frame;
-int count = 30;
+int count = 10;
 
 class Animate {
     public:
@@ -78,7 +79,7 @@ class Enemy {
             collisionBox[2] = pos[0] + w / 2;  // right
             collisionBox[3] = pos[1] + h / 2;  // top
         }
-} enemies[30];
+} enemies[10];
 class Boss {
     public:
         int health;
@@ -89,7 +90,7 @@ class Boss {
 
         Boss() {
             health = 10;
-            pos[0] =  1800; 
+            pos[0] =  18000; 
             pos[1] =  75;  
             vel[0] = rand() % 5 + 1; 
             vel[1] = 0.0f;           
@@ -117,7 +118,7 @@ void updateCbox(float x, float y)
 {
     targetBox[0] = x-1;
     targetBox[1] = y;
-    targetBox[2] = x + 50;
+    targetBox[2] = x + 85;
     targetBox[3] = y;
 }
 bool checkIfEnemyReachedTarget(int i) {
@@ -129,6 +130,12 @@ bool checkIfEnemyReachedTarget(int i) {
         printf("f: %i\n", f);  
         return true;  
     }
+  //  if (enemies[i].health == 3) {
+
+    //    enemies[i].health = 2;
+        
+      //  return true;
+    //}
     return false;
 }
 
@@ -154,17 +161,16 @@ void enemyAnimate(void) {
 
         // Check if the enemy reached the target box
         if (checkIfEnemyReachedTarget(i) || enemies[i].pos[0] <= -100) {
-            //   f++;
-            //   if (f == 5) {
-            //     f = 0;
-            //     hearts_frame = frames[f];
-            // }
-            //  }
 
+            if(checkIfEnemyReachedTarget(i)){
 
-            make_particles(enemies[i].pos[0],enemies[i].pos[1]);
-        enemies[i].pos[0] = 1250;// kill off enemy by moving it off screen
+                make_particles(enemies[i].pos[0],enemies[i].pos[1]);
+                //enemies[i].health = 2;
+            }
+
+            enemies[i].pos[0] = 1250;// kill off enemy by moving it off screen
                                  //make_particles2(enemies[i].pos[0],enemies[i].pos[1]);
+
     }
 
 }
@@ -172,7 +178,7 @@ void enemyAnimate(void) {
 
 }
 
-void get_data(float en[][4], int* health[]) {
+void get_data(float en[][4], int* health[], float* pos[]) {
 
     for (int x = 0; x < count; x++) {
 
@@ -183,6 +189,7 @@ void get_data(float en[][4], int* health[]) {
         en[x][3] = enemies[x].h;
 
         health[x] = &enemies[x].health;
+        pos[x] = &enemies[x].pos[0];
 
     }
 

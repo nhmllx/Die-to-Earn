@@ -17,7 +17,7 @@
 extern GLuint bulletTex;
 extern float cy;
 extern float cx;
-extern void get_data(float en[][4], int* en_health[]);
+extern void get_data(float en[][4], int* en_health[], float* pos[]);
 
 int mateo_show = 0;
 const int MAX_PARTICLES = 800;
@@ -158,7 +158,7 @@ void make_ammo(float x, float y) {
     // create a new bullet only if the delay has passed
     if (elapsedTime > bullet_delay && nn < MAX_BULLETS) {
         bullets[nn].pos[0] = x;    
-        bullets[nn].pos[1] = y;    
+        bullets[nn].pos[1] = y - 12;    
         bullets[nn].last_pos[0] = x; 
         bullets[nn].last_pos[1] = y;
         bullets[nn].vel[0] = 5.0f;    
@@ -168,10 +168,10 @@ void make_ammo(float x, float y) {
         bullets[nn].active = 1;    // set active flag to 1 to indicate that it's active        
         nn++;  
 
-        y -= 37;   
+       // y -= 37;   
 
         bullets[nn].pos[0] = x;
-        bullets[nn].pos[1] = y ;  // Offset to make it a few pixels below
+        bullets[nn].pos[1] = y - 25;  // Offset to make it a few pixels below
         bullets[nn].last_pos[0] = x;
         bullets[nn].last_pos[1] = y;
         bullets[nn].vel[0] = 5.0f;
@@ -233,8 +233,11 @@ void f_collisions() {
 
     float enemy_data[30][4];
     int* en_health[30];
+    float* pos[30];
+
+  
    
-    get_data(enemy_data, en_health); // get enemy data
+    get_data(enemy_data, en_health, pos); // get enemy data
 
     for (int i = 0; i < nn; i++) { 
 
@@ -242,7 +245,7 @@ void f_collisions() {
 
             if (bullets[i].active) {
 
-              if (en_health[j] != NULL) {// && *en_health[j] > 0) {
+              if (en_health[j] != NULL || en_health[j] != 0) {// && *en_health[j] > 0) {
 
                 if (bullets[i].pos[1] < enemy_data[j][1] + enemy_data[j][3] &&
                     bullets[i].pos[1] > enemy_data[j][1] - enemy_data[j][3] &&
@@ -252,7 +255,16 @@ void f_collisions() {
 
                     std::cout << "Collision: Bullet " << i << " with Enemy " << j << std::endl;
                     (*en_health[j])--;
+                  //  std::cout << "Enemy Health: " << *en_health[j] << "\n\n";
 
+                    if (*en_health[j] <= 0) {
+
+
+                        make_particles(enemy_data[j][0], enemy_data[j][1]);
+                        (*en_health[j]) = 2;
+                        (*pos[j]) = 1250;
+
+                    }
 
                     for (int k = i; k < nn - 1; k++) {
                         bullets[k] = bullets[k + 1];
