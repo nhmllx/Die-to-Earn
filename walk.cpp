@@ -40,6 +40,7 @@ extern int beam_flag;
 extern clock_t beam_start_time; 
 extern int beam_cooldown; 
 extern void f_collisions();
+extern void updateCbox(float, float);
 //defined types
 typedef double Flt;
 typedef double Vec[3];
@@ -285,6 +286,10 @@ float frame_w = 1.0f/15.0f;
 float frames[5] = {hearts_frame, frame_w * 4, frame_w * 8, frame_w * 11, frame_w * 14};
 int hearts = 0;
 int lane = 0;
+//float cx;
+//float cy;
+float cx = g.xres/4; //xpos of car
+float cy = g.yres/3.5; // ypos of car
 int main(void)
 {
     initOpengl();
@@ -300,6 +305,7 @@ int main(void)
             done = checkKeys(&e);
         }
         f_collisions();
+        updateCbox(cx, cy);
         physics();
         enemyAnimate();//nmalleaux.cpp
         if (g.flag == 1 && frames[4] !=0)
@@ -311,7 +317,7 @@ int main(void)
             render();
         }
         if(hearts_frame == frames[4]) {
-           
+
             render3(g.tex.xa, g.tex.ya, g.tex.deadTexture, g.xres, g.yres);
         }
         x11.swapBuffers();
@@ -614,14 +620,11 @@ void checkMouse(XEvent *e)
     }
 }
 int keyf = 0;
-float cx = g.xres/4; //xpos of car
-                     //float cx = g.yres/verticalChange; to change vertical pos
-float cy = g.yres/3.5; // ypos of car
-                       //int beam_on = 0;
+//int beam_on = 0;
 
-                       //float hearts_frame = 0.0f;
-                       //float frame_w = 1.0f/15.0f;
-                       //frames[5] = {hearts_frame, frame_w * 4, frame_w * 8, frame_w * 11, frame_w * 14};
+//float hearts_frame = 0.0f;
+//float frame_w = 1.0f/15.0f;
+//frames[5] = {hearts_frame, frame_w * 4, frame_w * 8, frame_w * 11, frame_w * 14};
 float tem_frames[3];
 int f = 0;
 
@@ -685,6 +688,9 @@ int checkKeys(XEvent *e)
 
                 cy = 105;
                 lane = 1;
+                g.delay -= 0.005;
+                if (g.delay < 0.005)
+                    g.delay = 0.005;
 
                 keyf = 0;
                 break;
@@ -700,7 +706,7 @@ int checkKeys(XEvent *e)
                 break;
             case XK_d:
 
-               if (beam_cooldown == 0 && beam_flag == 0) {
+                if (beam_cooldown == 0 && beam_flag == 0) {
 
                     beam_flag = 1;
                     beam_start_time = clock();
