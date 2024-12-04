@@ -1,18 +1,18 @@
 /*! \file imalleaux.cpp
-* \a source file to show contribution
-*
-* This file is your showcase of software engineering work.
-* The file will contain your own contribution to the group project.
-* File will contain a minimum of 200-lines of executable source code
-*
-*  Certain parts of a file do not count as source...
-      - comments
-      - header files
-      - blank lines
-      - repeated code
+ * \a source file to show contribution
+ *
+ * This file is your showcase of software engineering work.
+ * The file will contain your own contribution to the group project.
+ * File will contain a minimum of 200-lines of executable source code
+ *
+ *  Certain parts of a file do not count as source...
+ - comments
+ - header files
+ - blank lines
+ - repeated code
 
-* History: Written by Isaiah Malleaux, 9/24.
-*/
+ * History: Written by Isaiah Malleaux, 9/24.
+ */
 #ifndef IMALLEAUX_H
 #define IMALLEAUX_H
 
@@ -27,6 +27,15 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "fonts.h"
+
+void restartProgram(const char *programName) {
+    printf("Restarting program...\n");
+    execl(programName, programName, NULL);
+    perror("execl failed");
+    exit(EXIT_FAILURE); // Exit if exec fails
+}
+
+
 
 void scroll(float val[])
 {

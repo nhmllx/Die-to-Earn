@@ -18,7 +18,7 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "fonts.h"
-
+extern void restartProgram(const char *programName);
 extern void make_particles(float, float);
 extern void update_particles();
 extern void render_particles();
@@ -292,8 +292,9 @@ int complete = 0;
 
 float cx = g.xres/4; //xpos of car
 float cy = g.yres/3.5; // ypos of car
-int main(void)
+int main(int argc, char *argv[])
 {
+    (void)argc;
 
     frames[0] = hearts_frame;
     frames[1] = frame_w * 4;
@@ -312,6 +313,10 @@ int main(void)
             x11.checkResize(&e);
             checkMouse(&e);
             done = checkKeys(&e);
+             if (done == 2) {
+                 restartProgram(argv[0]);
+             }
+
         }
         f_collisions();
         updateCbox(cx, cy);
@@ -744,6 +749,9 @@ int checkKeys(XEvent *e)
                 //  case XK_Escape:
                 //    return 1;
                 break;
+            case XK_z:
+                return(2);
+            break;
         }
     }
     return 0;
