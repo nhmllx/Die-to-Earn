@@ -2,9 +2,7 @@
 //program: walk.cpp
 //author:  Gordon Griesel
 //date:    summer 2017 - 2018
-//
-//Walk cycle using a sprite sheet.
-//images courtesy: http://games.ucla.edu/resource/walk-cycles/
+//Updated by Company 6
 //
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,20 +68,15 @@ class Image {
         Image(const char *fname) {
             if (fname[0] == '\0')
                 return;
-            //printf("fname **%s**\n", fname);
             char name[40];
             strcpy(name, fname);
             int slen = strlen(name);
             name[slen-4] = '\0';
-            //printf("name **%s**\n", name);
             char ppmname[80];
             sprintf(ppmname,"%s.ppm", name);
-            //printf("ppmname **%s**\n", ppmname);
             char ts[100];
-            //system("convert eball.jpg eball.ppm");
             sprintf(ts, "convert %s %s", fname, ppmname);
             system(ts);
-            //sprintf(ts, "%s", name);
             FILE *fpi = fopen(ppmname, "r");
             if (fpi) {
                 char line[200];
@@ -106,13 +99,14 @@ class Image {
             unlink(ppmname);
         }
 };
-Image img[13] = {"images/walk.gif", "images/bg.png", "images/wastelands.png",
+Image img[13] = {"images/walk.gif","images/bg.png","images/wastelands.png",
     "images/car_move.png", "images/bomber.png", "images/enemy.png", 
     "images/speedometer.png", "images/beam.png", "images/health.png", 
-    "images/fuel.png", "images/tank.png", "images/hearts1.png", "images/ded.png"};
+    "images/fuel.png", "images/tank.png", "images/hearts1.png", 
+    "images/ded.png"};
 
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------
 //Setup timers
 class Timers {
     public:
@@ -135,7 +129,7 @@ class Timers {
             clock_gettime(CLOCK_REALTIME, t);
         }
 } timers;
-//-----------------------------------------------------------------------------
+//------------------------------------------------------
 class Texture {
     public:
         Image *deadImage;
@@ -197,8 +191,8 @@ class X11_wrapper {
         Window win;
     public:
         X11_wrapper() {
-            GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
-            //GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, None };
+            GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24,
+                GLX_DOUBLEBUFFER, None };
             XSetWindowAttributes swa;
             setupScreenRes(g.xres, g.yres);
             dpy = XOpenDisplay(NULL);
@@ -212,7 +206,8 @@ class X11_wrapper {
                 printf("\n\tno appropriate visual found\n\n");
                 exit(EXIT_FAILURE);
             } 
-            Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
+            Colormap cmap = XCreateColormap
+                (dpy, root, vi->visual, AllocNone);
             swa.colormap = cmap;
             swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
                 StructureNotifyMask | SubstructureNotifyMask;
@@ -363,11 +358,9 @@ unsigned char *buildAlphaData(Image *img)
         *(ptr+3) = 1;
         if (a==t0 && b==t1 && c==t2)
             *(ptr+3) = 0;
-        //-----------------------------------------------
         ptr += 4;
         data += 3;
     }
-    //render3(g.dead.xc, g.dead.yc, g.dead.backTexture, g.xres, g.yres);
     return newdata;
 }
 
@@ -380,22 +373,17 @@ void initOpengl(void)
     glMatrixMode(GL_MODELVIEW); glLoadIdentity();
     //This sets 2D mode (no perspective)
     glOrtho(0, g.xres, 0, g.yres, -1, 1);
-    //
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_FOG);
     glDisable(GL_CULL_FACE);
-    //
     //Clear the screen
     glClearColor(1.0, 1.0, 1.0, 1.0);
-    //glClear(GL_COLOR_BUFFER_BIT);
     //Do this to allow fonts
     glEnable(GL_TEXTURE_2D);
     initialize_fonts();
-    //
     //load the images file into a ppm structure.
-    //
-    //-title screen-------------------------------------------------------------
+    //title screen------------------------------------------
     g.tex.backImage = &img[2];
     //create opengl texture elements
     glGenTextures(1, &g.tex.backTexture);
@@ -410,7 +398,7 @@ void initOpengl(void)
     g.tex.xc[1] = 1.0;
     g.tex.yc[0] = 0.0;
     g.tex.yc[1] = 1.0;
-    // death screen-------------------------------------------------------------
+    // death screen--------------------------------------------
     g.tex.deadImage = &img[12];
     //create opengl texture elements
     glGenTextures(1, &g.tex.deadTexture);
@@ -425,7 +413,7 @@ void initOpengl(void)
     g.dead.xa[1] = 1.0;
     g.dead.ya[0] = 0.0;
     g.dead.ya[1] = 1.0;
-    //background-------------------------------------------------------------
+    //background-------------------------------------
     g.tex.bgImage = &img[1];
     //create opengl texture elements
     glGenTextures(1, &g.tex.bgTexture);
@@ -440,58 +428,44 @@ void initOpengl(void)
     g.tex.xb[1] = 1.0;
     g.tex.yb[0] = 0.0;
     g.tex.yb[1] = 1.0;
-    //---------------------------------------------------------------------------------
+    //--------------------------------------------------------------
     int w = img[3].width;
     int h = img[3].height;
-    //
     //create opengl texture elements
     glGenTextures(1, &g.walkTexture); 
-    //silhouette
     //this is similar to a sprite graphic
-    //
     glBindTexture(GL_TEXTURE_2D, g.walkTexture);
-    //
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    //
     //must build a new set of data...
     unsigned char *walkData = buildAlphaData(&img[3]);//car moving	
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, walkData);
 
-    //---------------------------------------------------------------------------------
+    //---------------------------------------------------------
 
     w = img[4].width;
     h = img[4].height;
     //
     //create opengl texture elements
     glGenTextures(1, &g.bulletTex); 
-    //silhouette
     //this is similar to a sprite graphic
-    //
     glBindTexture(GL_TEXTURE_2D, g.bulletTex);
-    //
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    //
     //must build a new set of data...
     unsigned char *Tex = buildAlphaData(&img[4]);//The Bullets	
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, Tex);
-    //-------------------------------------------------------------------------
+    //-----------------------------------------------------
     w = img[5].width;
     h = img[5].height;
-    //
     //create opengl texture elements
     glGenTextures(1, &g.enemyTex); 
-    //silhouette
     //this is similar to a sprite graphic
-    //
     glBindTexture(GL_TEXTURE_2D, g.enemyTex);
-    //
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    //
     //must build a new set of data...
     unsigned char *enemydata = buildAlphaData(&img[5]);//The Enemy	
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
@@ -499,17 +473,12 @@ void initOpengl(void)
     //-----------------------------------------------------------------
     w = img[6].width;
     h = img[6].height;
-    //
     //create opengl texture elements
     glGenTextures(1, &g.speedoTex); 
-    //silhouette
     //this is similar to a sprite graphic
-    //
     glBindTexture(GL_TEXTURE_2D, g.speedoTex);
-    //
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    //
     //must build a new set of data...
     unsigned char *speedodata = buildAlphaData(&img[6]);//The speedometer	
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
@@ -520,14 +489,10 @@ void initOpengl(void)
     h = img[7].height;
 
     glGenTextures(1, &g.beamTex); 
-    //silhouette
     //this is similar to a sprite graphic
-    //
     glBindTexture(GL_TEXTURE_2D, g.beamTex);
-    //
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    //
     //must build a new set of data...
     unsigned char *bTex = buildAlphaData(&img[7]);//The Bullets	
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
@@ -537,14 +502,10 @@ void initOpengl(void)
     h = img[8].height;
 
     glGenTextures(1, &g.healthTex); 
-    //silhouette
     //this is similar to a sprite graphic
-    //
     glBindTexture(GL_TEXTURE_2D, g.healthTex);
-    //
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    //
     //must build a new set of data...
     unsigned char *hedata = buildAlphaData(&img[8]);//The heart
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
@@ -555,30 +516,22 @@ void initOpengl(void)
     glGenTextures(1, &g.fuelTex); 
     //silhouette
     //this is similar to a sprite graphic
-    //
     glBindTexture(GL_TEXTURE_2D, g.fuelTex);
-    //
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    //
     //must build a new set of data...
     unsigned char *fdata = buildAlphaData(&img[9]);//The heart
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, fdata);
-    //-------------------------------------------------------------------------
+    //------------------------------------------------------
     w = img[10].width;
     h = img[10].height;
-    //
     //create opengl texture elements
     glGenTextures(1, &g.bossTex); 
-    //silhouette
     //this is similar to a sprite graphic
-    //
     glBindTexture(GL_TEXTURE_2D, g.bossTex);
-    //
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    //
     //must build a new set of data...
     unsigned char *bossdata = buildAlphaData(&img[10]);//The Boss	
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
@@ -588,7 +541,6 @@ void initOpengl(void)
     h = img[11].height;
 
     glGenTextures(1, &g.heartsTex); 
-    //silhouette
     //this is similar to a sprite graphic
     glBindTexture(GL_TEXTURE_2D, g.heartsTex);
     //
@@ -684,12 +636,8 @@ int checkKeys(XEvent *e)
                 }
                 break;
             case XK_Up:
-                //         timers.recordTime(&timers.walkTime);
-                //     g.walk = 1;
-                //           g.walk ^= 1;
                 keyf = 1;
                 cy = 228;
-               
                 g.delay -= 0.005;
                 if (g.delay < 0.005)
                     g.delay = 0.005;
@@ -698,15 +646,10 @@ int checkKeys(XEvent *e)
                 g.flag = 0;
                 break;
             case XK_Down:
-                //            make_particles(e, g.yres);
-                // std::cout << "cy: " << cy << std::endl;
-
                 cy = 105;
-              
                 g.delay -= 0.005;
                 if (g.delay < 0.005)
                     g.delay = 0.005;
-
                 keyf = 0;
                 break;
             case XK_e: // Calls make_particles when the 'E' key is pressed
@@ -734,9 +677,6 @@ int checkKeys(XEvent *e)
                 if (f == 5) 
                     f = 0;
                 hearts_frame = frames[f];  
-
-                //  x++;  
-
                 break;
             case XK_equal:
                 g.delay -= 0.005;
@@ -745,9 +685,6 @@ int checkKeys(XEvent *e)
                 break;
             case XK_minus:
                 g.delay += 0.005;
-                break;
-                //  case XK_Escape:
-                //    return 1;
                 break;
             case XK_z:
                 return(2);
@@ -778,17 +715,10 @@ Flt VecNormalize(Vec vec)
 
 void physics(void)
 {
-    //g.tex.xc[0] += 0.001;
-    //g.tex.xc[1] += 0.001;
-    //scroll(g.tex.xc[]);
-    // if (g.walk) {
     if (keyf == 1) {
-        //   printf("Up");
-        //         timers.recordTime(&timers.walkTime);
-        //man is walking...
-        //when time is up, advance the frame.
         timers.recordTime(&timers.timeCurrent);
-        double timeSpan = timers.timeDiff(&timers.walkTime, &timers.timeCurrent);
+        double timeSpan = timers.timeDiff
+            (&timers.walkTime, &timers.timeCurrent);
         if (timeSpan > g.delay) {
             //advance
             ++g.walkFrame;
@@ -805,9 +735,6 @@ void physics(void)
 
     if (keyf == 0) {
         g.delay += 0.0005;
-        //   if (g.delay >= 0.1){
-        // g.walkFrame = 0;
-        //  g.delay = 0.1;
         // }
     }
 
@@ -816,9 +743,6 @@ void physics(void)
 }
 
 //above check_keys()
-//float cx = g.xres/4; //xpos of car
-//float cx = g.yres/verticalChange; to change vertical pos
-//float cy = g.yres/3.5; // ypos of car
 float currentSpeedAngle = 140.0f;
 void render()
 {
@@ -838,15 +762,9 @@ void render()
         glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
         glEnd();
         glBindTexture(GL_TEXTURE_2D, 0);
-        //if (g.keys[XK_d] == 1 && g.keys[XK_g] != 1){
-        //camerax += 0.00275;
-        //}
         if (g.keys[XK_Up] == 1){
             camerax += 0.0150;
         }
-        //if (g.keys[XK_Down] == 1){
-        //camerax = cameraxi;
-        //}
 
         float h = 76.0f;
         float w = 101.0f;
@@ -858,33 +776,25 @@ void render()
         glAlphaFunc(GL_GREATER, 0.0f);
         glColor4ub(255,255,255,255);
 
-        int ix = g.walkFrame % 3; // Get the current sprite frame (0, 1, or 2)
+        int ix = g.walkFrame % 3; // Get the current sprite frame
 
         // Calculate texture coordinates based on the current frame
-        float tx = (float)(ix * w) / 303.0f; // Adjust tx based on the frame
+        float tx = (float)(ix * w) / 303.0f; // Adjust 
         float ty = 0.0f; // Only one row, so ty is always 0
 
         glBegin(GL_QUADS);
         glTexCoord2f(tx, ty+1.0f); glVertex2i(cx - w, cy - h); // Top-left
-        glTexCoord2f(tx, ty);        glVertex2i(cx - w, cy + h); // Bottom-left
+        glTexCoord2f(tx, ty);  glVertex2i(cx - w, cy + h); // Bottom-left
         glTexCoord2f(tx + 1.0f / 3.0f, ty); glVertex2i(cx + w, cy + h); 
-        glTexCoord2f(tx + 1.0f / 3.0f, ty + 1.0f); glVertex2i(cx + w, cy - h); // Top-right
+        glTexCoord2f(tx + 1.0f / 3.0f, ty + 1.0f); 
+        glVertex2i(cx + w, cy - h); // Top-right
         glEnd();
         glPopMatrix();
         glBindTexture(GL_TEXTURE_2D, 0);
         glDisable(GL_ALPHA_TEST);
-
-
-
         //hearts 
 
-        // glEnable(GL_TEXTURE_2D);
-
         float posOffset = cy + 30.0;
-        //float posOffset2 = cx;
-        //float hearts_frame = 0.0f;
-        //float frame_w = 1.0f/15.0f;
-
         float tw = 150.0f;
         float th = 160.0f;
 
@@ -892,7 +802,7 @@ void render()
         glEnable(GL_ALPHA_TEST);
         glAlphaFunc(GL_GREATER, 0.0f);
 
-        glColor3f(1.0, 1.0, 1.0); // Set color to white to avoid interference
+        glColor3f(1.0, 1.0, 1.0); // Set color to white 
 
         // for (int i = 0; i < 1; i++) {
 
