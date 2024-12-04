@@ -69,7 +69,8 @@ class Enemy {
 
         Enemy() {
             health = 2;
-            pos[0] = (rand() % (1200 / gap)) * gap + 600;
+            //pos[0] = (rand() % (1200 / gap)) * gap + 600;
+            pos[0] = (rand() % (1200) +1200;
             if (rand() % 2 == 0) {
                 pos[1] = 228.571426;
                 lane = 1; // top lane
