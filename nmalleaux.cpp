@@ -69,9 +69,7 @@ class Enemy {
 
         Enemy() {
             health = 2;
-            //    pos[0] = rand() % 1200; 
             pos[0] = (rand() % (1200 / gap)) * gap;
-            // pos[1] = rand() % 280; 
             if (rand() % 2 == 0) {
                 pos[1] = 228.571426;
                 lane = 1; // top lane
@@ -87,13 +85,13 @@ class Enemy {
         }
 
         void updateCollisionBox() {
-            // Calculate the bounding box based on position and dimensions
             collisionBox[0] = pos[0] - w / 2;  // left
             collisionBox[1] = pos[1] - h / 2;  // bottom
             collisionBox[2] = pos[0] + w / 2;  // right
             collisionBox[3] = pos[1] + h / 2;  // top
         }
 } enemies[30];
+
 class Boss {
     public:
         int health;
@@ -114,7 +112,6 @@ class Boss {
         }
 
         void updateCollisionBox() {
-            // Calculate the bounding box based on position and dimensions
             collisionBox[0] = pos[0] - w / 2;  // left
             collisionBox[1] = pos[1] - h / 2;  // bottom
             collisionBox[2] = pos[0] + w / 2;  // right
@@ -122,11 +119,6 @@ class Boss {
         }
 } b;
 
-// Define a target bounding box region (left, bottom, right, top) centered on the screen
-/*if (lane == 0)
-  {
-
-  }*/
 float targetBox[4];
 void updateCbox(float x, float y)
 {
@@ -135,30 +127,25 @@ void updateCbox(float x, float y)
     targetBox[2] = x + 85;
     targetBox[3] = y;
 }
+
 bool checkIfEnemyReachedTarget(int i) {
     if (enemies[i].collisionBox[2] >= targetBox[0] &&  
             enemies[i].collisionBox[0] <= targetBox[2] &&  
             enemies[i].collisionBox[3] >= targetBox[1] &&  
             enemies[i].collisionBox[1] <= targetBox[3]) {
-        // f++;
-       // printf("f: %i\n", f);  
         return true;  
     }
-  //  if (enemies[i].health == 3) {
-
-    //    enemies[i].health = 2;
-        
-      //  return true;
-    //}
     return false;
 }
 
-bool isEnemyDead(int i) {
+bool isEnemyDead(int i) 
+{
 
     return enemies[i].health <= 0;
 }
 
-void enemyAnimate(void) {
+void enemyAnimate(void) 
+{
     anim.recordTime(&anim.timeCurrent);
     double timeSpan = anim.timeDiff(&anim.spriteTime, &anim.timeCurrent);
     if (timeSpan > delayer) {
@@ -174,14 +161,15 @@ void enemyAnimate(void) {
 
     for (int i = 0; i < count; i++) {
         enemies[i].pos[0] -= enemies[i].vel[0]; 
-        enemies[i].updateCollisionBox();  // Update collision box based on position
+        enemies[i].updateCollisionBox(); 
 
         // Check if the enemy reached the target box
 
 
         if (i_frames) {
             currentTime = clock();
-            elapsedTime = float(currentTime - last_hit_time) / CLOCKS_PER_SEC;
+            elapsedTime = float(currentTime - last_hit_time) 
+                                           / CLOCKS_PER_SEC;
         }
 
         if (!i_frames) {
@@ -189,34 +177,29 @@ void enemyAnimate(void) {
                 i_frames = 0; 
 
             if (checkIfEnemyReachedTarget(i) || enemies[i].pos[0] <= -100) {
-
                 if(checkIfEnemyReachedTarget(i)){
 
                     make_particles(enemies[i].pos[0],enemies[i].pos[1]);
 
                     if (hearts != 5 ) {
                      hearts_frame = frames[hearts];
-                     // hearts++;
                      hearts ++;
                     }
                     i_frames = 1;
                     last_hit_time = currentTime;
-
                 }
 
-                enemies[i].pos[0] = 1250;// kill off enemy by moving it off screen
-                                     //make_particles2(enemies[i].pos[0],enemies[i].pos[1]);
-
+                enemies[i].pos[0] = 1250;//kill enemy by moving off screen
             }
         }
         else if(elapsedTime > hit_delay)
               i_frames = 0; 
-
     }
 
 }
 
-void check_timer() {
+void check_timer() 
+{
     
 }
 
@@ -259,13 +242,17 @@ void enemyRender(GLuint etex) {
 
         glBegin(GL_QUADS);
         glTexCoord2f(flipped, ty + 1.0f);  // top left
-        glVertex2f(enemies[i].pos[0] - spriteWidth / 2, enemies[i].pos[1] - spriteHeight / 2);
+        glVertex2f(enemies[i].pos[0] - spriteWidth / 2, 
+                 enemies[i].pos[1] - spriteHeight / 2);
         glTexCoord2f(flipped, ty);  // bottom left
-        glVertex2f(enemies[i].pos[0] - spriteWidth / 2, enemies[i].pos[1] + spriteHeight / 2);
+        glVertex2f(enemies[i].pos[0] - spriteWidth / 2, 
+                 enemies[i].pos[1] + spriteHeight / 2);
         glTexCoord2f(tx, ty);  // bottom right
-        glVertex2f(enemies[i].pos[0] + spriteWidth / 2, enemies[i].pos[1] + spriteHeight / 2);
+        glVertex2f(enemies[i].pos[0] + spriteWidth / 2, 
+                 enemies[i].pos[1] + spriteHeight / 2);
         glTexCoord2f(tx, ty + 1.0f);  // top right
-        glVertex2f(enemies[i].pos[0] + spriteWidth / 2, enemies[i].pos[1] - spriteHeight / 2);
+        glVertex2f(enemies[i].pos[0] + spriteWidth / 2, 
+                 enemies[i].pos[1] - spriteHeight / 2);
         glEnd();
 
         glPopMatrix();
@@ -293,15 +280,13 @@ void bossRender(GLuint btex)
     glColor3f(1.0, 1.0, 1.0);
 
     glPushMatrix();
-    glScalef(1.75f, 1.75f, 1.0f);  // Scale by 2x in both x and y directions
+    glScalef(1.75f, 1.75f, 1.0f);  //scale sprite by 1.75
 
     int ix = frameno % 13;
-    float tx = (float)(ix * spriteWidth) / 1950.0f;  // left part of the sprite
+    float tx = (float)(ix * spriteWidth) / 1950.0f;  
     float ty = 0.0f;
-    float flipped = tx + spriteWidth / 1950.0f;  // right part of the sprite
-
-    // face sprite toward player 
-    float temp = tx;
+    float flipped = tx + spriteWidth / 1950.0f;  
+    float temp = tx; //flip the sprite horizontally
     tx = flipped;
     flipped = temp;
 
@@ -324,9 +309,6 @@ void bossRender(GLuint btex)
         // printf("boss pos: %f\n", b.pos[0]);
         b.pos[0] = b.pos[0] - 10;
     }
-    //     if (b.pos[0] < 920) {
-    //       b.pos[0] = 920;
-    // }    
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);
