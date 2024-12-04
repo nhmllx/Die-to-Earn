@@ -17,7 +17,7 @@
 extern GLuint bulletTex;
 extern float cy;
 extern float cx;
-extern void get_data(float en[][4], int* en_health[], float* pos[]);
+extern void get_data(float en[][4], int* en_health[], float* pos[], int* lane[]);
 
 int mateo_show = 0;
 const int MAX_PARTICLES = 800;
@@ -29,8 +29,8 @@ int coord[2] = {105, 228};
 float bullet_delay = 0.05f; // delay between bullets in seconds
 clock_t last_bullet_time = clock();
 
-float beam_render_duration = 1.0f; 
-float beam_cooldown_duration = 1.0f; 
+float beam_render_duration = 0.5f; 
+float beam_cooldown_duration = 1.3f; 
 clock_t beam_start_time = 0; 
 clock_t beam_cooldown_start = 0; 
 int beam_cooldown = 0; 
@@ -158,28 +158,15 @@ void make_ammo(float x, float y) {
     // create a new bullet only if the delay has passed
     if (elapsedTime > bullet_delay && nn < MAX_BULLETS) {
         bullets[nn].pos[0] = x;    
-        bullets[nn].pos[1] = y - 12;    
+        bullets[nn].pos[1] = y - 17;    
         bullets[nn].last_pos[0] = x; 
         bullets[nn].last_pos[1] = y;
         bullets[nn].vel[0] = 5.0f;    
         bullets[nn].vel[1] = 0.0f;    
-        bullets[nn].w = 25;           
-        bullets[nn].h = 20;   
+        bullets[nn].w = 35;           
+        bullets[nn].h = 30;   
         bullets[nn].active = 1;    // set active flag to 1 to indicate that it's active        
-        nn++;  
-
-       // y -= 37;   
-
-        bullets[nn].pos[0] = x;
-        bullets[nn].pos[1] = y - 25;  // Offset to make it a few pixels below
-        bullets[nn].last_pos[0] = x;
-        bullets[nn].last_pos[1] = y;
-        bullets[nn].vel[0] = 5.0f;
-        bullets[nn].vel[1] = 0.0f;
-        bullets[nn].w = 25;
-        bullets[nn].h = 20;
-        bullets[nn].active = 1;
-        nn++;       
+        nn++;   
 
         last_bullet_time = currentTime; 
     }
@@ -234,10 +221,9 @@ void f_collisions() {
     float enemy_data[30][4];
     int* en_health[30];
     float* pos[30];
-
-  
+    int *en_lane[30];
    
-    get_data(enemy_data, en_health, pos); // get enemy data
+    get_data(enemy_data, en_health, pos, en_lane); // get enemy data
 
     for (int i = 0; i < nn; i++) { 
 
@@ -253,12 +239,11 @@ void f_collisions() {
                     bullets[i].pos[0] < enemy_data[j][0] + enemy_data[j][2]) {
                 
 
-                    std::cout << "Collision: Bullet " << i << " with Enemy " << j << std::endl;
-                    (*en_health[j])--;
+                   // std::cout << "Collision: Bullet " << i << " with Enemy " << j << std::endl;
+                    (*en_health[j]) --;
                   //  std::cout << "Enemy Health: " << *en_health[j] << "\n\n";
 
                     if (*en_health[j] <= 0) {
-
 
                         make_particles(enemy_data[j][0], enemy_data[j][1]);
                         (*en_health[j]) = 2;
@@ -277,6 +262,45 @@ void f_collisions() {
             }
         }
     }
+
+    if (beam_flag) {
+
+     // std::cout << "beam on "<< "\n\n";
+      for (int k = 0; k < count; k++) {
+       
+        if (beam.active == 0 && (*en_lane[k]) == 0) { // bottom lane
+
+             // std::cout << "beam collision: 0" << *en_lane[k] << "\n\n";
+
+              (*en_health[k]) -= 2;
+                  //  std::cout << "Enemy Health: " << *en_health[j] << "\n\n";
+
+                    if (*en_health[k] <= 0) {
+
+                        make_particles(enemy_data[k][0], enemy_data[k][1]);
+                        (*en_health[k]) = 2;
+                        (*pos[k]) = 1250;
+
+                    }
+            
+        }
+        else if (beam.active == 1 && (*en_lane[k]) == 1) { // bottom lane
+
+              (*en_health[k]) -= 2;
+                //  std::cout << "beam collision: 1" << *en_lane[k] << "\n\n";
+
+                    if (*en_health[k] <= 0) {
+
+                        make_particles(enemy_data[k][0], enemy_data[k][1]);
+                        (*en_health[k]) = 2;
+                        (*pos[k]) = 1250;
+
+                    }
+        }
+
+
+      }
+    }
 }
 
 
@@ -293,6 +317,11 @@ void f_render(GLuint atex, GLuint btex) {
     beam.pos[1] = cy - 15;
     //beam.pos[0] = 700;
     beam.pos[0] = cx + 700;
+    if (cy < 200) {
+        beam.active = 0; // bottom lane
+    }
+    else    
+        beam.active = 1; // top lane
 
     float u_start = currentFrame / static_cast<float>(totalFrames);
     float u_end = (currentFrame + 1) / static_cast<float>(totalFrames);

@@ -12,15 +12,22 @@
 #include <GL/glx.h>
 #include "fonts.h"
 #include <iostream>
+#include <ctime>
 extern void make_particles(float, float);
 extern GLuint enemyTex;
 extern float cy;
 extern float cx;
 extern int lane;
-extern int f;
+extern int hearts;
 extern float frames[];
 extern float hearts_frame;
-int count = 10;
+
+clock_t last_hit_time = clock(); 
+float hit_delay = 0.8f; 
+int i_frames = 0;
+
+
+int count = 3;
 
 class Animate {
     public:
@@ -54,6 +61,7 @@ class Enemy {
         int w, h;        
         float collisionBox[4]; // left, bottom, right, top
         int health;
+        int lane;
 
         Enemy() {
             health = 2;
@@ -62,8 +70,10 @@ class Enemy {
             // pos[1] = rand() % 280; 
             if (rand() % 2 == 0) {
                 pos[1] = 228.571426;
+                lane = 1; // top lane
             } else {
                 pos[1] = 105.0;
+                lane = 0; // bottom lane
             }
             vel[0] = rand() % 5 + 1; 
             vel[1] = 0.0f;           
@@ -79,7 +89,7 @@ class Enemy {
             collisionBox[2] = pos[0] + w / 2;  // right
             collisionBox[3] = pos[1] + h / 2;  // top
         }
-} enemies[10];
+} enemies[30];
 class Boss {
     public:
         int health;
@@ -127,7 +137,7 @@ bool checkIfEnemyReachedTarget(int i) {
             enemies[i].collisionBox[3] >= targetBox[1] &&  
             enemies[i].collisionBox[1] <= targetBox[3]) {
         // f++;
-        printf("f: %i\n", f);  
+       // printf("f: %i\n", f);  
         return true;  
     }
   //  if (enemies[i].health == 3) {
@@ -154,31 +164,59 @@ void enemyAnimate(void) {
         anim.recordTime(&anim.spriteTime);
     }
 
+    clock_t currentTime = clock();
+    float elapsedTime = float(currentTime - last_hit_time) / CLOCKS_PER_SEC;
+
 
     for (int i = 0; i < count; i++) {
         enemies[i].pos[0] -= enemies[i].vel[0]; 
         enemies[i].updateCollisionBox();  // Update collision box based on position
 
         // Check if the enemy reached the target box
-        if (checkIfEnemyReachedTarget(i) || enemies[i].pos[0] <= -100) {
 
-            if(checkIfEnemyReachedTarget(i)){
 
-                make_particles(enemies[i].pos[0],enemies[i].pos[1]);
-                //enemies[i].health = 2;
+        if (i_frames) {
+            currentTime = clock();
+            elapsedTime = float(currentTime - last_hit_time) / CLOCKS_PER_SEC;
+        }
+
+        if (!i_frames) {
+
+                i_frames = 0; 
+
+            if (checkIfEnemyReachedTarget(i) || enemies[i].pos[0] <= -100) {
+
+                if(checkIfEnemyReachedTarget(i)){
+
+                    make_particles(enemies[i].pos[0],enemies[i].pos[1]);
+
+                    if (hearts != 5 ) {
+                     hearts_frame = frames[hearts];
+                     // hearts++;
+                     hearts ++;
+                    }
+                    i_frames = 1;
+                    last_hit_time = currentTime;
+
+                }
+
+                enemies[i].pos[0] = 1250;// kill off enemy by moving it off screen
+                                     //make_particles2(enemies[i].pos[0],enemies[i].pos[1]);
+
             }
-
-            enemies[i].pos[0] = 1250;// kill off enemy by moving it off screen
-                                 //make_particles2(enemies[i].pos[0],enemies[i].pos[1]);
+        }
+        else if(elapsedTime > hit_delay)
+              i_frames = 0; 
 
     }
 
 }
 
-
+void check_timer() {
+    
 }
 
-void get_data(float en[][4], int* health[], float* pos[]) {
+void get_data(float en[][4], int* health[], float* pos[], int* en_lane[]) {
 
     for (int x = 0; x < count; x++) {
 
@@ -190,6 +228,7 @@ void get_data(float en[][4], int* health[], float* pos[]) {
 
         health[x] = &enemies[x].health;
         pos[x] = &enemies[x].pos[0];
+        en_lane[x] = &enemies[x].lane;
 
     }
 
