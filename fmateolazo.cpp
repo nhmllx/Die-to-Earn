@@ -17,6 +17,7 @@
 extern GLuint bulletTex;
 extern float cy;
 extern float cx;
+extern int i_frames;
 extern void get_data(float en[][4], int* en_health[], float* pos[], int* lane[]);
 
 int mateo_show = 0;
@@ -36,11 +37,11 @@ clock_t beam_cooldown_start = 0;
 int beam_cooldown = 0; 
 int beam_flag = 0;
 
-//float enemy_data[30][4];
-//int * en_health[30];
-extern int count;
-//int enemy_hw[30][2];
+extern int enemy_kill_count;
+extern int kills_needed;  
+extern int complete;
 
+extern int count;
 
 class Projectile {
 public:
@@ -245,9 +246,13 @@ void f_collisions() {
 
                     if (*en_health[j] <= 0) {
 
-                        make_particles(enemy_data[j][0], enemy_data[j][1]);
-                        (*en_health[j]) = 2;
-                        (*pos[j]) = 1250;
+                        if(enemy_kill_count != kills_needed) {
+                            make_particles(enemy_data[j][0], enemy_data[j][1]);
+                            (*en_health[j]) = 2;
+                            (*pos[j]) = 1250;
+
+                            enemy_kill_count++;
+                        }
 
                     }
 
@@ -277,9 +282,13 @@ void f_collisions() {
 
                     if (*en_health[k] <= 0) {
 
-                        make_particles(enemy_data[k][0], enemy_data[k][1]);
-                        (*en_health[k]) = 2;
-                        (*pos[k]) = 1250;
+                        if(enemy_kill_count != kills_needed && *pos[k] <= 1200) {
+                            make_particles(enemy_data[k][0], enemy_data[k][1]);
+                            (*en_health[k]) = 2;
+                            (*pos[k]) = 1250;
+                        
+                            enemy_kill_count++;
+                        }
 
                     }
             
@@ -291,10 +300,13 @@ void f_collisions() {
 
                     if (*en_health[k] <= 0) {
 
-                        make_particles(enemy_data[k][0], enemy_data[k][1]);
-                        (*en_health[k]) = 2;
-                        (*pos[k]) = 1250;
+                         if(enemy_kill_count != kills_needed && *pos[k] <= 1200) {
+                            make_particles(enemy_data[k][0], enemy_data[k][1]);
+                            (*en_health[k]) = 2;
+                            (*pos[k]) = 1250;
 
+                            enemy_kill_count++;
+                         }
                     }
         }
 

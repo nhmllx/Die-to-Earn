@@ -286,6 +286,10 @@ float frame_w = 1.0f/15.0f;
 float frames[5];
 int hearts = 1;
 
+int enemy_kill_count = 0;
+int kills_needed = 1000;  
+int complete = 0;
+
 float cx = g.xres/4; //xpos of car
 float cy = g.yres/3.5; // ypos of car
 int main(void)
@@ -581,7 +585,6 @@ void initOpengl(void)
     glGenTextures(1, &g.heartsTex); 
     //silhouette
     //this is similar to a sprite graphic
-    //
     glBindTexture(GL_TEXTURE_2D, g.heartsTex);
     //
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
@@ -611,7 +614,13 @@ void checkMouse(XEvent *e)
         if (e->xbutton.button==1) {
             //printf("look: %i\n", savex);
             // render();
+
             g.flag = 0;
+            if (complete) {
+                g.flag = 1;
+                complete = 0;
+            }
+            
             //Left button is down
             if (e->xbutton.button==3) {
                 //Right button is down
@@ -625,11 +634,7 @@ void checkMouse(XEvent *e)
     }
 }
 int keyf = 0;
-//int beam_on = 0;
 
-//float hearts_frame = 0.0f;
-//float frame_w = 1.0f/15.0f;
-//frames[5] = {hearts_frame, frame_w * 4, frame_w * 8, frame_w * 11, frame_w * 14};
 float tem_frames[3];
 int f = 0;
 
@@ -810,123 +815,144 @@ float currentSpeedAngle = 140.0f;
 void render()
 {
     Rect r;
+    char buf[100];
 
-    glClear(GL_COLOR_BUFFER_BIT);
-    glColor3ub(255, 255, 255);
-    glBindTexture(GL_TEXTURE_2D, g.tex.bgTexture);
-    static float camerax = 0.0f;
-    glBegin(GL_QUADS);
-    glTexCoord2f(camerax+0, 1); glVertex2i(0,      0);
-    glTexCoord2f(camerax+0, 0); glVertex2i(0,      g.yres);
-    glTexCoord2f(camerax+1, 0); glVertex2i(g.xres, g.yres);
-    glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
-    glEnd();
-    glBindTexture(GL_TEXTURE_2D, 0);
-    //if (g.keys[XK_d] == 1 && g.keys[XK_g] != 1){
-    //camerax += 0.00275;
-    //}
-    if (g.keys[XK_Up] == 1){
-        camerax += 0.0150;
+    if (!complete) {
+
+        glClear(GL_COLOR_BUFFER_BIT);
+        glColor3ub(255, 255, 255);
+        glBindTexture(GL_TEXTURE_2D, g.tex.bgTexture);
+        static float camerax = 0.0f;
+        glBegin(GL_QUADS);
+        glTexCoord2f(camerax+0, 1); glVertex2i(0,      0);
+        glTexCoord2f(camerax+0, 0); glVertex2i(0,      g.yres);
+        glTexCoord2f(camerax+1, 0); glVertex2i(g.xres, g.yres);
+        glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
+        glEnd();
+        glBindTexture(GL_TEXTURE_2D, 0);
+        //if (g.keys[XK_d] == 1 && g.keys[XK_g] != 1){
+        //camerax += 0.00275;
+        //}
+        if (g.keys[XK_Up] == 1){
+            camerax += 0.0150;
+        }
+        //if (g.keys[XK_Down] == 1){
+        //camerax = cameraxi;
+        //}
+
+        float h = 76.0f;
+        float w = 101.0f;
+        glPushMatrix();
+        glColor3f(1.0, 1.0, 1.0);
+        glBindTexture(GL_TEXTURE_2D, g.walkTexture);
+        //
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.0f);
+        glColor4ub(255,255,255,255);
+
+        int ix = g.walkFrame % 3; // Get the current sprite frame (0, 1, or 2)
+
+        // Calculate texture coordinates based on the current frame
+        float tx = (float)(ix * w) / 303.0f; // Adjust tx based on the frame
+        float ty = 0.0f; // Only one row, so ty is always 0
+
+        glBegin(GL_QUADS);
+        glTexCoord2f(tx, ty+1.0f); glVertex2i(cx - w, cy - h); // Top-left
+        glTexCoord2f(tx, ty);        glVertex2i(cx - w, cy + h); // Bottom-left
+        glTexCoord2f(tx + 1.0f / 3.0f, ty); glVertex2i(cx + w, cy + h); 
+        glTexCoord2f(tx + 1.0f / 3.0f, ty + 1.0f); glVertex2i(cx + w, cy - h); // Top-right
+        glEnd();
+        glPopMatrix();
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_ALPHA_TEST);
+
+
+
+        //hearts 
+
+        // glEnable(GL_TEXTURE_2D);
+
+        float posOffset = cy + 30.0;
+        //float posOffset2 = cx;
+        //float hearts_frame = 0.0f;
+        //float frame_w = 1.0f/15.0f;
+
+        float tw = 150.0f;
+        float th = 160.0f;
+
+        glBindTexture(GL_TEXTURE_2D, g.heartsTex);
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.0f);
+
+        glColor3f(1.0, 1.0, 1.0); // Set color to white to avoid interference
+
+        // for (int i = 0; i < 1; i++) {
+
+        float t1 = hearts_frame;
+        float t2 = hearts_frame + frame_w;
+
+        glPushMatrix();
+        glTranslatef(cx - 75, posOffset , 0.0f);
+        glBegin(GL_QUADS);
+        glTexCoord2f(t1, 1.0f); glVertex2f(0.0f, 0.0f);
+        glTexCoord2f(t2, 1.0f); glVertex2f(tw, 0.0f);
+        glTexCoord2f(t2, 0.0f); glVertex2f(tw, th);
+        glTexCoord2f(t1, 0.0f); glVertex2f(0.0f, th);
+        glEnd();
+        glPopMatrix();
+
+        // hearts_frame += frame_w;
+        // }
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_ALPHA_TEST);
+
+
+        //
+        unsigned int c = 0x00ffff44;
+        r.bot = g.yres - 20;
+        r.left = 10;
+        r.center = 0;
+        //ggprint8b(&r, 16, c, "E   particles");
+        ggprint8b(&r, 16, c, "S   Bullets");
+        ggprint8b(&r, 16, c, "D   Beam shot");
+        //ggprint8b(&r, 16, c, "+   faster");
+      //  ggprint8b(&r, 16, c, "-   slower");
+        ggprint8b(&r, 16, c, "up arrow: accelerate");
+        ggprint8b(&r, 16, c, "Movement: Arrow keys");
+       // ggprint8b(&r, 16, c, "left arrow  <- tilt left");
+        //ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);
+        //ggprint8b(&r, 16, c, "G   lose a heart");
+
+        c = 0x00ffff44;
+        r.bot = (g.yres/2) + 150;
+        r.left = (g.xres/2) + 500;
+        r.center = 0;
+
+        ggprint8b(&r, 16, c, "Kill count");
+        sprintf(buf, "%d / %d", enemy_kill_count, kills_needed);
+
+         ggprint8b(&r, 16, c, buf);
+
+
+
+        //render_particles();
+
+        f_render(g.bulletTex, g.beamTex);
+        enemyRender(g.enemyTex);
+        HealthRender(g.healthTex);
+        fuelRender(g.fuelTex);
+       // bossRender(g.bossTex);
+        if (currentSpeedAngle > -140.0f) {
+            currentSpeedAngle--; 
+        }
+        speedometerRender(g.speedoTex, currentSpeedAngle);
+
     }
-    //if (g.keys[XK_Down] == 1){
-    //camerax = cameraxi;
-    //}
+    else {
 
-    float h = 76.0f;
-    float w = 101.0f;
-    glPushMatrix();
-    glColor3f(1.0, 1.0, 1.0);
-    glBindTexture(GL_TEXTURE_2D, g.walkTexture);
-    //
-    glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER, 0.0f);
-    glColor4ub(255,255,255,255);
-
-    int ix = g.walkFrame % 3; // Get the current sprite frame (0, 1, or 2)
-
-    // Calculate texture coordinates based on the current frame
-    float tx = (float)(ix * w) / 303.0f; // Adjust tx based on the frame
-    float ty = 0.0f; // Only one row, so ty is always 0
-
-    glBegin(GL_QUADS);
-    glTexCoord2f(tx, ty+1.0f); glVertex2i(cx - w, cy - h); // Top-left
-    glTexCoord2f(tx, ty);        glVertex2i(cx - w, cy + h); // Bottom-left
-    glTexCoord2f(tx + 1.0f / 3.0f, ty); glVertex2i(cx + w, cy + h); 
-    glTexCoord2f(tx + 1.0f / 3.0f, ty + 1.0f); glVertex2i(cx + w, cy - h); // Top-right
-    glEnd();
-    glPopMatrix();
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_ALPHA_TEST);
-
-
-
-    //hearts 
-
-    // glEnable(GL_TEXTURE_2D);
-
-    float posOffset = cy + 30.0;
-    //float posOffset2 = cx;
-    //float hearts_frame = 0.0f;
-    //float frame_w = 1.0f/15.0f;
-
-    float tw = 150.0f;
-    float th = 160.0f;
-
-    glBindTexture(GL_TEXTURE_2D, g.heartsTex);
-    glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER, 0.0f);
-
-    glColor3f(1.0, 1.0, 1.0); // Set color to white to avoid interference
-
-    // for (int i = 0; i < 1; i++) {
-
-    float t1 = hearts_frame;
-    float t2 = hearts_frame + frame_w;
-
-    glPushMatrix();
-    glTranslatef(cx - 75, posOffset , 0.0f);
-    glBegin(GL_QUADS);
-    glTexCoord2f(t1, 1.0f); glVertex2f(0.0f, 0.0f);
-    glTexCoord2f(t2, 1.0f); glVertex2f(tw, 0.0f);
-    glTexCoord2f(t2, 0.0f); glVertex2f(tw, th);
-    glTexCoord2f(t1, 0.0f); glVertex2f(0.0f, th);
-    glEnd();
-    glPopMatrix();
-
-    // hearts_frame += frame_w;
-    // }
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_ALPHA_TEST);
-
-
-    //
-    unsigned int c = 0x00ffff44;
-    r.bot = g.yres - 20;
-    r.left = 10;
-    r.center = 0;
-    ggprint8b(&r, 16, c, "E   particles");
-    ggprint8b(&r, 16, c, "S   bullets");
-    ggprint8b(&r, 16, c, "D   beam shot");
-    ggprint8b(&r, 16, c, "+   faster");
-    ggprint8b(&r, 16, c, "-   slower");
-    ggprint8b(&r, 16, c, "up arrow: accelerate");
-    ggprint8b(&r, 16, c, "right arrow -> tilt right");
-    ggprint8b(&r, 16, c, "left arrow  <- tilt left");
-    ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);
-    ggprint8b(&r, 16, c, "G   lose a heart");
-
-    //render_particles();
-
-    f_render(g.bulletTex, g.beamTex);
-    enemyRender(g.enemyTex);
-    HealthRender(g.healthTex);
-    fuelRender(g.fuelTex);
-    bossRender(g.bossTex);
-    if (currentSpeedAngle > -140.0f) {
-        currentSpeedAngle--; 
+        //render3(2);
     }
-    speedometerRender(g.speedoTex, currentSpeedAngle);
 }
 
 

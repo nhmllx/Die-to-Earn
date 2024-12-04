@@ -22,12 +22,16 @@ extern int hearts;
 extern float frames[];
 extern float hearts_frame;
 
+extern int enemy_kill_count;
+extern int kills_needed;  
+extern int complete;
+
 clock_t last_hit_time = clock(); 
 float hit_delay = 0.8f; 
 int i_frames = 0;
 
 
-int count = 3;
+int count = 30;
 
 class Animate {
     public:
