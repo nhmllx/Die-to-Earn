@@ -288,6 +288,7 @@ float current_speed = 0.00030f;
 int enemy_kill_count = 0;
 int kills_needed = 1000;  
 int complete = 0;
+int death_flag = 0;
 
 float cx = g.xres/4; //xpos of car
 float cy = g.yres/3.5; // ypos of car
@@ -317,22 +318,39 @@ int main(int argc, char *argv[])
              }
 
         }
-        f_collisions();
-        updateCbox(cx, cy);
-        physics();
-        enemyAnimate();//nmalleaux.cpp
-        if (g.flag == 1 && frames[4] !=0)
+       // f_collisions();
+        //updateCbox(cx, cy);
+        //physics();
+        //enemyAnimate();//nmalleaux.cpp
+        if (g.flag == 1 && !death_flag) 
         {
             render2(g.tex.xc, g.tex.yc, g.tex.backTexture, g.xres, g.yres);
         }
-        if (g.flag == 0 && frames[4] !=0)
+        if (g.flag == 0 && !death_flag)
         {
             started = 1;
+            f_collisions();
+            updateCbox(cx, cy);
+            physics();
+            enemyAnimate();//nmalleaux.cpp
             render();
         }
-        if(hearts_frame == frames[4]) {
+        if(death_flag) {
+
+            Rect r;
 
             render3(g.tex.xc, g.tex.yc, g.tex.deadTexture, g.xres, g.yres);
+
+            char buf[100];
+            unsigned int c = 0x00ffff44;
+
+            r.bot = (g.yres/2) + 150;
+            r.left = (g.xres/2) + 500;
+            r.center = 0;
+
+            ggprint8b(&r, 16, c, "Total Kills");
+            sprintf(buf, "     %d     ", enemy_kill_count);
+            ggprint8b(&r, 16, c, buf);
         }
         x11.swapBuffers();
     }
@@ -864,7 +882,7 @@ void render()
         ggprint8b(&r, 16, c, "Kill count");
         sprintf(buf, "%d / %d", enemy_kill_count, kills_needed);
 
-         ggprint8b(&r, 16, c, buf);
+        ggprint8b(&r, 16, c, buf);
 
 
 

@@ -28,8 +28,9 @@ extern int kills_needed;
 extern int complete;
 
 clock_t last_hit_time = clock(); 
-float hit_delay = 0.8f; 
+float hit_delay = 0.4f; 
 int i_frames = 0;
+extern int death_flag;
 
 
 int count = 6;
@@ -182,11 +183,15 @@ void enemyAnimate(void)
                 if(checkIfEnemyReachedTarget(i)){
 
                     make_particles(enemies[i].pos[0],enemies[i].pos[1]);
+                    enemy_kill_count++;
 
                     if (hearts != 5 ) {
                      hearts_frame = frames[hearts];
                      hearts ++;
                     }
+                    if (hearts == 5)
+                        death_flag = 1;
+                        
                     i_frames = 1;
                     last_hit_time = currentTime;
                 }

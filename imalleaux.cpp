@@ -70,7 +70,8 @@ void render2(float x[], float y[], GLuint bt, int xres,int yres)
 //UI elements
 void render3(float x[], float y[], GLuint bt, int xres,int yres)
 {
-    //Rect r;
+   // Rect r;
+
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(1.0, 1.0, 1.0);
     glBindTexture(GL_TEXTURE_2D, bt);
