@@ -31,17 +31,20 @@ float bullet_delay = 0.05f; // delay between bullets in seconds
 clock_t last_bullet_time = clock();
 
 float beam_render_duration = 0.5f; 
-float beam_cooldown_duration = 1.3f; 
+float beam_cooldown_duration = 0.7f; 
 clock_t beam_start_time = 0; 
 clock_t beam_cooldown_start = 0; 
 int beam_cooldown = 0; 
 int beam_flag = 0;
 
+
 extern int enemy_kill_count;
 extern int kills_needed;  
 extern int complete;
-
+extern int diff_colors;
 extern int count;
+
+void check_kill_count();
 
 class Projectile {
 public:
@@ -109,7 +112,10 @@ void make_fireworks(XEvent *e, float yres) {
 
 
 void make_particles(float x, float yres) {
-    float y = yres;  
+    
+    float y = yres;
+
+    unsigned int set_color = rand();  
 
   srand(static_cast<unsigned>(time(0)));
 
@@ -131,6 +137,11 @@ void make_particles(float x, float yres) {
     
     for (int xx = 0; xx < (int)velocities.size(); xx++) {
 
+        if(diff_colors) {
+
+            set_color = rand();
+        }
+
         if (n < MAX_PARTICLES) {
             particle[n].pos[0] = x;  // x is now passed directly
             particle[n].pos[1] = y;  // y is set to yres 
@@ -139,7 +150,7 @@ void make_particles(float x, float yres) {
             particle[n].vel[0] = velocities[xx].first;
             particle[n].vel[1] = velocities[xx].second;
 
-            particle[n].color = rand();
+            particle[n].color = set_color;
 
             n++;
         }
@@ -219,10 +230,10 @@ void update_particles() {
 
 void f_collisions() {
 
-    float enemy_data[30][4];
-    int* en_health[30];
-    float* pos[30];
-    int *en_lane[30];
+    float enemy_data[50][4];
+    int* en_health[50];
+    float* pos[50];
+    int *en_lane[50];
    
     get_data(enemy_data, en_health, pos, en_lane); // get enemy data
 
@@ -241,7 +252,7 @@ void f_collisions() {
                 
 
                    // std::cout << "Collision: Bullet " << i << " with Enemy " << j << std::endl;
-                    (*en_health[j]) --;
+                    (*en_health[j]) -=2;
                   //  std::cout << "Enemy Health: " << *en_health[j] << "\n\n";
 
                     if (*en_health[j] <= 0) {
@@ -252,6 +263,7 @@ void f_collisions() {
                             (*pos[j]) = 1250;
 
                             enemy_kill_count++;
+                           // check_kill_count();
                         }
 
                     }
@@ -275,7 +287,7 @@ void f_collisions() {
        
         if (beam.active == 0 && (*en_lane[k]) == 0) { // bottom lane
 
-             // std::cout << "beam collision: 0" << *en_lane[k] << "\n\n";
+              //std::cout << "beam collision: 0, " <<  "with enemy: " << k << "\n\n";
 
               (*en_health[k]) -= 2;
                   //  std::cout << "Enemy Health: " << *en_health[j] << "\n\n";
@@ -288,6 +300,7 @@ void f_collisions() {
                             (*pos[k]) = 1250;
                         
                             enemy_kill_count++;
+                          //  check_kill_count();
                         }
 
                     }
@@ -297,6 +310,7 @@ void f_collisions() {
 
               (*en_health[k]) -= 2;
                 //  std::cout << "beam collision: 1" << *en_lane[k] << "\n\n";
+               // std::cout << "beam collision: 0, " <<  "with enemy: " << k << "\n\n";
 
                     if (*en_health[k] <= 0) {
 
@@ -306,6 +320,7 @@ void f_collisions() {
                             (*pos[k]) = 1250;
 
                             enemy_kill_count++;
+                            //check_kill_count();
                          }
                     }
         }
@@ -314,6 +329,82 @@ void f_collisions() {
       }
     }
 }
+
+
+extern float current_speed; 
+//float max_speed = 0.00150f;
+float speed_increase = 0.00170f; 
+int increase_flags[5] = {1, 1, 1, 1, 1};
+
+void check_kill_count() {
+
+    std::cout << "count: " << count << "\n\n";
+
+    switch (enemy_kill_count / 100) {
+
+        
+
+        case 0: // 0 <= enemy_kill_count < 100
+            if (increase_flags[0] && enemy_kill_count >= 50) {
+
+                current_speed += speed_increase;
+               
+                if (count < 40) {
+                    count += 6;
+                }
+                increase_flags[0] = 0; 
+            }
+            break;
+        case 1: // 100 <= enemy_kill_count < 200
+            if (increase_flags[1] && enemy_kill_count >= 100) {
+                current_speed += speed_increase;
+               
+                if (count < 40) {
+                    count += 6;
+                }
+                increase_flags[1] = 0; 
+            }
+            break;
+        case 2: // 200 <= enemy_kill_count < 300
+            if (increase_flags[2] && enemy_kill_count >= 200) {
+
+                current_speed += speed_increase;
+                
+                if (count < 40) {
+                    count += 6;
+                }
+                increase_flags[2] = 0; 
+            }
+            break;
+        case 3: // 300 <= enemy_kill_count < 400
+            if (increase_flags[3] && enemy_kill_count >= 300) {
+
+                current_speed += speed_increase;
+                
+                if (count < 40) {
+                    count += 6;
+                }
+                increase_flags[3] = 0; 
+            }
+            break;
+        
+        case 5: // 300 <= enemy_kill_count < 400
+            if (increase_flags[4] && enemy_kill_count >= 500) {
+
+                current_speed += speed_increase;
+                
+                if (count < 40) {
+                    count += 10;
+                }
+                increase_flags[4] = 0; 
+            }
+            break;
+  
+        default:
+        break;
+    }
+}
+
 
 
 

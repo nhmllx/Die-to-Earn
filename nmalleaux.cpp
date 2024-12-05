@@ -13,6 +13,7 @@
 #include "fonts.h"
 #include <iostream>
 #include <ctime>
+#include <wait.h>
 extern void make_particles(float, float);
 extern GLuint enemyTex;
 extern float cy;
@@ -31,7 +32,7 @@ float hit_delay = 0.8f;
 int i_frames = 0;
 
 
-int count = 30;
+int count = 6;
 
 class Animate {
     public:
@@ -91,7 +92,7 @@ class Enemy {
             collisionBox[2] = pos[0] + w / 2;  // right
             collisionBox[3] = pos[1] + h / 2;  // top
         }
-} enemies[30];
+} enemies[40];
 
 class Boss {
     public:
@@ -199,11 +200,6 @@ void enemyAnimate(void)
 
 }
 
-void check_timer() 
-{
-    
-}
-
 void get_data(float en[][4], int* health[], float* pos[], int* en_lane[]) {
 
     for (int x = 0; x < count; x++) {
@@ -239,7 +235,7 @@ void enemyRender(GLuint etex) {
         int ix = frameno % 9;  
         float tx = (float)(ix * spriteWidth) / 900.0f;  
         float ty = 0.0f;  
-        float flipped = tx + spriteWidth / 900.0f;  
+        float flipped = tx + spriteWidth / 900.0f; 
 
         glBegin(GL_QUADS);
         glTexCoord2f(flipped, ty + 1.0f);  // top left

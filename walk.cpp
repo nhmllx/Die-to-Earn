@@ -39,6 +39,7 @@ extern clock_t beam_start_time;
 extern int beam_cooldown; 
 extern void f_collisions();
 extern void updateCbox(float, float);
+extern void check_kill_count();
 //defined types
 typedef double Flt;
 typedef double Vec[3];
@@ -280,6 +281,9 @@ float hearts_frame = 0.0f;
 float frame_w = 1.0f/15.0f;
 float frames[5];
 int hearts = 1;
+int diff_colors = 0;
+int started = 0;
+float current_speed = 0.00030f;
 
 int enemy_kill_count = 0;
 int kills_needed = 1000;  
@@ -323,6 +327,7 @@ int main(int argc, char *argv[])
         }
         if (g.flag == 0 && frames[4] !=0)
         {
+            started = 1;
             render();
         }
         if(hearts_frame == frames[4]) {
@@ -689,6 +694,9 @@ int checkKeys(XEvent *e)
             case XK_z:
                 return(2);
             break;
+            case XK_h:
+                diff_colors = !diff_colors;
+            break;
         }
     }
     return 0;
@@ -744,17 +752,23 @@ void physics(void)
 
 //above check_keys()
 float currentSpeedAngle = 140.0f;
+float camerax = 0.0f;
+//float current_speed;
 void render()
 {
     Rect r;
     char buf[100];
 
+
     if (!complete) {
+
+
+        check_kill_count();
 
         glClear(GL_COLOR_BUFFER_BIT);
         glColor3ub(255, 255, 255);
         glBindTexture(GL_TEXTURE_2D, g.tex.bgTexture);
-        static float camerax = 0.0f;
+        //static float camerax = 0.0f;
         glBegin(GL_QUADS);
         glTexCoord2f(camerax+0, 1); glVertex2i(0,      0);
         glTexCoord2f(camerax+0, 0); glVertex2i(0,      g.yres);
@@ -762,8 +776,8 @@ void render()
         glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
         glEnd();
         glBindTexture(GL_TEXTURE_2D, 0);
-        if (g.keys[XK_Up] == 1){
-            camerax += 0.0150;
+        if (started){
+            camerax += current_speed;
         }
 
         float h = 76.0f;
