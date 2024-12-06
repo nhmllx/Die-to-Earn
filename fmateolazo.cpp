@@ -1,5 +1,8 @@
-//Francis Mateo
-//File descriptor
+/***********************************/
+// Francis mateo
+// Last Update Date: 12/05/2024
+// Description: A source file for main file walk.cpp
+/***********************************/
 
 #include <iostream>
 #include "fonts.h"
@@ -9,10 +12,10 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <vector>
-#include <ctime>
 #include <stdlib.h>
 #include <cstdlib>
 #include <chrono>
+#include <ctime>
 
 extern GLuint bulletTex;
 extern float cy;
@@ -30,8 +33,8 @@ int coord[2] = {105, 228};
 float bullet_delay = 0.05f; // delay between bullets in seconds
 clock_t last_bullet_time = clock();
 
-float beam_render_duration = 0.5f; 
-float beam_cooldown_duration = 0.7f; 
+float beam_render_duration = 0.2f; 
+float beam_cooldown_duration = 2.0f; 
 clock_t beam_start_time = 0; 
 clock_t beam_cooldown_start = 0; 
 int beam_cooldown = 0; 
@@ -56,9 +59,6 @@ public:
 	
 	Projectile() {
 
-		//xres=1200;
-	    //yres=800;
-
 		pos[0] = 700;// / 1.4; // position of the center
 		pos[1] = 800 / 3.5; // position of the center
 		vel[0] = vel[1] = 0.0f;
@@ -75,48 +75,12 @@ class Bullets {
 
 };
 
-//#define rnd() (float)rand() / (float)RAND_MAX
-//static float initVel = rand(); 
-
-
-void make_fireworks(XEvent *e, float yres) {
-
-	int y = yres - e->xbutton.y;
-
-	std::vector<std::pair<float, float>> velocities = {
-
-		{0, 6}, {2, 5}, {4, 4},         
-    	{5, 2}, {6, 0}, {5, -2}, {4, -4},   
-    	{2, -5}, {0, -6}, {-2, -5}, {-4, -4},  
-    	{-5, -2}, {-6, 0}, {-5, 2}, {-4, 4},   
-    	{-2, 5}   
-    };
-		
-    for (int x = 0; x < (int)velocities.size(); x++) {
-		
-    	if (n < MAX_PARTICLES) {
-            particle[n].pos[0] = e->xbutton.x;
-            particle[n].pos[1] = y;
-            particle[n].w = 4;
-            particle[n].h = 4;
-            particle[n].vel[0] = velocities[x].first;
-            particle[n].vel[1] = velocities[x].second;
-
-            n++;
-        }
-    }
-
-	return;
-}
-
-
-void make_particles(float x, float yres) {
-    
-    float y = yres;
+void make_particles(float x, float y) {
 
     srand(static_cast<unsigned>(time(0)));
 
     std::vector<std::pair<float, float>> velocities = {
+
         {0, 6}, {2, 5}, {4, 4},         
         {5, 2}, {6, 0}, {5, -2}, {4, -4},   
         {2, -5}, {0, -6}, {-2, -5}, {-4, -4},  
@@ -135,6 +99,7 @@ void make_particles(float x, float yres) {
     for (int xx = 0; xx < (int)velocities.size(); xx++) {
 
         if (n < MAX_PARTICLES) {
+
             particle[n].pos[0] = x;  // x is now passed directly
             particle[n].pos[1] = y;  // y is set to yres 
             particle[n].w = 4;
@@ -157,6 +122,7 @@ void make_ammo(float x, float y) {
    float elapsedTime = float(currentTime - last_bullet_time) / CLOCKS_PER_SEC;
 
     if (elapsedTime > bullet_delay && nn < MAX_BULLETS) {
+
         bullets[nn].pos[0] = x;    
         bullets[nn].pos[1] = y - 17;    
         bullets[nn].last_pos[0] = x; 
@@ -193,7 +159,6 @@ void ammo_pos() {
     }
 }
 
-
 const float GRAVITY = -0.05;
 const float SLOWSPEED = 1.0;
 
@@ -202,6 +167,7 @@ void update_particles() {
     for (int x = 0; x < n; x++) {
 
         particle[x].vel[1] += GRAVITY;
+
         particle[x].last_pos[0] = particle[x].pos[0];
         particle[x].last_pos[1] = particle[x].pos[1];
         particle[x].pos[0] += particle[x].vel[0];
@@ -266,7 +232,6 @@ void f_collisions() {
 
     if (beam_flag) {
 
-     // std::cout << "beam on "<< "\n\n";
         for (int k = 0; k < count; k++) {
         
           if (beam.active == 0 && (*en_lane[k]) == 0) { // bottom lane
@@ -314,77 +279,79 @@ int increase_flags[5] = {1, 1, 1, 1, 1};
 
 void check_kill_count() {
 
-    switch (enemy_kill_count / 100) {
+    if(!complete) {
+        switch (enemy_kill_count / 100) {
 
-        case 0: // 0 <= enemy_kill_count < 100
-            if (increase_flags[0] && enemy_kill_count >= 50) {
+            case 0: // 0 <= enemy_kill_count < 100
+                if (increase_flags[0] && enemy_kill_count >= 50) {
 
-                current_speed += speed_increase;
-               
-                if (count < 40)
-                    count += 6;
-                
-                increase_flags[0] = 0; 
-            }
+                    current_speed += speed_increase;
+
+                    if (count < 40)
+                        count += 6;
+
+                    increase_flags[0] = 0; 
+                }
+                break;
+
+            case 1: // 100 <= enemy_kill_count < 200
+                if (increase_flags[1] && enemy_kill_count >= 100) {
+
+                    current_speed += speed_increase;
+
+                    if (count < 40)
+                        count += 6;
+
+                    increase_flags[1] = 0; 
+                }
+                break;
+
+            case 2: // 200 <= enemy_kill_count < 300
+                if (increase_flags[2] && enemy_kill_count >= 200) {
+
+                    current_speed += speed_increase;
+
+                    if (count < 40) 
+                        count += 6;
+
+                    increase_flags[2] = 0; 
+                }
+                break;
+
+            case 3: // 300 <= enemy_kill_count < 400
+                if (increase_flags[3] && enemy_kill_count >= 300) {
+
+                    current_speed += speed_increase;
+
+                    if (count < 40) 
+                        count += 6;
+
+                    increase_flags[3] = 0; 
+                }
+                break;
+
+            case 5: // 300 <= enemy_kill_count < 400
+                if (increase_flags[4] && enemy_kill_count >= 500) {
+
+                    current_speed += speed_increase;
+
+                    if (count < 40) 
+                        count += 10;
+
+                    increase_flags[4] = 0; 
+                }
+                break;
+    
+            default:
             break;
-
-        case 1: // 100 <= enemy_kill_count < 200
-            if (increase_flags[1] && enemy_kill_count >= 100) {
-
-                current_speed += speed_increase;
-               
-                if (count < 40)
-                    count += 6;
-                
-                increase_flags[1] = 0; 
-            }
-            break;
-
-        case 2: // 200 <= enemy_kill_count < 300
-            if (increase_flags[2] && enemy_kill_count >= 200) {
-
-                current_speed += speed_increase;
-                
-                if (count < 40) 
-                    count += 6;
-
-                increase_flags[2] = 0; 
-            }
-            break;
-
-        case 3: // 300 <= enemy_kill_count < 400
-            if (increase_flags[3] && enemy_kill_count >= 300) {
-
-                current_speed += speed_increase;
-                
-                if (count < 40) 
-                    count += 6;
-        
-                increase_flags[3] = 0; 
-            }
-            break;
-        
-        case 5: // 300 <= enemy_kill_count < 400
-            if (increase_flags[4] && enemy_kill_count >= 500) {
-
-                current_speed += speed_increase;
-                
-                if (count < 40) 
-                    count += 10;
-                
-                increase_flags[4] = 0; 
-            }
-            break;
-  
-        default:
-        break;
+        }
     }
+    else 
+        count = 50;
+
 }
 
-
-
-
-int currentFrame = 0;         // Current column/frame
+int currentFrame = 0;
 const int totalFrames = 12; 
 int car_pos;
 
@@ -394,9 +361,9 @@ void f_render(GLuint atex, GLuint btex) {
     beam.h = 120;
     beam.w = 800;
     beam.pos[1] = cy - 15;
-    //beam.pos[0] = 700;
     beam.pos[0] = cx + 700;
     if (cy < 200) {
+        
         beam.active = 0; // bottom lane
     }
     else    
@@ -425,7 +392,6 @@ void f_render(GLuint atex, GLuint btex) {
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
- //////////////////////////////////////////
 
 if (beam_flag) {
 
@@ -463,27 +429,21 @@ if (beam_flag) {
     glDisable(GL_ALPHA_TEST);
 
 if (beam_cooldown) {
-    // Calculate elapsed time since cooldown started
+  
     clock_t currentTime = clock();
     float cooldownElapsed = float(currentTime - beam_cooldown_start) / CLOCKS_PER_SEC;
 
     if (cooldownElapsed >= beam_cooldown_duration) {
-        // End cooldown
+
         beam_cooldown = 0;
     }
 }
 
 
-    //int g_color = 80 + (rand() % 130);
-    //int r_color = 200 + (rand() % 50);
-
   for(int x = 0; x < n; x++) {
 
 		glPushMatrix();
-		//glColor3ub(particle[x].color);
 
-        // ex: particle[x].color = 0x349823
-        // red: 0x34, green: 0x98, blue: 0x23
         glColor3ub((particle[x].color >> 16) & 0xFF, 
                    (particle[x].color >> 8) & 0xFF, 
                     particle[x].color & 0xFF);
@@ -498,7 +458,5 @@ if (beam_cooldown) {
 		glEnd();
 		glPopMatrix();		
   }
-
     glBindTexture(GL_TEXTURE_2D, 0);
-
 }

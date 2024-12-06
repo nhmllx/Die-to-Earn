@@ -34,7 +34,6 @@ extern void enemyKiller();
 extern void bossRender(GLuint);
 extern void HealthRender(GLuint);
 extern void fuelRender(GLuint);
-extern void make_fireworks(XEvent, float);
 extern void speedometerRender(GLuint, float);
 extern int beam_flag;
 extern clock_t beam_start_time; 
@@ -288,7 +287,7 @@ int started = 0;
 float current_speed = 0.00030f;
 
 int enemy_kill_count = 0;
-int kills_needed = 1500;  
+int kills_needed = 1000;  
 int complete = 0;
 int death_flag = 0;
 
@@ -875,8 +874,8 @@ void render()
         glTranslatef(-g.xres / 2 - 500, -g.yres / 2 - 150, 0); 
     
         // Render the text
-        ggprint8b(&r, 16, c, "Kill count");
-        sprintf(buf, " %d / %d", enemy_kill_count, kills_needed);
+        ggprint8b(&r, 16, c, "Kill Count ");
+        sprintf(buf, "%d / %d", enemy_kill_count, kills_needed);
         ggprint8b(&r, 16, c, buf);
     
         glPopMatrix();
@@ -912,7 +911,7 @@ void render()
 
         f_render(g.bulletTex, g.beamTex);
         enemyRender(g.enemyTex);
-        HealthRender(g.healthTex);
+       // HealthRender(g.healthTex);
         fuelRender(g.fuelTex);
        // bossRender(g.bossTex);
         if (currentSpeedAngle > -140.0f) {

@@ -93,7 +93,7 @@ class Enemy {
             collisionBox[2] = pos[0] + w / 2;  // right
             collisionBox[3] = pos[1] + h / 2;  // top
         }
-} enemies[40];
+} enemies[50];
 
 class Boss {
     public:
