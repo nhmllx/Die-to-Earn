@@ -132,7 +132,10 @@ void render3(float x[], float y[], GLuint bt, int xres,int yres)
 
 }
 float lineOffset = 0.0f;
-
+float startAngle = 0.0f;  // Initial angle (e.g., full tank position)
+float endAngle = 180.0f;  // Final angle (e.g., empty tank position)
+float timerDuration = 4 * 60.0f; // 4 minutes in seconds
+time_t startTime;
 void handleInput(Display* display) {
     XEvent event;
     while (XPending(display)) {
@@ -151,8 +154,77 @@ void handleInput(Display* display) {
         }
     }
 }
-
 void fuelRender(GLuint ftex) {
+    // Initialize the timer start time if it hasn't been set
+    static bool timerStarted = false;
+    if (!timerStarted) {
+        startTime = std::time(nullptr);
+        timerStarted = true;
+    }
+
+    // Calculate elapsed time
+    float elapsedTime = std::difftime(std::time(nullptr), startTime);
+
+    // Calculate the rotation angle based on the elapsed time
+    float rotationAngle = startAngle;
+    if (elapsedTime <= timerDuration) {
+        float t = elapsedTime / timerDuration; // Normalized time (0.0 to 1.0)
+        rotationAngle = startAngle + t * (endAngle - startAngle);
+    } else {
+        rotationAngle = endAngle; // Stop rotating once the timer is up
+    }
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, ftex);
+
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0.0f);
+
+    float sspriteWidth = 160.0f;
+    float sspriteHeight = 160.0f;
+
+    glColor3f(1.0, 1.0, 1.0);
+
+    glPushMatrix();
+
+    float posX = 990.0f;
+    float posY = 600.0f;
+
+    glTranslatef(posX, posY, 0.0f);
+
+    // Draw the sprite
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex2f(-sspriteWidth / 2, -sspriteHeight / 2);
+
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex2f(sspriteWidth / 2, -sspriteHeight / 2);
+
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex2f(sspriteWidth / 2, sspriteHeight / 2);
+
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex2f(-sspriteWidth / 2, sspriteHeight / 2);
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_ALPHA_TEST);
+
+    // Rotate and draw the fuel meter needle
+    glPushMatrix();
+    glColor3f(1.0, 0.0, 0.0);
+    glRotatef(rotationAngle, 0.0f, 0.0f, 1.0f); // Rotate around the Z-axis
+    glBegin(GL_LINES);
+    glVertex2f(0.0f, 0.0f);                      // Origin of rotation
+    glVertex2f(60.0f, 0.0f);                     // Length of the needle
+    glEnd();
+    glPopMatrix();
+
+    glPopMatrix();
+}
+
+
+/*void fuelRender(GLuint ftex) {
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, ftex);
 
@@ -195,7 +267,10 @@ void fuelRender(GLuint ftex) {
     glEnd();
 
     glPopMatrix();
-}
+}*/
+
+
+
 
 float currentSpeedAngle = 140.0f;
 void speedometerRender(GLuint stex) {

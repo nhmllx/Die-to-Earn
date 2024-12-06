@@ -17,6 +17,7 @@
 #include <GL/glx.h>
 #include "fonts.h"
 #include <ctime>
+#include <thread>
 
 extern void restartProgram(const char *programName);
 extern void make_particles(float, float);
@@ -881,7 +882,8 @@ void render()
     if (complete) {
 
         clock_t current_time = clock();
-        float elapsed_time = float(current_time - last_color_time) / CLOCKS_PER_SEC;
+        float elapsed_time = 
+	    float(current_time - last_color_time) / CLOCKS_PER_SEC;
 
         if (elapsed_time > color_delay) {
 
