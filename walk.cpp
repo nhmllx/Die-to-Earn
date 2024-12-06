@@ -34,7 +34,7 @@ extern void enemyKiller();
 extern void bossRender(GLuint);
 extern void HealthRender(GLuint);
 extern void fuelRender(GLuint);
-extern void speedometerRender(GLuint, float);
+extern void speedometerRender(GLuint);
 extern int beam_flag;
 extern clock_t beam_start_time; 
 extern int beam_cooldown; 
@@ -657,13 +657,13 @@ int checkKeys(XEvent *e)
             case XK_Left: 
 
                 if (!(cx <= 125))
-                    cx -= 60;
+                    cx -= 10;
                 
                 break;
             case XK_Right:
 
                 if (!(cx >= (g.xres - 125)))
-                    cx += 60;
+                    cx += 10;
                 
                 break;
             case XK_Up:
@@ -677,11 +677,11 @@ int checkKeys(XEvent *e)
                 g.flag = 0;
                 break;
             case XK_Down:
+                keyf = 1;
                 cy = 105;
                 g.delay -= 0.005;
                 if (g.delay < 0.005)
                     g.delay = 0.005;
-                keyf = 0;
                 break;
             case XK_s: 
                 if (!beam_flag)
@@ -765,7 +765,6 @@ void physics(void)
 }
 
 //above check_keys()
-float currentSpeedAngle = 140.0f;
 float camerax = 0.0f;
 
 float color_delay = 0.045f;
@@ -914,10 +913,7 @@ void render()
        // HealthRender(g.healthTex);
         fuelRender(g.fuelTex);
        // bossRender(g.bossTex);
-        if (currentSpeedAngle > -140.0f) {
-            currentSpeedAngle--; 
-        }
-        speedometerRender(g.speedoTex, currentSpeedAngle);
+        speedometerRender(g.speedoTex);
 
 }
 

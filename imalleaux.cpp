@@ -25,17 +25,21 @@
 #include <math.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <GL/glx.h>
 #include "fonts.h"
 
+
 void restartProgram(const char *programName) {
     printf("Restarting program...\n");
-    execl(programName, programName, NULL);
-    perror("execl failed");
-    exit(EXIT_FAILURE); // Exit if exec fails
+    // Attempt to execute the program
+    if (execl(programName, programName, NULL) == -1) {
+        // If execl fails, print the error and exit
+        perror("execl failed");
+        exit(EXIT_FAILURE);
+    }
 }
-
-
 
 void scroll(float val[])
 {
@@ -93,10 +97,30 @@ void render3(float x[], float y[], GLuint bt, int xres,int yres)
     glEnd();
 
 }
+float lineOffset = 0.0f;
+
+void handleInput(Display* display) {
+    XEvent event;
+    while (XPending(display)) {
+        XNextEvent(display, &event);
+        if (event.type == KeyPress) {
+            KeySym key = XLookupKeysym(&event.xkey, 0);
+            if (key == XK_Up) {
+                lineOffset += 5.0f; // Increase offset 
+            } else if (key == XK_Down) {
+                lineOffset -= 5.0f; // Decrease offset 
+            }
+
+            // Clamp lineOffset within a range (e.g., 0 to 160.0f)
+            if (lineOffset < -80.0f) lineOffset = -80.0f;
+            if (lineOffset > 80.0f) lineOffset = 80.0f;
+        }
+    }
+}
 
 void fuelRender(GLuint ftex) {
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, ftex);  // Bind the fuel texture
+    glBindTexture(GL_TEXTURE_2D, ftex);
 
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.0f);
@@ -106,37 +130,41 @@ void fuelRender(GLuint ftex) {
 
     glColor3f(1.0, 1.0, 1.0);
 
-    glPushMatrix();  // Start a new transformation block
+    glPushMatrix();
 
-    // Position the fuel texture
-    float posX = 990.0f;  // Left side of the screen
-    float posY = 600.0f;   // Top side of the screen
+    float posX = 990.0f;
+    float posY = 600.0f;
 
-    glTranslatef(posX, posY, 0.0f);  // Translate to desired position
+    glTranslatef(posX, posY, 0.0f);
 
-    // Draw the fuel texture
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 1.0f);  // Top left
+    glTexCoord2f(0.0f, 1.0f);
     glVertex2f(-sspriteWidth / 2, -sspriteHeight / 2);
 
-    glTexCoord2f(1.0f, 1.0f);  // Top right
+    glTexCoord2f(1.0f, 1.0f);
     glVertex2f(sspriteWidth / 2, -sspriteHeight / 2);
 
-    glTexCoord2f(1.0f, 0.0f);  // Bottom right
+    glTexCoord2f(1.0f, 0.0f);
     glVertex2f(sspriteWidth / 2, sspriteHeight / 2);
 
-    glTexCoord2f(0.0f, 0.0f);  // Bottom left
+    glTexCoord2f(0.0f, 0.0f);
     glVertex2f(-sspriteWidth / 2, sspriteHeight / 2);
+    glEnd();
 
-    glEnd();  // End of the quad
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_ALPHA_TEST);
 
-    glBindTexture(GL_TEXTURE_2D, 0);   // Unbind texture
-    glDisable(GL_ALPHA_TEST);          // Disable alpha test
+    glColor3f(1.0, 0.0, 0.0);
+    glBegin(GL_LINES);
+    glVertex2f(lineOffset, 0.0f);
+    glVertex2f(lineOffset + sspriteWidth / 2.5f, 0.0f);
+    glEnd();
 
-    glPopMatrix();  // Restore the matrix
+    glPopMatrix();
 }
 
-void speedometerRender(GLuint stex, float speedAngle) {
+float currentSpeedAngle = 140.0f;
+void speedometerRender(GLuint stex) {
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, stex);  // Bind the speedometer texture
 
@@ -177,20 +205,32 @@ void speedometerRender(GLuint stex, float speedAngle) {
 
     // Draw the speed line (red line)
     glPushMatrix();  // Start a new block for line drawing
-    glRotatef(speedAngle, 0.0f, 0.0f, 1.0f);  // Rotate by the speed angle
+
+    // Add the conditional update for currentSpeedAngle
+    if (currentSpeedAngle > -140.0f) {
+        currentSpeedAngle--;  // Decrement the angle if it's greater than -140.0f
+    }
+    else
+    {
+        currentSpeedAngle++;
+    }
+
+    glRotatef(currentSpeedAngle, 0.0f, 0.0f, 1.0f);  // Rotate by the updated speed angle
 
     glLineWidth(3.0f);  // Line width for better visibility
     glColor3f(1.0f, 0.0f, 0.0f);  // Red line for speed indicator
 
     glBegin(GL_LINES);
     glVertex2f(0.0f, 0.0f);  // Starting point (center)
-    glVertex2f(0.0f, spriteHeight/4);  // End point (on the perimeter)
+    glVertex2f(0.0f, spriteHeight / 4);  // End point (on the perimeter)
     glEnd();
 
     glPopMatrix();  // End of line rotation
 
     glPopMatrix();  // Restore the matrix
 }
+
+
 
 void HealthRender(GLuint htex) {
     glEnable(GL_TEXTURE_2D);
