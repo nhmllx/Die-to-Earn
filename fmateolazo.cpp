@@ -41,7 +41,6 @@ int beam_flag = 0;
 extern int enemy_kill_count;
 extern int kills_needed;  
 extern int complete;
-extern int diff_colors;
 extern int count;
 
 void check_kill_count();
@@ -115,9 +114,7 @@ void make_particles(float x, float yres) {
     
     float y = yres;
 
-    unsigned int set_color = rand();  
-
-  srand(static_cast<unsigned>(time(0)));
+    srand(static_cast<unsigned>(time(0)));
 
     std::vector<std::pair<float, float>> velocities = {
         {0, 6}, {2, 5}, {4, 4},         
@@ -137,11 +134,6 @@ void make_particles(float x, float yres) {
     
     for (int xx = 0; xx < (int)velocities.size(); xx++) {
 
-        if(diff_colors) {
-
-            set_color = rand();
-        }
-
         if (n < MAX_PARTICLES) {
             particle[n].pos[0] = x;  // x is now passed directly
             particle[n].pos[1] = y;  // y is set to yres 
@@ -150,7 +142,7 @@ void make_particles(float x, float yres) {
             particle[n].vel[0] = velocities[xx].first;
             particle[n].vel[1] = velocities[xx].second;
 
-            particle[n].color = set_color;
+            particle[n].color = rand();
 
             n++;
         }
@@ -164,10 +156,6 @@ void make_ammo(float x, float y) {
    clock_t currentTime = clock();
    float elapsedTime = float(currentTime - last_bullet_time) / CLOCKS_PER_SEC;
 
-   //y -= 12;
-   //x -=12
-    
-    // create a new bullet only if the delay has passed
     if (elapsedTime > bullet_delay && nn < MAX_BULLETS) {
         bullets[nn].pos[0] = x;    
         bullets[nn].pos[1] = y - 17;    
@@ -187,6 +175,7 @@ void make_ammo(float x, float y) {
 void ammo_pos() {
 
      for (int i = 0; i < nn; i++) {
+
         bullets[i].last_pos[0] = bullets[i].pos[0];
         bullets[i].pos[0] += bullets[i].vel[0]; // only update x-position
 
@@ -195,6 +184,7 @@ void ammo_pos() {
 
             // shift the remaining bullets down in the array
             for (int j = i; j < nn - 1; j++) {
+
                 bullets[j] = bullets[j + 1];
             }
             nn--; 
@@ -209,7 +199,6 @@ const float SLOWSPEED = 1.0;
 
 void update_particles() {
 
-	//int i = 0;
     for (int x = 0; x < n; x++) {
 
         particle[x].vel[1] += GRAVITY;
@@ -218,10 +207,8 @@ void update_particles() {
         particle[x].pos[0] += particle[x].vel[0];
         particle[x].pos[1] += particle[x].vel[1];
 
-	    //particle[x].vel[0] *= SLOWSPEED;
-        //particle[x].vel[1] *= SLOWSPEED;
-
         if (particle[x].pos[1] < 0) {
+
             particle[x] = particle[--n];
         }
     }
@@ -243,32 +230,29 @@ void f_collisions() {
 
             if (bullets[i].active) {
 
-              if (en_health[j] != NULL || en_health[j] != 0) {// && *en_health[j] > 0) {
+              if (en_health[j] != NULL || en_health[j] != 0) {
 
                 if (bullets[i].pos[1] < enemy_data[j][1] + enemy_data[j][3] &&
                     bullets[i].pos[1] > enemy_data[j][1] - enemy_data[j][3] &&
                     bullets[i].pos[0] > enemy_data[j][0] - enemy_data[j][2] &&
                     bullets[i].pos[0] < enemy_data[j][0] + enemy_data[j][2]) {
                 
-
-                   // std::cout << "Collision: Bullet " << i << " with Enemy " << j << std::endl;
                     (*en_health[j]) -=2;
-                  //  std::cout << "Enemy Health: " << *en_health[j] << "\n\n";
 
                     if (*en_health[j] <= 0) {
 
                         if(enemy_kill_count != kills_needed) {
+
                             make_particles(enemy_data[j][0], enemy_data[j][1]);
                             (*en_health[j]) = 2;
                             (*pos[j]) = 1250;
 
                             enemy_kill_count++;
-                           // check_kill_count();
                         }
-
                     }
 
                     for (int k = i; k < nn - 1; k++) {
+
                         bullets[k] = bullets[k + 1];
                     }
                     nn--; 
@@ -283,107 +267,99 @@ void f_collisions() {
     if (beam_flag) {
 
      // std::cout << "beam on "<< "\n\n";
-      for (int k = 0; k < count; k++) {
-       
-        if (beam.active == 0 && (*en_lane[k]) == 0) { // bottom lane
-
-              //std::cout << "beam collision: 0, " <<  "with enemy: " << k << "\n\n";
+        for (int k = 0; k < count; k++) {
+        
+          if (beam.active == 0 && (*en_lane[k]) == 0) { // bottom lane
 
               (*en_health[k]) -= 2;
-                  //  std::cout << "Enemy Health: " << *en_health[j] << "\n\n";
 
-                    if (*en_health[k] <= 0) {
+              if (*en_health[k] <= 0) {
 
-                        if(enemy_kill_count != kills_needed && *pos[k] <= 1200) {
-                            make_particles(enemy_data[k][0], enemy_data[k][1]);
-                            (*en_health[k]) = 2;
-                            (*pos[k]) = 1250;
-                        
-                            enemy_kill_count++;
-                          //  check_kill_count();
-                        }
+                  if(enemy_kill_count != kills_needed && *pos[k] <= 1200) {
 
-                    }
-            
-        }
-        else if (beam.active == 1 && (*en_lane[k]) == 1) { // bottom lane
+                      make_particles(enemy_data[k][0], enemy_data[k][1]);
+                      (*en_health[k]) = 2;
+                      (*pos[k]) = 1250;
+
+                      enemy_kill_count++;
+                  }
+
+              }
+
+          }
+          else if (beam.active == 1 && (*en_lane[k]) == 1) { // bottom lane
 
               (*en_health[k]) -= 2;
-                //  std::cout << "beam collision: 1" << *en_lane[k] << "\n\n";
-               // std::cout << "beam collision: 0, " <<  "with enemy: " << k << "\n\n";
 
-                    if (*en_health[k] <= 0) {
+              if (*en_health[k] <= 0) {
 
-                         if(enemy_kill_count != kills_needed && *pos[k] <= 1200) {
-                            make_particles(enemy_data[k][0], enemy_data[k][1]);
-                            (*en_health[k]) = 2;
-                            (*pos[k]) = 1250;
+                  if(enemy_kill_count != kills_needed && *pos[k] <= 1200) {
 
-                            enemy_kill_count++;
-                            //check_kill_count();
-                         }
-                    }
+                  make_particles(enemy_data[k][0], enemy_data[k][1]);
+                  (*en_health[k]) = 2;
+                  (*pos[k]) = 1250;
+
+                  enemy_kill_count++;
+                  }
+              }
+          }
         }
-
-
-      }
     }
 }
 
 
 extern float current_speed; 
-//float max_speed = 0.00150f;
 float speed_increase = 0.00170f; 
 int increase_flags[5] = {1, 1, 1, 1, 1};
 
 void check_kill_count() {
 
-    std::cout << "count: " << count << "\n\n";
-
     switch (enemy_kill_count / 100) {
-
-        
 
         case 0: // 0 <= enemy_kill_count < 100
             if (increase_flags[0] && enemy_kill_count >= 50) {
 
                 current_speed += speed_increase;
                
-                if (count < 40) {
+                if (count < 40)
                     count += 6;
-                }
+                
                 increase_flags[0] = 0; 
             }
             break;
+
         case 1: // 100 <= enemy_kill_count < 200
             if (increase_flags[1] && enemy_kill_count >= 100) {
+
                 current_speed += speed_increase;
                
-                if (count < 40) {
+                if (count < 40)
                     count += 6;
-                }
+                
                 increase_flags[1] = 0; 
             }
             break;
+
         case 2: // 200 <= enemy_kill_count < 300
             if (increase_flags[2] && enemy_kill_count >= 200) {
 
                 current_speed += speed_increase;
                 
-                if (count < 40) {
+                if (count < 40) 
                     count += 6;
-                }
+
                 increase_flags[2] = 0; 
             }
             break;
+
         case 3: // 300 <= enemy_kill_count < 400
             if (increase_flags[3] && enemy_kill_count >= 300) {
 
                 current_speed += speed_increase;
                 
-                if (count < 40) {
+                if (count < 40) 
                     count += 6;
-                }
+        
                 increase_flags[3] = 0; 
             }
             break;
@@ -393,9 +369,9 @@ void check_kill_count() {
 
                 current_speed += speed_increase;
                 
-                if (count < 40) {
+                if (count < 40) 
                     count += 10;
-                }
+                
                 increase_flags[4] = 0; 
             }
             break;

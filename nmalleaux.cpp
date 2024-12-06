@@ -143,7 +143,6 @@ bool checkIfEnemyReachedTarget(int i) {
 
 bool isEnemyDead(int i) 
 {
-
     return enemies[i].health <= 0;
 }
 
@@ -185,15 +184,19 @@ void enemyAnimate(void)
                     make_particles(enemies[i].pos[0],enemies[i].pos[1]);
                     enemy_kill_count++;
 
-                    if (hearts != 5 ) {
-                     hearts_frame = frames[hearts];
-                     hearts ++;
+                    if (hearts != 5 && !complete) {
+
+                        hearts_frame = frames[hearts];
+                        hearts ++;
                     }
                     if (hearts == 5)
                         death_flag = 1;
                         
-                    i_frames = 1;
-                    last_hit_time = currentTime;
+                    if(!complete) {
+
+                        i_frames = 1;
+                        last_hit_time = currentTime;
+                    }
                 }
 
                 enemies[i].pos[0] = 1250;//kill enemy by moving off screen

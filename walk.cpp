@@ -16,6 +16,8 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "fonts.h"
+#include <ctime>
+
 extern void restartProgram(const char *programName);
 extern void make_particles(float, float);
 extern void update_particles();
@@ -40,6 +42,7 @@ extern int beam_cooldown;
 extern void f_collisions();
 extern void updateCbox(float, float);
 extern void check_kill_count();
+extern int count;
 //defined types
 typedef double Flt;
 typedef double Vec[3];
@@ -281,12 +284,11 @@ float hearts_frame = 0.0f;
 float frame_w = 1.0f/15.0f;
 float frames[5];
 int hearts = 1;
-int diff_colors = 0;
 int started = 0;
 float current_speed = 0.00030f;
 
 int enemy_kill_count = 0;
-int kills_needed = 1000;  
+int kills_needed = 1500;  
 int complete = 0;
 int death_flag = 0;
 
@@ -326,15 +328,16 @@ int main(int argc, char *argv[])
         {
             render2(g.tex.xc, g.tex.yc, g.tex.backTexture, g.xres, g.yres);
         }
-        if (g.flag == 0 && !death_flag)
-        {
+        if (g.flag == 0 && !death_flag) {
+
             started = 1;
             f_collisions();
+            enemyAnimate();//nmalleaux.cpp
             updateCbox(cx, cy);
             physics();
-            enemyAnimate();//nmalleaux.cpp
             render();
         }
+
         if(death_flag) {
 
             Rect r;
@@ -342,15 +345,23 @@ int main(int argc, char *argv[])
             render3(g.tex.xc, g.tex.yc, g.tex.deadTexture, g.xres, g.yres);
 
             char buf[100];
-            unsigned int c = 0x00ffff44;
+            unsigned int c = 0x00ff0000;
 
             r.bot = (g.yres/2) + 150;
             r.left = (g.xres/2) + 500;
             r.center = 0;
 
+            glPushMatrix();\
+
+            glTranslatef(g.xres / 2 + 500, g.yres / 2 + 150, 0);
+            glScalef(1.7, 1.7, 1.0);
+            glTranslatef(-g.xres / 2 - 500, -g.yres / 2 - 150, 0); 
+    
             ggprint8b(&r, 16, c, "Total Kills");
             sprintf(buf, "     %d     ", enemy_kill_count);
             ggprint8b(&r, 16, c, buf);
+
+            glPopMatrix();
         }
         x11.swapBuffers();
     }
@@ -646,17 +657,15 @@ int checkKeys(XEvent *e)
                 break;
             case XK_Left: 
 
-                if (!(cx <= 125)) {
-
-                    cx -= 35;
-                }
+                if (!(cx <= 125))
+                    cx -= 60;
+                
                 break;
             case XK_Right:
 
-                if (!(cx >= (g.xres - 125))) {
-
-                    cx += 35;
-                }
+                if (!(cx >= (g.xres - 125)))
+                    cx += 60;
+                
                 break;
             case XK_Up:
                 keyf = 1;
@@ -675,15 +684,12 @@ int checkKeys(XEvent *e)
                     g.delay = 0.005;
                 keyf = 0;
                 break;
-            case XK_e: // Calls make_particles when the 'E' key is pressed
-                       // make_fireworks(e, g.yres);
-                break;
             case XK_s: 
                 if (!beam_flag)
                     make_ammo(cx + 20, cy);
                 break;
             case XK_p: 
-                enemyKiller();
+               // enemyKiller();
                 break;
             case XK_d:
 
@@ -694,13 +700,7 @@ int checkKeys(XEvent *e)
                 }
 
                 break;
-            case XK_g: 
 
-                f++;  
-                if (f == 5) 
-                    f = 0;
-                hearts_frame = frames[f];  
-                break;
             case XK_equal:
                 g.delay -= 0.005;
                 if (g.delay < 0.005)
@@ -711,9 +711,6 @@ int checkKeys(XEvent *e)
                 break;
             case XK_z:
                 return(2);
-            break;
-            case XK_h:
-                diff_colors = !diff_colors;
             break;
         }
     }
@@ -771,14 +768,18 @@ void physics(void)
 //above check_keys()
 float currentSpeedAngle = 140.0f;
 float camerax = 0.0f;
-//float current_speed;
+
+float color_delay = 0.045f;
+clock_t last_color_time = 0; 
+unsigned int a = rand();
+
 void render()
 {
     Rect r;
     char buf[100];
 
-
-    if (!complete) {
+    if (enemy_kill_count == kills_needed) 
+            complete = 1;
 
 
         check_kill_count();
@@ -824,8 +825,8 @@ void render()
         glPopMatrix();
         glBindTexture(GL_TEXTURE_2D, 0);
         glDisable(GL_ALPHA_TEST);
-        //hearts 
 
+        //hearts 
         float posOffset = cy + 30.0;
         float tw = 150.0f;
         float th = 160.0f;
@@ -835,8 +836,6 @@ void render()
         glAlphaFunc(GL_GREATER, 0.0f);
 
         glColor3f(1.0, 1.0, 1.0); // Set color to white 
-
-        // for (int i = 0; i < 1; i++) {
 
         float t1 = hearts_frame;
         float t2 = hearts_frame + frame_w;
@@ -851,42 +850,65 @@ void render()
         glEnd();
         glPopMatrix();
 
-        // hearts_frame += frame_w;
-        // }
-
         glBindTexture(GL_TEXTURE_2D, 0);
         glDisable(GL_ALPHA_TEST);
 
-
-        //
         unsigned int c = 0x00ffff44;
         r.bot = g.yres - 20;
         r.left = 10;
         r.center = 0;
-        //ggprint8b(&r, 16, c, "E   particles");
+
         ggprint8b(&r, 16, c, "S   Bullets");
         ggprint8b(&r, 16, c, "D   Beam shot");
-        //ggprint8b(&r, 16, c, "+   faster");
-      //  ggprint8b(&r, 16, c, "-   slower");
         ggprint8b(&r, 16, c, "up arrow: accelerate");
         ggprint8b(&r, 16, c, "Movement: Arrow keys");
-       // ggprint8b(&r, 16, c, "left arrow  <- tilt left");
-        //ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);
-        //ggprint8b(&r, 16, c, "G   lose a heart");
 
         c = 0x00ffff44;
-        r.bot = (g.yres/2) + 150;
-        r.left = (g.xres/2) + 500;
+        r.bot = (g.yres / 2) + 150;
+        r.left = (g.xres / 2) + 500;
         r.center = 0;
 
+
+        glPushMatrix();
+        glTranslatef(g.xres / 2 + 500, g.yres / 2 + 150, 0); 
+        glScalef(1.7, 1.7, 1.0); // Scale up by a size of 3
+        glTranslatef(-g.xres / 2 - 500, -g.yres / 2 - 150, 0); 
+    
+        // Render the text
         ggprint8b(&r, 16, c, "Kill count");
-        sprintf(buf, "%d / %d", enemy_kill_count, kills_needed);
-
+        sprintf(buf, " %d / %d", enemy_kill_count, kills_needed);
         ggprint8b(&r, 16, c, buf);
+    
+        glPopMatrix();
 
 
+        if (complete) {
 
-        //render_particles();
+            clock_t current_time = clock();
+            float elapsed_time = float(current_time - last_color_time) / CLOCKS_PER_SEC;
+            
+            if (elapsed_time > color_delay) {
+                
+                a = rand();
+                last_color_time = current_time;
+            }
+
+            
+            r.bot = g.yres / 2;       
+            r.left = g.xres / 2; 
+            r.center = 1;             
+            
+            glPushMatrix();
+
+            glTranslatef(g.xres / 2, g.yres / 2, 0);
+            glScalef(3.0, 3.0, 1.0); 
+            glTranslatef(-g.xres / 2, -g.yres / 2, 0);
+        
+            // Render the text
+            ggprint16(&r, 0, a, "YOU WIN!");
+        
+            glPopMatrix();
+        }
 
         f_render(g.bulletTex, g.beamTex);
         enemyRender(g.enemyTex);
@@ -898,11 +920,6 @@ void render()
         }
         speedometerRender(g.speedoTex, currentSpeedAngle);
 
-    }
-    else {
-
-        //render3(2);
-    }
 }
 
 
