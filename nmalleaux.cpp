@@ -1,3 +1,7 @@
+/*
+Noah Malleaux
+Project Individual Scource file
+*/
 #ifndef NMALLEAUX_H
 #define NMALLEAUX_H
 
