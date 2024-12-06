@@ -1,16 +1,5 @@
 /*! \file imalleaux.cpp
  * \a source file to show contribution
- *
- * This file is your showcase of software engineering work.
- * The file will contain your own contribution to the group project.
- * File will contain a minimum of 200-lines of executable source code
- *
- *  Certain parts of a file do not count as source...
- - comments
- - header files
- - blank lines
- - repeated code
-
  * History: Written by Isaiah Malleaux, 9/24.
  */
 #ifndef IMALLEAUX_H
@@ -28,7 +17,52 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glx.h>
+#include <vector>
+#include <chrono>
+#include <ctime>
 #include "fonts.h"
+
+struct Firework {
+    float pos[2];
+    float vel[2];
+    float last_pos[2];
+    int w, h;
+    int color;
+};
+
+const int MAX_FIREWORKS = 800;
+Firework firework[MAX_FIREWORKS];
+int p = 0;
+const float GRAVITY = -0.05;
+
+
+void make_fireworks(float x, float y) {
+    srand(static_cast<unsigned>(time(0)));
+
+    std::vector<std::pair<float, float>> velocities;
+    for (int angle = 0; angle < 360; angle += 22) {
+        float rad = angle * 3.14159f / 180.0f;
+        velocities.emplace_back(cos(rad) * 6, sin(rad) * 6);
+    }
+
+    for (auto& velocity : velocities) {
+        velocity.first += static_cast<float>(rand() % 300 - 150) / 100.0f;
+        velocity.second += static_cast<float>(rand() % 300 - 150) / 100.0f;
+    }
+
+    for (size_t i = 0; i < velocities.size(); ++i) {
+        if (p < MAX_FIREWORKS) {
+            firework[p].pos[0] = x;
+            firework[p].pos[1] = y;
+            firework[p].w = 4;
+            firework[p].h = 4;
+            firework[p].vel[0] = velocities[i].first;
+            firework[p].vel[1] = velocities[i].second;
+            firework[p].color = rand();
+            ++p;
+        }
+    }
+}
 
 
 void restartProgram(const char *programName) {
@@ -74,7 +108,7 @@ void render2(float x[], float y[], GLuint bt, int xres,int yres)
 //UI elements
 void render3(float x[], float y[], GLuint bt, int xres,int yres)
 {
-   // Rect r;
+    // Rect r;
 
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(1.0, 1.0, 1.0);
@@ -208,17 +242,17 @@ void speedometerRender(GLuint stex) {
 
     // Add the conditional update for currentSpeedAngle
     if (currentSpeedAngle > -140.0f) {
-        currentSpeedAngle--;  // Decrement the angle if it's greater than -140.0f
+        currentSpeedAngle--;  // Decrement 
     }
     else
     {
         currentSpeedAngle++;
     }
 
-    glRotatef(currentSpeedAngle, 0.0f, 0.0f, 1.0f);  // Rotate by the updated speed angle
+    glRotatef(currentSpeedAngle, 0.0f, 0.0f, 1.0f);  // Rotate 
 
-    glLineWidth(3.0f);  // Line width for better visibility
-    glColor3f(1.0f, 0.0f, 0.0f);  // Red line for speed indicator
+    glLineWidth(3.0f); 
+    glColor3f(1.0f, 0.0f, 0.0f); 
 
     glBegin(GL_LINES);
     glVertex2f(0.0f, 0.0f);  // Starting point (center)
@@ -227,7 +261,7 @@ void speedometerRender(GLuint stex) {
 
     glPopMatrix();  // End of line rotation
 
-    glPopMatrix();  // Restore the matrix
+    glPopMatrix();  
 }
 
 
@@ -239,16 +273,16 @@ void HealthRender(GLuint htex) {
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0.0f);
 
-    float spriteWidth = 260.0f;
-    float spriteHeight = 260.0f;
+    float spriteWidth = 542.0f;
+    float spriteHeight = 43.0f;
 
     glColor3f(1.0, 1.0, 1.0);
 
     glPushMatrix();  // Start a new transformation block
 
     // Position the health texture
-    float posX = 100.0f;  // Left side of the screen
-    float posY = 80.0f;   // Top side of the screen
+    float posX = 600.0f;  // Left side of the screen
+    float posY = 750.0f;   // Top side of the screen
 
     glTranslatef(posX, posY, 0.0f);  // Translate to desired position
 
@@ -272,6 +306,7 @@ void HealthRender(GLuint htex) {
 
     glPopMatrix();  // Restore the matrix
 }
+
 
 #endif
 

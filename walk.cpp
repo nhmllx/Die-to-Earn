@@ -22,6 +22,8 @@ extern void restartProgram(const char *programName);
 extern void make_particles(float, float);
 extern void update_particles();
 extern void render_particles();
+extern void make_fireworks(float, float);
+extern void update_fireworks();
 extern void scroll(float val[]);
 extern void render2(float x[], float y[], GLuint bt, int xres,int yres);
 extern void render3(float x[], float y[], GLuint bt, int xres,int yres);
@@ -314,15 +316,11 @@ int main(int argc, char *argv[])
             x11.checkResize(&e);
             checkMouse(&e);
             done = checkKeys(&e);
-             if (done == 2) {
-                 restartProgram(argv[0]);
-             }
+            if (done == 2) {
+                restartProgram(argv[0]);
+            }
 
         }
-       // f_collisions();
-        //updateCbox(cx, cy);
-        //physics();
-        //enemyAnimate();//nmalleaux.cpp
         if (g.flag == 1 && !death_flag) 
         {
             render2(g.tex.xc, g.tex.yc, g.tex.backTexture, g.xres, g.yres);
@@ -352,10 +350,10 @@ int main(int argc, char *argv[])
 
             glPushMatrix();\
 
-            glTranslatef(g.xres / 2 + 500, g.yres / 2 + 150, 0);
+                glTranslatef(g.xres / 2 + 500, g.yres / 2 + 150, 0);
             glScalef(1.7, 1.7, 1.0);
             glTranslatef(-g.xres / 2 - 500, -g.yres / 2 - 150, 0); 
-    
+
             ggprint8b(&r, 16, c, "Total Kills");
             sprintf(buf, "     %d     ", enemy_kill_count);
             ggprint8b(&r, 16, c, buf);
@@ -610,7 +608,7 @@ void checkMouse(XEvent *e)
                 g.flag = 1;
                 complete = 0;
             }
-            
+
             //Left button is down
             if (e->xbutton.button==3) {
                 //Right button is down
@@ -658,13 +656,13 @@ int checkKeys(XEvent *e)
 
                 if (!(cx <= 125))
                     cx -= 10;
-                
+
                 break;
             case XK_Right:
 
                 if (!(cx >= (g.xres - 125)))
                     cx += 10;
-                
+
                 break;
             case XK_Up:
                 keyf = 1;
@@ -688,7 +686,7 @@ int checkKeys(XEvent *e)
                     make_ammo(cx + 20, cy);
                 break;
             case XK_p: 
-               // enemyKiller();
+                // enemyKiller();
                 break;
             case XK_d:
 
@@ -710,7 +708,7 @@ int checkKeys(XEvent *e)
                 break;
             case XK_z:
                 return(2);
-            break;
+                break;
         }
     }
     return 0;
@@ -758,10 +756,10 @@ void physics(void)
     if (keyf == 0) {
         g.delay += 0.0005;
         // }
-    }
+}
 
-    update_particles();
-    ammo_pos();
+update_particles();
+ammo_pos();
 }
 
 //above check_keys()
@@ -777,143 +775,152 @@ void render()
     char buf[100];
 
     if (enemy_kill_count == kills_needed) 
-            complete = 1;
+        complete = 1;
 
 
-        check_kill_count();
+    check_kill_count();
 
-        glClear(GL_COLOR_BUFFER_BIT);
-        glColor3ub(255, 255, 255);
-        glBindTexture(GL_TEXTURE_2D, g.tex.bgTexture);
-        //static float camerax = 0.0f;
-        glBegin(GL_QUADS);
-        glTexCoord2f(camerax+0, 1); glVertex2i(0,      0);
-        glTexCoord2f(camerax+0, 0); glVertex2i(0,      g.yres);
-        glTexCoord2f(camerax+1, 0); glVertex2i(g.xres, g.yres);
-        glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
-        glEnd();
-        glBindTexture(GL_TEXTURE_2D, 0);
-        if (started){
-            camerax += current_speed;
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3ub(255, 255, 255);
+    glBindTexture(GL_TEXTURE_2D, g.tex.bgTexture);
+    //static float camerax = 0.0f;
+    glBegin(GL_QUADS);
+    glTexCoord2f(camerax+0, 1); glVertex2i(0,      0);
+    glTexCoord2f(camerax+0, 0); glVertex2i(0,      g.yres);
+    glTexCoord2f(camerax+1, 0); glVertex2i(g.xres, g.yres);
+    glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
+    glEnd();
+    glBindTexture(GL_TEXTURE_2D, 0);
+    if (started){
+        camerax += current_speed;
+    }
+
+    float h = 76.0f;
+    float w = 101.0f;
+    glPushMatrix();
+    glColor3f(1.0, 1.0, 1.0);
+    glBindTexture(GL_TEXTURE_2D, g.walkTexture);
+    //
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0.0f);
+    glColor4ub(255,255,255,255);
+
+    int ix = g.walkFrame % 3; // Get the current sprite frame
+
+    // Calculate texture coordinates based on the current frame
+    float tx = (float)(ix * w) / 303.0f; // Adjust 
+    float ty = 0.0f; // Only one row, so ty is always 0
+
+    glBegin(GL_QUADS);
+    glTexCoord2f(tx, ty+1.0f); glVertex2i(cx - w, cy - h); // Top-left
+    glTexCoord2f(tx, ty);  glVertex2i(cx - w, cy + h); // Bottom-left
+    glTexCoord2f(tx + 1.0f / 3.0f, ty); glVertex2i(cx + w, cy + h); 
+    glTexCoord2f(tx + 1.0f / 3.0f, ty + 1.0f); 
+    glVertex2i(cx + w, cy - h); // Top-right
+    glEnd();
+    glPopMatrix();
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_ALPHA_TEST);
+
+    //hearts 
+    float posOffset = cy + 30.0;
+    float tw = 150.0f;
+    float th = 160.0f;
+
+    glBindTexture(GL_TEXTURE_2D, g.heartsTex);
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0.0f);
+
+    glColor3f(1.0, 1.0, 1.0); // Set color to white 
+
+    float t1 = hearts_frame;
+    float t2 = hearts_frame + frame_w;
+
+    glPushMatrix();
+    glTranslatef(cx - 75, posOffset , 0.0f);
+    glBegin(GL_QUADS);
+    glTexCoord2f(t1, 1.0f); glVertex2f(0.0f, 0.0f);
+    glTexCoord2f(t2, 1.0f); glVertex2f(tw, 0.0f);
+    glTexCoord2f(t2, 0.0f); glVertex2f(tw, th);
+    glTexCoord2f(t1, 0.0f); glVertex2f(0.0f, th);
+    glEnd();
+    glPopMatrix();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_ALPHA_TEST);
+
+    unsigned int c = 0x00ffff44;
+    r.bot = g.yres - 20;
+    r.left = 10;
+    r.center = 0;
+
+    ggprint8b(&r, 16, c, "S   Bullets");
+    ggprint8b(&r, 16, c, "D   Beam shot");
+    ggprint8b(&r, 16, c, "up arrow: accelerate");
+    ggprint8b(&r, 16, c, "Movement: Arrow keys");
+
+    c = 0x00ffff44;
+    r.bot = (g.yres / 2) + 150;
+    r.left = (g.xres / 2) + 500;
+    r.center = 0;
+
+
+    glPushMatrix();
+    glTranslatef(g.xres / 2 + 500, g.yres / 2 + 150, 0); 
+    glScalef(1.7, 1.7, 1.0); // Scale up by a size of 3
+    glTranslatef(-g.xres / 2 - 500, -g.yres / 2 - 150, 0); 
+
+    // Render the text
+    ggprint8b(&r, 16, c, "Kill Count ");
+    sprintf(buf, "%d / %d", enemy_kill_count, kills_needed);
+    ggprint8b(&r, 16, c, buf);
+
+    glPopMatrix();
+
+
+    if (complete) {
+
+        clock_t current_time = clock();
+        float elapsed_time = float(current_time - last_color_time) / CLOCKS_PER_SEC;
+
+        if (elapsed_time > color_delay) {
+
+            a = rand();
+            last_color_time = current_time;
         }
 
-        float h = 76.0f;
-        float w = 101.0f;
-        glPushMatrix();
-        glColor3f(1.0, 1.0, 1.0);
-        glBindTexture(GL_TEXTURE_2D, g.walkTexture);
-        //
-        glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(GL_GREATER, 0.0f);
-        glColor4ub(255,255,255,255);
 
-        int ix = g.walkFrame % 3; // Get the current sprite frame
-
-        // Calculate texture coordinates based on the current frame
-        float tx = (float)(ix * w) / 303.0f; // Adjust 
-        float ty = 0.0f; // Only one row, so ty is always 0
-
-        glBegin(GL_QUADS);
-        glTexCoord2f(tx, ty+1.0f); glVertex2i(cx - w, cy - h); // Top-left
-        glTexCoord2f(tx, ty);  glVertex2i(cx - w, cy + h); // Bottom-left
-        glTexCoord2f(tx + 1.0f / 3.0f, ty); glVertex2i(cx + w, cy + h); 
-        glTexCoord2f(tx + 1.0f / 3.0f, ty + 1.0f); 
-        glVertex2i(cx + w, cy - h); // Top-right
-        glEnd();
-        glPopMatrix();
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glDisable(GL_ALPHA_TEST);
-
-        //hearts 
-        float posOffset = cy + 30.0;
-        float tw = 150.0f;
-        float th = 160.0f;
-
-        glBindTexture(GL_TEXTURE_2D, g.heartsTex);
-        glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(GL_GREATER, 0.0f);
-
-        glColor3f(1.0, 1.0, 1.0); // Set color to white 
-
-        float t1 = hearts_frame;
-        float t2 = hearts_frame + frame_w;
+        r.bot = g.yres / 2;       
+        r.left = g.xres / 2; 
+        r.center = 1;             
 
         glPushMatrix();
-        glTranslatef(cx - 75, posOffset , 0.0f);
-        glBegin(GL_QUADS);
-        glTexCoord2f(t1, 1.0f); glVertex2f(0.0f, 0.0f);
-        glTexCoord2f(t2, 1.0f); glVertex2f(tw, 0.0f);
-        glTexCoord2f(t2, 0.0f); glVertex2f(tw, th);
-        glTexCoord2f(t1, 0.0f); glVertex2f(0.0f, th);
-        glEnd();
-        glPopMatrix();
 
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glDisable(GL_ALPHA_TEST);
+        glTranslatef(g.xres / 2, g.yres / 2, 0);
+        glScalef(3.0, 3.0, 1.0); 
+        glTranslatef(-g.xres / 2, -g.yres / 2, 0);
 
-        unsigned int c = 0x00ffff44;
-        r.bot = g.yres - 20;
-        r.left = 10;
-        r.center = 0;
-
-        ggprint8b(&r, 16, c, "S   Bullets");
-        ggprint8b(&r, 16, c, "D   Beam shot");
-        ggprint8b(&r, 16, c, "up arrow: accelerate");
-        ggprint8b(&r, 16, c, "Movement: Arrow keys");
-
-        c = 0x00ffff44;
-        r.bot = (g.yres / 2) + 150;
-        r.left = (g.xres / 2) + 500;
-        r.center = 0;
-
-
-        glPushMatrix();
-        glTranslatef(g.xres / 2 + 500, g.yres / 2 + 150, 0); 
-        glScalef(1.7, 1.7, 1.0); // Scale up by a size of 3
-        glTranslatef(-g.xres / 2 - 500, -g.yres / 2 - 150, 0); 
-    
         // Render the text
-        ggprint8b(&r, 16, c, "Kill Count ");
-        sprintf(buf, "%d / %d", enemy_kill_count, kills_needed);
-        ggprint8b(&r, 16, c, buf);
-    
-        glPopMatrix();
+        ggprint16(&r, 0, a, "YOU WIN!");
 
 
-        if (complete) {
-
-            clock_t current_time = clock();
-            float elapsed_time = float(current_time - last_color_time) / CLOCKS_PER_SEC;
-            
-            if (elapsed_time > color_delay) {
-                
-                a = rand();
-                last_color_time = current_time;
-            }
-
-            
-            r.bot = g.yres / 2;       
-            r.left = g.xres / 2; 
-            r.center = 1;             
-            
-            glPushMatrix();
-
-            glTranslatef(g.xres / 2, g.yres / 2, 0);
-            glScalef(3.0, 3.0, 1.0); 
-            glTranslatef(-g.xres / 2, -g.yres / 2, 0);
-        
-            // Render the text
-            ggprint16(&r, 0, a, "YOU WIN!");
-        
-            glPopMatrix();
+        for (int i = 0; i < 10; i++)// call this 10 times 
+        {
+            float x = static_cast<float>(rand() % 800);//random x
+            float y = static_cast<float>(rand() % 600);// random y
+            make_particles(x, y);
+            update_particles();
         }
 
-        f_render(g.bulletTex, g.beamTex);
-        enemyRender(g.enemyTex);
-       // HealthRender(g.healthTex);
-        fuelRender(g.fuelTex);
-       // bossRender(g.bossTex);
-        speedometerRender(g.speedoTex);
+        glPopMatrix();
+    }
+
+    f_render(g.bulletTex, g.beamTex);
+    enemyRender(g.enemyTex);
+    HealthRender(g.healthTex);
+    fuelRender(g.fuelTex);
+    // bossRender(g.bossTex);
+    speedometerRender(g.speedoTex);
 
 }
 
