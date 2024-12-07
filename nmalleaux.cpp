@@ -175,7 +175,7 @@ void playerSpeed(void)
                 pspeed = -0.004;
             }
             break;
-        case 4:
+        case 5:
             if (enemy_kill_count >= 500) {
                 pspeed = -0.005;
             }
