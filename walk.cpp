@@ -45,6 +45,7 @@ extern void f_collisions();
 extern void updateCbox(float, float);
 extern void check_kill_count();
 extern int count;
+extern float pspeed;
 //defined types
 typedef double Flt;
 typedef double Vec[3];
@@ -668,7 +669,7 @@ int checkKeys(XEvent *e)
             case XK_Up:
                 keyf = 1;
                 cy = 228;
-                g.delay -= 0.005;
+                g.delay -= pspeed;
                 if (g.delay < 0.005)
                     g.delay = 0.005;
                 break;
@@ -678,7 +679,7 @@ int checkKeys(XEvent *e)
             case XK_Down:
                 keyf = 1;
                 cy = 105;
-                g.delay -= 0.005;
+                g.delay -= pspeed;
                 if (g.delay < 0.005)
                     g.delay = 0.005;
                 break;

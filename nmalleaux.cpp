@@ -30,10 +30,12 @@ extern float hearts_frame;
 extern int enemy_kill_count;
 extern int kills_needed;  
 extern int complete;
+extern float current_speed;
 
 clock_t last_hit_time = clock(); 
 float hit_delay = 0.4f; 
 int i_frames = 0;
+float pspeed = 0.01f;
 extern int death_flag;
 
 
@@ -148,6 +150,37 @@ bool checkIfEnemyReachedTarget(int i) {
 bool isEnemyDead(int i) 
 {
     return enemies[i].health <= 0;
+}
+
+void playerSpeed(void)
+{
+    switch (enemy_kill_count / 100){
+        case 0:
+            if (enemy_kill_count >= 50) {
+                pspeed = -0.001;
+            }
+            break;
+        case 1:
+            if (enemy_kill_count >= 100) {
+                pspeed = -0.002;
+            }
+            break;
+        case 2:
+            if (enemy_kill_count >= 200) {
+                pspeed = -0.003;
+            }
+            break;
+        case 3:
+            if (enemy_kill_count >= 300) {
+                pspeed = -0.004;
+            }
+            break;
+        case 4:
+            if (enemy_kill_count >= 500) {
+                pspeed = -0.005;
+            }
+            break;
+    }
 }
 
 void enemyAnimate(void) 
