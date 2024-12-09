@@ -1,6 +1,6 @@
 /***********************************/
 // Francis mateo
-// Last Update Date: 12/05/2024
+// Last Update Date: 12/08/2024
 // Description: A source file for main file walk.cpp
 /***********************************/
 
@@ -279,7 +279,6 @@ int increase_flags[5] = {1, 1, 1, 1, 1};
 
 void check_kill_count() {
 
-    std::cout << "COUNT: " << count << std::endl;
     if(!complete) {
         switch (enemy_kill_count / 100) {
 
