@@ -30,7 +30,7 @@ extern void render2(float x[], float y[], GLuint bt, int xres,int yres);
 extern void render3(float x[], float y[], GLuint bt, int xres,int yres);
 extern void make_ammo(float, float);
 extern void ammo_pos();
-extern void f_render(GLuint, GLuint);
+extern void f_render(GLuint, GLuint, GLuint);
 extern void enemyAnimate(void);
 extern void enemyRender(GLuint);
 extern void enemyKiller();
@@ -106,11 +106,11 @@ class Image {
             unlink(ppmname);
         }
 };
-Image img[13] = {"images/walk.gif","images/bg.png","images/wastelands.png",
+Image img[14] = {"images/walk.gif","images/bg.png","images/wastelands.png",
     "images/car_move.png", "images/bomber.png", "images/enemy.png", 
     "images/speedometer.png", "images/beam.png", "images/health.png", 
     "images/fuel.png", "images/tank.png", "images/hearts1.png", 
-    "images/ded.png"};
+    "images/ded.png", "./images/particle_tex3.png"};
 
 
 //------------------------------------------------------
@@ -172,6 +172,7 @@ class Global {
         GLuint fuelTex;
         GLuint bossTex;
         GLuint heartsTex;
+        GLuint particleTex;
         Vec box[20];
         Global() {
             memset(keys, 0, 0xffff);
@@ -294,6 +295,7 @@ int enemy_kill_count = 0;
 int kills_needed = 1000;  
 int complete = 0;
 int death_flag = 0;
+int bullets_active = 0;
 
 float cx = g.xres/4; //xpos of car
 float cy = g.yres/3.5; // ypos of car
@@ -333,6 +335,10 @@ int main(int argc, char *argv[])
             f_collisions();
             enemyAnimate();//nmalleaux.cpp
             updateCbox(cx, cy);
+
+            if (bullets_active) 
+                 make_ammo(cx + 20, cy);
+            
             physics();
             render();
         }
@@ -577,6 +583,8 @@ void initOpengl(void)
     //this is similar to a sprite graphic
     glBindTexture(GL_TEXTURE_2D, g.heartsTex);
     //
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     //
@@ -584,6 +592,22 @@ void initOpengl(void)
     unsigned char *hTex = buildAlphaData(&img[11]);//The Bullets	
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, hTex);
+
+    
+    w = img[13].width;
+    h = img[13].height;
+
+    glGenTextures(1, &g.particleTex); 
+    //this is similar to a sprite graphic
+    glBindTexture(GL_TEXTURE_2D, g.particleTex);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    //
+    //must build a new set of data...
+    unsigned char *pTex = buildAlphaData(&img[13]);//The Bullets	
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, pTex);
 }
 
 void init() {
@@ -627,6 +651,9 @@ int keyf = 0;
 
 float tem_frames[3];
 int f = 0;
+int particle_tex = 1;
+
+
 
 int checkKeys(XEvent *e)
 {
@@ -657,13 +684,13 @@ int checkKeys(XEvent *e)
             case XK_Left: 
 
                 if (!(cx <= 125))
-                    cx -= 10;
+                    cx -= 60;
 
                 break;
             case XK_Right:
 
                 if (!(cx >= (g.xres - 125)))
-                    cx += 10;
+                    cx += 60;
 
                 break;
             case XK_Up:
@@ -685,21 +712,22 @@ int checkKeys(XEvent *e)
                 break;
             case XK_s: 
                 if (!beam_flag)
-                    make_ammo(cx + 20, cy);
+                    bullets_active = !bullets_active;
+                    //make_ammo(cx + 20, cy);
                 break;
             case XK_p: 
                 // enemyKiller();
+                    particle_tex = !particle_tex;
                 break;
             case XK_d:
 
                 if (beam_cooldown == 0 && beam_flag == 0) {
-
                     beam_flag = 1;
                     beam_start_time = clock();
+                    bullets_active = 0;
                 }
 
                 break;
-
             case XK_equal:
                 g.delay -= 0.005;
                 if (g.delay < 0.005)
@@ -918,7 +946,7 @@ void render()
         glPopMatrix();
     }
 
-    f_render(g.bulletTex, g.beamTex);
+    f_render(g.bulletTex, g.beamTex, g.particleTex);
     enemyRender(g.enemyTex);
     HealthRender(g.healthTex);
     fuelRender(g.fuelTex);

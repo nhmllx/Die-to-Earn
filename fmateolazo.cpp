@@ -24,7 +24,7 @@ extern int i_frames;
 extern void get_data(float en[][4], int* en_health[], float* pos[], int* lane[]);
 
 int mateo_show = 0;
-const int MAX_PARTICLES = 800;
+const int MAX_PARTICLES = 1500;
 const int MAX_BULLETS = 50;
 
 int n = 0;
@@ -33,7 +33,7 @@ int coord[2] = {105, 228};
 float bullet_delay = 0.05f; // delay between bullets in seconds
 clock_t last_bullet_time = clock();
 
-float beam_render_duration = 0.2f; 
+float beam_render_duration = 0.25f; 
 float beam_cooldown_duration = 2.0f; 
 clock_t beam_start_time = 0; 
 clock_t beam_cooldown_start = 0; 
@@ -279,6 +279,7 @@ int increase_flags[5] = {1, 1, 1, 1, 1};
 
 void check_kill_count() {
 
+    std::cout << "COUNT: " << count << std::endl;
     if(!complete) {
         switch (enemy_kill_count / 100) {
 
@@ -354,8 +355,9 @@ void check_kill_count() {
 int currentFrame = 0;
 const int totalFrames = 12; 
 int car_pos;
+extern int particle_tex;
 
-void f_render(GLuint atex, GLuint btex) {
+void f_render(GLuint atex, GLuint btex, GLuint ctex) {
 
 
     beam.h = 120;
@@ -402,7 +404,7 @@ if (beam_flag) {
        
         // render the beam
         glBindTexture(GL_TEXTURE_2D, btex);
-        glAlphaFunc(GL_GREATER, 0.0f);
+       // glAlphaFunc(GL_GREATER, 0.0f);
 
         glColor3f(1.0, 1.0, 1.0); // Set color to white to avoid interference
 
@@ -426,7 +428,7 @@ if (beam_flag) {
 }
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glDisable(GL_ALPHA_TEST);
+    //glDisable(GL_ALPHA_TEST);
 
 if (beam_cooldown) {
   
@@ -440,9 +442,20 @@ if (beam_cooldown) {
 }
 
 
+    if (particle_tex) 
+        glBindTexture(GL_TEXTURE_2D, ctex);   
+
   for(int x = 0; x < n; x++) {
 
+        if(particle_tex) {
+
+            particle[x].w = 8;
+            particle[x].h = 8;
+        }
+
 		glPushMatrix();
+
+       // glAlphaFunc(GL_GREATER, 0.0f);
 
         glColor3ub((particle[x].color >> 16) & 0xFF, 
                    (particle[x].color >> 8) & 0xFF, 
@@ -459,4 +472,5 @@ if (beam_cooldown) {
 		glPopMatrix();		
   }
     glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_ALPHA_TEST);
 }
