@@ -440,7 +440,6 @@ if (beam_cooldown) {
     }
 }
 
-
     if (particle_tex) 
         glBindTexture(GL_TEXTURE_2D, ctex);   
 
